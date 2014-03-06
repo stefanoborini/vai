@@ -51,6 +51,7 @@ class VCoreApplication(VObject):
 
     def exit(self):
         pass
+
 class VTimer(VObject):
     def __init__(self, timeout):
         self._start_time = None

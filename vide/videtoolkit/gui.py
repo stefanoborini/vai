@@ -2,8 +2,6 @@ from . import core
 import sys
 import curses
 
-import atexit
-
 class VKeyEvent(object):
     def __init__(self, key):
         self._key = key
@@ -19,7 +17,7 @@ class VScreen(object):
     def __init__(self):
         self._curses_screen = curses.initscr()
         curses.start_color()
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.noecho()
         curses.cbreak()
         self._curses_screen.keypad(1)
@@ -44,14 +42,74 @@ class VScreen(object):
     def getch(self, *args):
         return self._curses_screen.getch(*args)
 
+class DummyVScreen(object):
+    def __init__(self):
+        print "inited screen"
+    def deinit(self):
+        print "deinited screen"
+
+    def refresh(self):
+        print "refresh"
+
+    def size(self):
+        print "screen size "
+        return (100, 100)
+
+    def addstr(self, *args):
+        print "addstr ", args
+
+    def getch(self, *args):
+        print "getch"
+        return ' '
+
+class VHLayout(object):
+    def __init__(self):
+        self._widgets = []
+        self._parent = None
+
+    def addWidget(self, widget):
+        self._widgets.append(widget)
+
+    def apply(self):
+        size = self.parent().size()
+        available_size = size[0]/len(self._widgets)
+        for i,w in enumerate(self._widgets):
+            w.move(available_size*i,0)
+            w.resize(available_size, size[1])
+
+    def setParent(self, parent):
+        self._parent = parent
+
+    def parent(self):
+        return self._parent
+
+class VVLayout(object):
+    def __init__(self):
+        self._widgets = []
+        self._parent = None
+
+    def addWidget(self, widget):
+        self._widgets.append(widget)
+
+    def apply(self):
+        size = self.parent().size()
+        available_size = size[1]/len(self._widgets)
+        for i,w in enumerate(self._widgets):
+            w.move(0, available_size*i)
+            w.resize(size[0], available_size)
+
+    def setParent(self, parent):
+        self._parent = parent
+
+    def parent(self):
+        return self._parent
+
 class VApplication(core.VCoreApplication):
     def __init__(self, argv):
         super(VApplication, self).__init__(argv)
         self._screen = VScreen()
         self._top_level_widget = None
         self._focused_widget = None
-
-        atexit.register(self.exit)
 
     def exec_(self):
         self.renderWidgets()
@@ -102,6 +160,12 @@ class VWidget(core.VObject):
         super(VWidget, self).__init__(parent)
         if parent is None:
             VApplication.vApp.setTopLevelWidget(self)
+            self._size = VApplication.vApp.screen().size()
+        else:
+            self._size = self.parent().size()
+
+        self._pos = (0,0)
+        self._layout = None
 
     def keyEvent(self, event):
         if not event.accepted():
@@ -113,6 +177,9 @@ class VWidget(core.VObject):
     def move(self, x, y):
         self._pos = (x,y)
 
+    def resize(self, w, h):
+        self._size = (w,h)
+
     def pos(self):
         return self._pos
 
@@ -122,29 +189,51 @@ class VWidget(core.VObject):
     def show(self):
         pass
 
+    def addLayout(self, layout):
+        self._layout = layout
+        self._layout.setParent(self)
+
     def setGeometry(self, x, y, w, h):
         self._pos = (x,y)
         min_size = self.minimumSize()
         self._size = (max(min_size[0], w) , max(min_size[1], h))
+
+    def mapToGlobal(self, x, y):
+        if self.parent() is None:
+            return (x,y)
+
+        global_corner = self.parent().mapToGlobal(0,0)
+        return (global_corner[0] + x, global_corner[1] + y)
+
+    def render(self):
+        if self._layout is not None:
+            self._layout.apply()
+
+        for w in self.children():
+            w.render()
+
 
 class VLabel(VWidget):
     def __init__(self, label, parent=None):
         super(VLabel, self).__init__(parent)
         self._label = label
         self._color = None
-        self._pos = (0,0)
-        self._size = (10,10)
+        self.setColor(1)
 
     def render(self):
+        super(VLabel, self).render()
         screen = VApplication.vApp.screen()
         w, h = self.size()
         x, y = self.pos()
         if self._color:
-            for i in xrange(-h/2, 0):
-                screen.addstr(y+i, x, ' '*w, curses.color_pair(self._color))
-            screen.addstr(y, x, self._label + ' '*(w-len(self._label)), curses.color_pair(self._color))
-            for i in xrange(1, h/2):
-                screen.addstr(y+i, x, ' '*w, curses.color_pair(self._color))
+            for i in xrange(0, h/2):
+                abs_pos = self.mapToGlobal(x, y+i)
+                screen.addstr(abs_pos[1], abs_pos[0], ' '*(w-1), curses.color_pair(self._color))
+            abs_pos = self.mapToGlobal(x, y+h/2)
+            screen.addstr(abs_pos[1], abs_pos[0], self._label + ' '*(w-len(self._label)-1), curses.color_pair(self._color))
+            for i in xrange(1+h/2, h):
+                abs_pos = self.mapToGlobal(x, y+i)
+                screen.addstr(abs_pos[1], abs_pos[0], ' '*(w-1), curses.color_pair(self._color))
 
     def setColor(self, color):
         self._color = color
@@ -180,3 +269,5 @@ class VTabWidget(VWidget):
                 screen.addstr(0, tab_size * index, header, curses.color_pair(1 if index == self._selected_tab_idx else 0))
             widget = self._tabs[self._selected_tab_idx][0]
             widget.render()
+
+
