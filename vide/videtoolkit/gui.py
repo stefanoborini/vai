@@ -17,7 +17,7 @@ class VScreen(object):
     def __init__(self):
         self._curses_screen = curses.initscr()
         curses.start_color()
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
         curses.noecho()
         curses.cbreak()
         self._curses_screen.keypad(1)
@@ -36,11 +36,21 @@ class VScreen(object):
         y, x = self._curses_screen.getmaxyx()
         return (x,y)
 
-    def addstr(self, *args):
-        self._curses_screen.addstr(*args)
-
     def getch(self, *args):
         return self._curses_screen.getch(*args)
+
+    def write(self, x, y, string, color):
+        size = self.size()
+        if x >= size[0] or y >= size[1]:
+            return
+
+        if (x+len(string) >= size[0]):
+            string = string[:size[0]-x]
+            self._curses_screen.addstr(y,x,string[1:], color)
+            self._curses_screen.insstr(y, x, string[0], color)
+        else:
+            self._curses_screen.addstr(y,x,string, color)
+
 
 class DummyVScreen(object):
     def __init__(self):
@@ -94,9 +104,17 @@ class VVLayout(object):
     def apply(self):
         size = self.parent().size()
         available_size = size[1]/len(self._widgets)
+        remainder = size[1] % len(self._widgets)
+        plot_pos = 0
         for i,w in enumerate(self._widgets):
-            w.move(0, available_size*i)
-            w.resize(size[0], available_size)
+            w.move(0, plot_pos)
+            if remainder > 0:
+                w.resize(size[0], available_size+1)
+                remainder -= 1
+                plot_pos += available_size + 1
+            else:
+                w.resize(size[0], available_size)
+                plot_pos += available_size
 
     def setParent(self, parent):
         self._parent = parent
@@ -228,12 +246,12 @@ class VLabel(VWidget):
         if self._color:
             for i in xrange(0, h/2):
                 abs_pos = self.mapToGlobal(x, y+i)
-                screen.addstr(abs_pos[1], abs_pos[0], ' '*(w-1), curses.color_pair(self._color))
+                screen.write(abs_pos[0], abs_pos[1], ' '*w, curses.color_pair(self._color))
             abs_pos = self.mapToGlobal(x, y+h/2)
-            screen.addstr(abs_pos[1], abs_pos[0], self._label + ' '*(w-len(self._label)-1), curses.color_pair(self._color))
+            screen.write(abs_pos[0], abs_pos[1], self._label + ' '*(w-len(self._label)), curses.color_pair(self._color))
             for i in xrange(1+h/2, h):
                 abs_pos = self.mapToGlobal(x, y+i)
-                screen.addstr(abs_pos[1], abs_pos[0], ' '*(w-1), curses.color_pair(self._color))
+                screen.write(abs_pos[0], abs_pos[1], str(i), curses.color_pair(self._color))
 
     def setColor(self, color):
         self._color = color
@@ -266,7 +284,7 @@ class VTabWidget(VWidget):
             header = ""
             for index, (_, label) in enumerate(self._tabs):
                 header = label+" "*(tab_size-len(label))
-                screen.addstr(0, tab_size * index, header, curses.color_pair(1 if index == self._selected_tab_idx else 0))
+                screen.write(tab_size * index, 0, header, curses.color_pair(1 if index == self._selected_tab_idx else 0))
             widget = self._tabs[self._selected_tab_idx][0]
             widget.render()
 
