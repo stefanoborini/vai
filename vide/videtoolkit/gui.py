@@ -8,6 +8,8 @@ class VKeyEvent(object):
         self._accepted = False
     def key(self):
         return self._key
+    def keyUnicode(self):
+        return unichr(self._key)
     def accept(self):
         self._accepted = True
     def accepted(self):
@@ -17,11 +19,22 @@ class VScreen(object):
     def __init__(self):
         self._curses_screen = curses.initscr()
         curses.start_color()
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
+        curses.use_default_colors()
+        #curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
         curses.noecho()
         curses.cbreak()
         self._curses_screen.keypad(1)
         self._curses_screen.nodelay(True)
+        self._curses_screen.leaveok(True)
+        counter = 1
+        self._colormap = [ (-1, -1) ]
+        for bg in range(0, self.numColors()):
+            for fg in range(0, self.numColors()):
+                if fg == 0 and bg == 0:
+                    continue
+                self._colormap.append((fg, bg))
+                curses.init_pair(counter, fg, bg)
+                counter += 1
 
     def deinit(self):
         curses.nocbreak()
@@ -51,6 +64,20 @@ class VScreen(object):
         else:
             self._curses_screen.addstr(y,x,string, color)
 
+    def numColors(self):
+        return curses.COLORS
+
+    def getColor(self, fg, bg):
+        return self._colormap.index( (fg, bg) )
+
+    def setCursorPos(self, x, y):
+        curses.setsyx(y,x)
+        self._curses_screen.move(y,x)
+        self.refresh()
+
+    def cursorPos(self):
+        pos = self._curses_screen.getyx()
+        return pos[1], pos[0]
 
 class DummyVScreen(object):
     def __init__(self):
@@ -138,9 +165,10 @@ class VApplication(core.VCoreApplication):
                     t.heartbeat()
                 self.renderWidgets()
                 continue
-            event = VKeyEvent(unichr(c))
+            event = VKeyEvent(c)
             if self.focusedWidget():
                 self.focusedWidget().keyEvent(event)
+            self._screen._curses_screen.leaveok(False)
             #self._screen.addch(1,1,c)
             self.renderWidgets()
             # Check if screen was re-sized (True or False)
@@ -161,7 +189,9 @@ class VApplication(core.VCoreApplication):
         self._top_level_widget = widget
 
     def renderWidgets(self):
+        curpos=self._screen.cursorPos()
         self._top_level_widget.render()
+        self._screen.setCursorPos(*curpos)
         self._screen.refresh()
 
     def screen(self):
@@ -179,18 +209,20 @@ class VWidget(core.VObject):
         if parent is None:
             VApplication.vApp.setTopLevelWidget(self)
             self._size = VApplication.vApp.screen().size()
+            self.setFocus()
         else:
             self._size = self.parent().size()
 
         self._pos = (0,0)
         self._layout = None
+        self._color = 0
 
     def keyEvent(self, event):
         if not event.accepted():
             self._parent.keyEvent(event)
 
     def setFocus(self):
-        VApplication.setFocusWidget(self)
+        VApplication.vApp.setFocusWidget(self)
 
     def move(self, x, y):
         self._pos = (x,y)
@@ -206,6 +238,12 @@ class VWidget(core.VObject):
 
     def show(self):
         pass
+
+    def setColor(self, color):
+        self._color = color
+
+    def color(self):
+        return self._color
 
     def addLayout(self, layout):
         self._layout = layout
@@ -230,31 +268,24 @@ class VWidget(core.VObject):
         for w in self.children():
             w.render()
 
-
 class VLabel(VWidget):
     def __init__(self, label, parent=None):
         super(VLabel, self).__init__(parent)
         self._label = label
-        self._color = None
-        self.setColor(1)
 
     def render(self):
         super(VLabel, self).render()
         screen = VApplication.vApp.screen()
         w, h = self.size()
         x, y = self.pos()
-        if self._color:
-            for i in xrange(0, h/2):
-                abs_pos = self.mapToGlobal(x, y+i)
-                screen.write(abs_pos[0], abs_pos[1], ' '*w, curses.color_pair(self._color))
-            abs_pos = self.mapToGlobal(x, y+h/2)
-            screen.write(abs_pos[0], abs_pos[1], self._label + ' '*(w-len(self._label)), curses.color_pair(self._color))
-            for i in xrange(1+h/2, h):
-                abs_pos = self.mapToGlobal(x, y+i)
-                screen.write(abs_pos[0], abs_pos[1], str(i), curses.color_pair(self._color))
-
-    def setColor(self, color):
-        self._color = color
+        for i in xrange(0, h/2):
+            abs_pos = self.mapToGlobal(x, y+i)
+            screen.write(abs_pos[0], abs_pos[1], ' '*w, curses.color_pair(self._color))
+        abs_pos = self.mapToGlobal(x, y+h/2)
+        screen.write(abs_pos[0], abs_pos[1], self._label + ' '*(w-len(self._label)), curses.color_pair(self._color))
+        for i in xrange(1+h/2, h):
+            abs_pos = self.mapToGlobal(x, y+i)
+            screen.write(abs_pos[0], abs_pos[1], ' '*w, curses.color_pair(self._color))
 
     def keyEvent(self, event):
         self._label = self._label + event.key()
@@ -265,6 +296,27 @@ class VLabel(VWidget):
 
     def setText(self, text):
         self._label = text
+
+class VPushButton(VWidget):
+    def __init__(self, label, parent=None):
+        super(VPushButton, self).__init__(parent)
+        self._label = label
+        self.setColor(1)
+
+    def render(self):
+        super(VPushButton, self).render()
+        screen = VApplication.vApp.screen()
+        w, h = self.size()
+        x, y = self.pos()
+        if self._color:
+            for i in xrange(0, h/2):
+                abs_pos = self.mapToGlobal(x, y+i)
+                screen.write(abs_pos[0], abs_pos[1], ' '*w, curses.color_pair(self._color))
+            abs_pos = self.mapToGlobal(x, y+h/2)
+            screen.write(abs_pos[0], abs_pos[1], "[ "+self._label + " ]"+ ' '*(w-len(self._label)-4), curses.color_pair(self._color))
+            for i in xrange(1+h/2, h):
+                abs_pos = self.mapToGlobal(x, y+i)
+                screen.write(abs_pos[0], abs_pos[1], str(i), curses.color_pair(self._color))
 
 class VTabWidget(VWidget):
     def __init__(self, parent=None):
@@ -288,4 +340,8 @@ class VTabWidget(VWidget):
             widget = self._tabs[self._selected_tab_idx][0]
             widget.render()
 
+class VCursor(object):
+    @staticmethod
+    def move(x,y):
+        VApplication.vApp.screen().setCursorPos(x,y)
 

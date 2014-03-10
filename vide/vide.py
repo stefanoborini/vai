@@ -1,19 +1,13 @@
 from videtoolkit import core, gui
+from videtoolkit import editor
 import time
 import sys
 
 try:
     app = gui.VApplication(sys.argv)
 
-    widget = gui.VWidget()
-    label1 = gui.VLabel("Text 1", widget)
-    label2 = gui.VLabel("Text 2", widget)
-    label3 = gui.VLabel("Text 3", widget)
-    layout = gui.VVLayout()
-    layout.addWidget(label1)
-    layout.addWidget(label2)
-    layout.addWidget(label3)
-    widget.addLayout(layout)
+    model = editor.EditorModel("hello")
+    widget = editor.Editor(model)
 
     #tabwidget = gui.VTabWidget()
     #label = gui.VLabel("Pretty Text", tabwidget)
@@ -25,9 +19,6 @@ try:
     #label.setGeometry(30,30,20,10)
     #tabwidget.show()
 
-    timer = core.VTimer(1)
-    timer.timeout.connect(lambda: label1.setText(str(time.time())))
-    timer.start()
     app.exec_()
 except Exception as e:
     import traceback
