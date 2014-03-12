@@ -4,9 +4,11 @@ import math
 
 
 class EditorModel(core.VObject):
-    def __init__(self, filename):
-        self._contents = open(filename).readlines()
-
+    def __init__(self, filename=None):
+        if filename:
+            self._contents = open(filename).readlines()
+        else:
+            self._contents = []
     def getLine(self, line):
         try:
             return self._contents[line]

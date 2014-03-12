@@ -23,7 +23,7 @@ class VPainter(object):
 
     def write(self, x, y, string, color):
         abs_pos = self._widget.mapToGlobal(x, y)
-        self._screen.write(abs_pos[0], abs_pos[1], string, curses.color_pair(color))
+        self._screen.write(abs_pos[0], abs_pos[1], string, color)
 
     def screen(self):
         return self._screen
@@ -55,6 +55,9 @@ class VScreen(object):
         self._curses_screen.keypad(0)
         curses.echo()
         curses.endwin()
+
+    def leaveok(self, flag):
+        self._curses_screen.leaveok(flag)
 
     def refresh(self):
         self._curses_screen.refresh()
@@ -95,23 +98,61 @@ class VScreen(object):
 
 class DummyVScreen(object):
     def __init__(self):
-        print "inited screen"
+        self._cursor_pos = (0,0)
+        self._render_output = []
+        self._size = (60, 25)
+        for h in xrange(self._size[1]):
+            row = []
+            self._render_output.append(row)
+            for w in xrange(self._size[0]):
+                row.append(' ')
+
+        self._log = []
+        self._log.append("Inited screen")
     def deinit(self):
-        print "deinited screen"
+        self._log.append("Deinited screen")
 
     def refresh(self):
-        print "refresh"
+        self._log.append("Refresh")
 
     def size(self):
-        print "screen size "
-        return (100, 100)
+        return self._size
+
+    def cursorPos(self):
+        return self._cursor_pos
+
+    def setCursorPos(self, x, y):
+        self._cursor_pos = (x,y)
+
+    def leaveok(self, flag):
+        pass
 
     def addstr(self, *args):
-        print "addstr ", args
+        pass
 
     def getch(self, *args):
-        print "getch"
-        return ' '
+        return -1
+
+    def getColor(self, fg, bg):
+        return 0
+
+    def write(self, x, y, string, color):
+        for pos in xrange(len(string)):
+            try:
+                self._render_output[y][x+pos] = string[pos]
+            except:
+                pass
+    def dump(self):
+        print "+"*(self._size[0]+2)
+        for r in self._render_output:
+            print "+"+''.join(r)+"+"
+        print "+"*(self._size[0]+2)
+
+    def charAt(self, x, y):
+        return self._render_output[y][x]
+
+    def stringAt(self, x, y, l):
+        return ''.join(self._render_output[y][x:x+l])
 
 class VHLayout(object):
     def __init__(self):
@@ -164,45 +205,52 @@ class VVLayout(object):
         return self._parent
 
 class VApplication(core.VCoreApplication):
-    def __init__(self, argv):
+    def __init__(self, argv, screen=None):
         super(VApplication, self).__init__(argv)
         os.environ["ESCDELAY"] = "25"
-        self._screen = VScreen()
+        if screen:
+            self._screen = screen
+        else:
+            self._screen = VScreen()
+
         self._top_level_widget = None
         self._focused_widget = None
 
     def exec_(self):
         self.renderWidgets()
         while 1:
-            c = self._screen.getch()
-            if c < 0:
-                for t in self._timers:
-                    t.heartbeat()
-                self.renderWidgets()
-                continue
-            elif c == 27:
-                next_c = self._screen.getch()
-                if next_c == -1:
-                    pass
+            self.processEvents()
 
-            event = VKeyEvent(c)
-            if self.focusedWidget():
-                self.focusedWidget().keyEvent(event)
-            self._screen._curses_screen.leaveok(False)
-            #self._screen.addch(1,1,c)
+    def processEvents(self):
+        c = self._screen.getch()
+        if c < 0:
+            for t in self._timers:
+                t.heartbeat()
             self.renderWidgets()
-            # Check if screen was re-sized (True or False)
-            x,y = self._screen.size()
-            resize = curses.is_term_resized(y, x)
+            return
+        elif c == 27:
+            next_c = self._screen.getch()
+            if next_c == -1:
+                pass
 
-            # Action in loop if resize is True:
-            if resize is True:
-                x, y = self._screen.size()
-                curses.resizeterm(y, x)
-                self.renderWidgets()
+        event = VKeyEvent(c)
+        if self.focusedWidget():
+            self.focusedWidget().keyEvent(event)
+        self._screen.leaveok(False)
+        #self._screen.addch(1,1,c)
+        self.renderWidgets()
+        # Check if screen was re-sized (True or False)
+        x,y = self._screen.size()
+        #resize = curses.is_term_resized(y, x)
+
+        # Action in loop if resize is True:
+        #if resize is True:
+            #x, y = self._screen.size()
+            #curses.resizeterm(y, x)
+            #self.renderWidgets()
 
     def exit(self):
-        print "Exiting"
+        super(VApplication, self).exit()
         self._screen.deinit()
 
     def setTopLevelWidget(self, widget):
@@ -289,6 +337,19 @@ class VWidget(core.VObject):
         for w in self.children():
             child_painter = VPainter(painter.screen(), w)
             w.render(child_painter)
+
+class VFrame(VWidget):
+    def __init__(self, parent=None):
+        super(VFrame, self).__init__(parent)
+
+    def render(self, painter):
+        w, h = self.size()
+        painter.write(0, 0, '+'+"-"*(w-2)+"+", self._color)
+        for i in xrange(0, h-2):
+            painter.write(0, i+1, '|'+' '*(w-2)+"|", self._color)
+        painter.write(0, h-1, '+'+"-"*(w-2)+"+", self._color)
+
+        super(VFrame, self).render(painter)
 
 class VLabel(VWidget):
     def __init__(self, label, parent=None):

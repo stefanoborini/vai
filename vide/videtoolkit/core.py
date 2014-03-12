@@ -50,7 +50,7 @@ class VCoreApplication(VObject):
         self._timers.append(timer)
 
     def exit(self):
-        pass
+        VCoreApplication.vApp = None
 
 class VTimer(VObject):
     def __init__(self, timeout):
