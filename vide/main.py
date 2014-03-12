@@ -1,5 +1,5 @@
 from videtoolkit import core, gui
-from videtoolkit import editor
+from vide import editor
 import time
 import sys
 
