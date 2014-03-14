@@ -40,15 +40,8 @@ class VScreen(object):
         self._curses_screen.nodelay(True)
         self._curses_screen.leaveok(True)
         self._curses_screen.notimeout(True)
-        counter = 1
-        self._colormap = [ (-1, -1) ]
-        for bg in range(0, self.numColors()):
-            for fg in range(0, self.numColors()):
-                if fg == 0 and bg == 0:
-                    continue
-                self._colormap.append((fg, bg))
-                curses.init_pair(counter, fg, bg)
-                counter += 1
+
+        self._initColors()
 
     def deinit(self):
         curses.nocbreak()
@@ -96,6 +89,17 @@ class VScreen(object):
         pos = self._curses_screen.getyx()
         return pos[1], pos[0]
 
+    def _initColors(self):
+        counter = 1
+        self._colormap = [ (-1, -1) ]
+        for bg in range(0, self.numColors()):
+            for fg in range(0, self.numColors()):
+                if fg == 0 and bg == 0:
+                    continue
+                self._colormap.append((fg, bg))
+                curses.init_pair(counter, fg, bg)
+                counter += 1
+
 class DummyVScreen(object):
     def __init__(self):
         self._cursor_pos = (0,0)
@@ -142,6 +146,7 @@ class DummyVScreen(object):
                 self._render_output[y][x+pos] = string[pos]
             except:
                 pass
+
     def dump(self):
         print "+"*(self._size[0]+2)
         for r in self._render_output:
@@ -305,6 +310,12 @@ class VWidget(core.VObject):
     def size(self):
         return self._size
 
+    def width(self):
+        return self._size[0]
+
+    def height(self):
+        return self._size[1]
+
     def show(self):
         pass
 
@@ -328,7 +339,7 @@ class VWidget(core.VObject):
             return (x,y)
 
         global_corner = self.parent().mapToGlobal(0,0)
-        return (global_corner[0] + x, global_corner[1] + y)
+        return (global_corner[0] + self.pos()[0] + x, global_corner[1] + self.pos()[1] + y)
 
     def render(self, painter):
         if self._layout is not None:

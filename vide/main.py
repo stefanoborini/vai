@@ -6,7 +6,7 @@ import sys
 try:
     app = gui.VApplication(sys.argv)
 
-    model = editor.EditorModel("hello")
+    model = editor.EditorModel("setup.cfg")
     widget = editor.Editor(model)
 
     #tabwidget = gui.VTabWidget()

@@ -1,4 +1,4 @@
-from videtoolkit import gui, core
+from videtoolkit import gui, core, utils
 import curses
 import math
 
@@ -7,14 +7,19 @@ class EditorModel(core.VObject):
     def __init__(self, filename=None):
         if filename:
             self._contents = open(filename).readlines()
+            self._filename = filename
         else:
             self._contents = []
+            self._filename = 'noname.txt'
+
     def getLine(self, line):
         try:
             return self._contents[line]
         except:
             return ""
 
+    def filename(self):
+        return self._filename
 COMMAND_MODE = -1
 INSERT_MODE = 1
 DIRECTIONAL_KEYS = [ curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT ]
@@ -36,7 +41,9 @@ class StatusBar(gui.VLabel):
         self._updateText()
 
     def _updateText(self):
-        self.setText(self._filename+" "+self._position)
+        self.setText(utils.strformat([(0, self._filename),
+                                      (self.width()-len(self._position)-3, self._position)
+                                     ], self.width()))
 
 class CommandBar(gui.VLabel):
     def __init__(self, parent):
@@ -61,10 +68,11 @@ class Editor(gui.VWidget):
         self._cursor_pos = (0,0)
         self._state = COMMAND_MODE
         self._status_bar = StatusBar(self)
-        self._command_bar = CommandBar(self)
         self._status_bar.move(0, self.size()[1]-2)
         self._status_bar.resize(self.size()[0], 1)
+        self._status_bar.setFilename(self._model.filename())
 
+        self._command_bar = CommandBar(self)
         self._command_bar.move(0, self.size()[1]-1)
         self._command_bar.resize(self.size()[0], 1)
 
@@ -78,11 +86,10 @@ class Editor(gui.VWidget):
             painter.write(0, i, str(i+self._top_line).rjust(num_digits+1), 0)
 
         for i in xrange(0, h):
-            painter.write(num_digits+1, i, "|", 0)
+            painter.write(num_digits+1, i, " ", 0)
 
-#        for i in xrange(0, h):
-#            abs_pos = self.mapToGlobal(x+num_digits+2, y+i)
-#            screen.write(abs_pos[0], abs_pos[1], self._model.getLine(self._top_line+i), 0)
+        for i in xrange(0, h):
+            painter.write(num_digits+2, i, self._model.getLine(self._top_line+i), 0)
 
         super(Editor, self).render(painter)
 
