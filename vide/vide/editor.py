@@ -20,8 +20,31 @@ class EditorModel(core.VObject):
 
     def filename(self):
         return self._filename
+
 COMMAND_MODE = -1
 INSERT_MODE = 1
+
+class ViewModel(core.VObject):
+    def __init__(self):
+        super(ViewModel, self).__init__()
+        self._state = COMMAND_MODE
+        self._top_line = 0
+        self.changed = core.VSignal(self)
+
+    def state(self):
+        return self._state
+
+    def setState(self, state):
+        self._state = state
+        self.changed.emit()
+
+    def topLine(self):
+        return self._top_line
+
+    def setTopLine(self, top_line):
+        self._top_line = top_line
+        self.changed.emit()
+
 DIRECTIONAL_KEYS = [ curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT ]
 
 class StatusBar(gui.VLabel):
@@ -46,8 +69,10 @@ class StatusBar(gui.VLabel):
                                      ], self.width()))
 
 class CommandBar(gui.VLabel):
-    def __init__(self, parent):
+    def __init__(self, view_model, parent=None):
         super(CommandBar,self).__init__("", parent)
+        self._view_model = view_model
+        self._view_model.changed.connect(self.update)
         self._mode = None
 
     def _updateText(self):
@@ -60,19 +85,40 @@ class CommandBar(gui.VLabel):
         self._mode = mode
         self._updateText()
 
+    def update(self):
+        self.setMode(self._view_model.state())
+
+class EditorController(core.VObject):
+    def __init__(self, document_model, view_model, view):
+        self._document_model = document_model
+        self._view_model = view_model
+        self._view = view
+
+    def handleKeyEvent(self, event):
+        if event.key() in DIRECTIONAL_KEYS:
+            self._view.moveCursor(event)
+        elif event.key() == 27 and self._view_model.state() == INSERT_MODE:
+            self._view_model.setState(COMMAND_MODE)
+        elif event.key() == ord('i') and self._view_model.state() == COMMAND_MODE:
+            self._view_model.setState(INSERT_MODE)
+
+
+        event.accept()
+
 class Editor(gui.VWidget):
-    def __init__(self, model, parent=None):
+    def __init__(self, document_model, parent=None):
         super(Editor, self).__init__(parent)
-        self._model = model
-        self._top_line = 0
+        self._document_model = document_model
+        self._view_model = ViewModel()
+        self._view_model.changed.connect(self.viewModelChanged)
+        self._controller = EditorController(self._document_model, self._view_model, self)
         self._cursor_pos = (0,0)
-        self._state = COMMAND_MODE
         self._status_bar = StatusBar(self)
         self._status_bar.move(0, self.size()[1]-2)
         self._status_bar.resize(self.size()[0], 1)
-        self._status_bar.setFilename(self._model.filename())
+        self._status_bar.setFilename(self._document_model.filename())
 
-        self._command_bar = CommandBar(self)
+        self._command_bar = CommandBar(self._view_model, self)
         self._command_bar.move(0, self.size()[1]-1)
         self._command_bar.resize(self.size()[0], 1)
 
@@ -83,30 +129,20 @@ class Editor(gui.VWidget):
         w, h = self.size()
         num_digits = math.log10(h)+1
         for i in xrange(0, h):
-            painter.write(0, i, str(i+self._top_line).rjust(num_digits+1), 0)
+            painter.write(0, i, str(i+self._view_model.topLine()).rjust(num_digits+1), 0)
 
         for i in xrange(0, h):
             painter.write(num_digits+1, i, " ", 0)
 
         for i in xrange(0, h):
-            painter.write(num_digits+2, i, self._model.getLine(self._top_line+i), 0)
+            painter.write(num_digits+2, i, self._document_model.getLine(self._view_model.topLine()+i), 0)
 
         super(Editor, self).render(painter)
 
     def keyEvent(self, event):
-        if event.key() in DIRECTIONAL_KEYS:
-            self._moveCursor(event)
-        elif event.key() == 27 and self._state == INSERT_MODE:
-            self._state = COMMAND_MODE
-            self._command_bar.setMode(self._state)
-        elif event.key() == ord('i') and self._state == COMMAND_MODE:
-            self._state = INSERT_MODE
-            self._command_bar.setMode(self._state)
+        self._controller.handleKeyEvent(event)
 
-
-        event.accept()
-
-    def _moveCursor(self, event):
+    def moveCursor(self, event):
         if event.key() == curses.KEY_UP:
             self._cursor_pos = (self._cursor_pos[0], max(0, self._cursor_pos[1]-1))
         elif event.key() == curses.KEY_DOWN:
@@ -118,3 +154,9 @@ class Editor(gui.VWidget):
 
         self._status_bar.setPosition(*self._cursor_pos)
         gui.VCursor.move(self._cursor_pos[0]+self.pos()[0], self._cursor_pos[1]+self.pos()[1])
+
+    def viewModelChanged(self):
+        self.update()
+
+    def update(self):
+        pass
