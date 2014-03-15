@@ -2,6 +2,27 @@ from videtoolkit import gui, core, utils
 import curses
 import math
 
+class InsertLineAfterCommand(object):
+    def __init__(self, model, line_number):
+        self._model = model
+        self._line_number = line_number
+
+    def execute(self):
+        self._model.insertAfter(self._line_number)
+
+    def undo(self):
+        self._model.deleteLine(self._line_number+1)
+
+class InsertLineBeforeCommand(object):
+    def __init__(self, model, line_number):
+        self._model = model
+        self._line_number = line_number
+
+    def execute(self):
+        self._model.insertBefore(self._line_number)
+
+    def undo(self):
+        self._model.deleteLine(self._line_number)
 
 class EditorModel(core.VObject):
     def __init__(self, filename=None):
@@ -23,6 +44,9 @@ class EditorModel(core.VObject):
 
     def insertBefore(self, line_number):
         self._contents.insert(line_number,'')
+
+    def deleteLine(self, line_number):
+        self._contents.pop(line_number)
 
     def filename(self):
         return self._filename
@@ -103,6 +127,7 @@ class EditorController(core.VObject):
         self._document_model = document_model
         self._view_model = view_model
         self._view = view
+        self._command_history = []
 
     def handleKeyEvent(self, event):
         if event.key() in DIRECTIONAL_KEYS:
@@ -121,10 +146,18 @@ class EditorController(core.VObject):
                 self._view_model.setState(INSERT_MODE)
             elif event.key() == ord("o"):
                 self._view_model.setState(INSERT_MODE)
-                self._document_model.insertAfter(2)
+                command = InsertLineAfterCommand(self._document_model, 2)
+                self._command_history.append(command)
+                command.execute()
             elif event.key() == ord("O"):
                 self._view_model.setState(INSERT_MODE)
-                self._document_model.insertBefore(2)
+                command = InsertLineBeforeCommand(self._document_model, 2)
+                self._command_history.append(command)
+                command.execute()
+            elif event.key() == ord("u"):
+                if len(self._command_history):
+                    command = self._command_history.pop()
+                    command.undo()
 
             event.accept()
 
@@ -144,6 +177,7 @@ class Editor(gui.VWidget):
         self._command_bar = CommandBar(self._view_model, self)
         self._command_bar.move(0, self.size()[1]-1)
         self._command_bar.resize(self.size()[0], 1)
+
 
     def statusBar(self):
         return self._status_bar
