@@ -28,6 +28,13 @@ class VPainter(object):
     def screen(self):
         return self._screen
 
+    def clear(self, x, y, w, h):
+        abs_pos = self._widget.mapToGlobal(x, y)
+        for h_idx in xrange(h):
+            self._screen.write(abs_pos[0], abs_pos[1]+h_idx, ' '*w, 0)
+
+
+
 class VScreen(object):
     def __init__(self):
         self._curses_screen = curses.initscr()
@@ -69,7 +76,7 @@ class VScreen(object):
 
         if (x+len(string) >= size[0]):
             string = string[:size[0]-x]
-            self._curses_screen.addstr(y,x,string[1:], color)
+            self._curses_screen.addstr(y, x,string[1:], color)
             self._curses_screen.insstr(y, x, string[0], color)
         else:
             self._curses_screen.addstr(y,x,string, color)
@@ -424,6 +431,9 @@ class VTabWidget(VWidget):
 
 class VCursor(object):
     @staticmethod
-    def move(x,y):
+    def setPos(x,y):
         VApplication.vApp.screen().setCursorPos(x,y)
+
+    def pos(x,y):
+        return VApplication.vApp.screen().cursorPos(x,y)
 

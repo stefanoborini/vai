@@ -18,8 +18,18 @@ class EditorModel(core.VObject):
         except:
             return ""
 
+    def insertAfter(self, line_number):
+        self._contents.insert(line_number+1,'')
+
+    def insertBefore(self, line_number):
+        self._contents.insert(line_number,'')
+
     def filename(self):
         return self._filename
+
+    def numLines(self):
+        return len(self._contents)
+
 
 COMMAND_MODE = -1
 INSERT_MODE = 1
@@ -97,13 +107,26 @@ class EditorController(core.VObject):
     def handleKeyEvent(self, event):
         if event.key() in DIRECTIONAL_KEYS:
             self._view.moveCursor(event)
-        elif event.key() == 27 and self._view_model.state() == INSERT_MODE:
-            self._view_model.setState(COMMAND_MODE)
-        elif event.key() == ord('i') and self._view_model.state() == COMMAND_MODE:
-            self._view_model.setState(INSERT_MODE)
+            event.accept()
+            return
 
+        if self._view_model.state() == INSERT_MODE:
+            if event.key() == 27:
+                self._view_model.setState(COMMAND_MODE)
+                event.accept()
+            return
 
-        event.accept()
+        if self._view_model.state() == COMMAND_MODE:
+            if event.key() == ord('i'):
+                self._view_model.setState(INSERT_MODE)
+            elif event.key() == ord("o"):
+                self._view_model.setState(INSERT_MODE)
+                self._document_model.insertAfter(2)
+            elif event.key() == ord("O"):
+                self._view_model.setState(INSERT_MODE)
+                self._document_model.insertBefore(2)
+
+            event.accept()
 
 class Editor(gui.VWidget):
     def __init__(self, document_model, parent=None):
@@ -127,15 +150,11 @@ class Editor(gui.VWidget):
 
     def render(self, painter):
         w, h = self.size()
-        num_digits = math.log10(h)+1
+        num_digits = math.log10(self._document_model.numLines())+1
         for i in xrange(0, h):
-            painter.write(0, i, str(i+self._view_model.topLine()).rjust(num_digits+1), 0)
-
-        for i in xrange(0, h):
-            painter.write(num_digits+1, i, " ", 0)
-
-        for i in xrange(0, h):
-            painter.write(num_digits+2, i, self._document_model.getLine(self._view_model.topLine()+i), 0)
+            painter.clear(0, i, w, 1)
+            painter.write(0, i, str(i+self._view_model.topLine()).rjust(num_digits+1)+"  ", 0)
+            painter.write(num_digits+3, i, self._document_model.getLine(self._view_model.topLine()+i), 0)
 
         super(Editor, self).render(painter)
 
@@ -153,7 +172,7 @@ class Editor(gui.VWidget):
             self._cursor_pos = (self._cursor_pos[0]+1, self._cursor_pos[1])
 
         self._status_bar.setPosition(*self._cursor_pos)
-        gui.VCursor.move(self._cursor_pos[0]+self.pos()[0], self._cursor_pos[1]+self.pos()[1])
+        gui.VCursor.setPos(self._cursor_pos[0]+self.pos()[0], self._cursor_pos[1]+self.pos()[1])
 
     def viewModelChanged(self):
         self.update()
