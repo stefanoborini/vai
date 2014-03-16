@@ -23,6 +23,12 @@ class TestGui(unittest.TestCase):
         self.screen.dump()
         #self.assertEqual(self.screen.stringAt(0, self.screen.size()[1]/2, 5), "hello")
 
+class TestGui2(unittest.TestCase):
+
+    def testColors(self):
+        app = gui.VApplication([])
+        print app.numColors()
+        app.supportedColors()
 
 if __name__ == '__main__':
     unittest.main()
