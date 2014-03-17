@@ -1,4 +1,5 @@
 from . import core
+from . import Key, KeyModifier, nativeToVideKeyCode, videKeyCodeToText
 import logging
 import sys
 import curses
@@ -10,20 +11,28 @@ class VKeyEvent(object):
         self._key_code = key_code
         self._accepted = False
 
-    def key(self):
-        return chr(self._key_code)
-
     def keyCode(self):
         return self._key_code
 
-    def keyUnicode(self):
-        return unichr(self._key_code)
+    def key(self):
+        return self._key_code & Key.Mask
+
+    def modifiers(self):
+        return self._key_code & KeyModifier.Mask
+
+    def text(self):
+        return videKeyCodeToText(self._key_code)
 
     def accept(self):
         self._accepted = True
 
     def accepted(self):
         return self._accepted
+
+    @staticmethod
+    def fromNativeKeyCode(native_key_code):
+        key_code = nativeToVideKeyCode(native_key_code)
+        return VKeyEvent(key_code)
 
 class VPainter(object):
     def __init__(self, screen, widget):
@@ -49,6 +58,7 @@ class VScreen(object):
         curses.use_default_colors()
         curses.noecho()
         curses.cbreak()
+        curses.raw()
 
         self._curses_screen.keypad(1)
         self._curses_screen.nodelay(True)
@@ -262,7 +272,7 @@ class VApplication(core.VCoreApplication):
             if next_c == -1:
                 pass
 
-        event = VKeyEvent(c)
+        event = VKeyEvent.fromNativeKeyCode(c)
         if self.focusedWidget():
             self.focusedWidget().keyEvent(event)
         self._screen.leaveok(False)
@@ -395,7 +405,6 @@ class VWidget(core.VObject):
 
         return self._palette
 
-
 class VFrame(VWidget):
     def __init__(self, parent=None):
         super(VFrame, self).__init__(parent)
@@ -443,10 +452,21 @@ class VLineEdit(VWidget):
         self._text = contents
         self._cursor_position = len(self._text)
         self._selection = None
+        self._max_length = 32767
+
         self.returnPressed = core.VSignal(self)
         self.cursorPositionChanged = core.VSignal(self)
         self.textChanged = core.VSignal(self)
         self.selectionChanged = core.VSignal(self)
+        self.editingFinished = core.VSignal(self)
+
+    def maxLength(self):
+        return self._max_length
+
+    def setMaxLength(self, max_length):
+        self._max_length = max_length
+        self._text = self._text[:self._max_length]
+        self.deselect()
 
     def cursorPosition(self):
         return self._cursor_position
@@ -467,6 +487,15 @@ class VLineEdit(VWidget):
             return
         self._selection = (0, len(self._text))
         self.selectionChanged.emit()
+
+    def selectionStart(self):
+        pass
+
+    def selectionEnd(self):
+        pass
+
+    def sizeHint(self):
+        pass
 
     def deselect(self):
         self._selection = None
@@ -489,7 +518,10 @@ class VLineEdit(VWidget):
         self.textChanged.emit(self._text)
 
     def backspace(self):
-        pass
+        if self._selection:
+            pass
+        else:
+            pass
 
     def clear(self):
         self.setText("")
@@ -500,35 +532,45 @@ class VLineEdit(VWidget):
     def cursorBackward(self, mark):
         pass
 
+    def cursorWordForward(self, mark):
+        pass
+
+    def cursorWordBackward(self, mark):
+        pass
+
     def minimumSizeHint(self):
         return (1, 1)
 
     def render(self, painter):
         super(VLineEdit, self).render(painter)
         w, h = self.size()
-        painter.write(0, 0, self._text + ' '*(w-len(self._text)), 0)
+        painter.write(0, 0, self._text + ' '*(w-len(self._text)))
 
         VCursor.setPos(self.mapToGlobal(0,0)[0]+self._cursor_position,self.mapToGlobal(0,0)[1])
 
     def keyEvent(self, event):
-        if event.keyCode() == 10:
+        if event.key() == Key.Key_Return:
             self.returnPressed.emit()
-        elif event.keyCode() == curses.KEY_LEFT:
+        elif event.key() == Key.Key_Left:
             self._cursor_position = max(0, self._cursor_position-1)
-        elif event.keyCode() == curses.KEY_RIGHT:
+        elif event.key() == Key.Key_Right:
             self._cursor_position = min(len(self._text), self._cursor_position+1)
-        elif event.keyCode() == 127:
+        elif event.key() == Key.Key_Backspace:
+            if self._cursor_position == 0:
+                event.accept()
+                return
             self._cursor_position -= 1
-            self._cursor_position = max(0, self._cursor_position)
-            if self._cursor_position:
-                self._text = self._text[:self._cursor_position] + self._text[self._cursor_position+1:]
+            self._text = self._text[:self._cursor_position] + self._text[self._cursor_position+1:]
         else:
-            self._text = self._text[:self._cursor_position] + event.key() +  self._text[self._cursor_position:]
-            self._cursor_position += 1
+            self._text = self._text[:self._cursor_position] + event.text() +  self._text[self._cursor_position:]
+            self._cursor_position += len(event.text())
         event.accept()
 
     def minimumSize(self):
         return (1, 1)
+
+    def selectedText(self):
+        pass
 
 class VPushButton(VWidget):
     def __init__(self, label, parent=None):

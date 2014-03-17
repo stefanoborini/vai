@@ -1,3 +1,4 @@
+import videtoolkit
 from videtoolkit import gui, core, utils
 import curses
 import math
@@ -79,7 +80,7 @@ class ViewModel(core.VObject):
         self._top_line = top_line
         self.changed.emit()
 
-DIRECTIONAL_KEYS = [ curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT ]
+DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up, videtoolkit.Key.Key_Down, videtoolkit.Key.Key_Left, videtoolkit.Key.Key_Right ]
 
 class StatusBar(gui.VLabel):
     def __init__(self, parent):
@@ -136,25 +137,25 @@ class EditorController(core.VObject):
             return
 
         if self._view_model.state() == INSERT_MODE:
-            if event.key() == 27:
+            if event.key() == Key.Key_Escape:
                 self._view_model.setState(COMMAND_MODE)
                 event.accept()
             return
 
         if self._view_model.state() == COMMAND_MODE:
-            if event.key() == ord('i'):
+            if event.key() == Keys.Key_I and len(event.modifiers()) == 0:
                 self._view_model.setState(INSERT_MODE)
-            elif event.key() == ord("o"):
+            elif event.key() == Keys.Key_O and len(event.modifiers()) == 0:
                 self._view_model.setState(INSERT_MODE)
                 command = InsertLineAfterCommand(self._document_model, 2)
                 self._command_history.append(command)
                 command.execute()
-            elif event.key() == ord("O"):
+            elif event.key() == Keys.Key_O and event.modifiers() == [KeyModifiers.ShiftModifier]:
                 self._view_model.setState(INSERT_MODE)
                 command = InsertLineBeforeCommand(self._document_model, 2)
                 self._command_history.append(command)
                 command.execute()
-            elif event.key() == ord("u"):
+            elif event.key() == Keys.Key_U and event.modifiers() == [KeyModifiers.ShiftModifier]:
                 if len(self._command_history):
                     command = self._command_history.pop()
                     command.undo()
@@ -196,13 +197,13 @@ class Editor(gui.VWidget):
         self._controller.handleKeyEvent(event)
 
     def moveCursor(self, event):
-        if event.key() == curses.KEY_UP:
+        if event.key() == Key.Key_Up:
             self._cursor_pos = (self._cursor_pos[0], max(0, self._cursor_pos[1]-1))
-        elif event.key() == curses.KEY_DOWN:
+        elif event.key() == Key.Key_Down:
             self._cursor_pos = (self._cursor_pos[0], self._cursor_pos[1]+1)
-        elif event.key() == curses.KEY_LEFT:
+        elif event.key() == Key.Key_Left:
             self._cursor_pos = (max(self._cursor_pos[0]-1,0), self._cursor_pos[1])
-        elif event.key() == curses.KEY_RIGHT:
+        elif event.key() == Key.Key_Right:
             self._cursor_pos = (self._cursor_pos[0]+1, self._cursor_pos[1])
 
         self._status_bar.setPosition(*self._cursor_pos)
