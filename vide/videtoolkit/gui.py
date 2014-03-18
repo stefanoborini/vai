@@ -6,6 +6,108 @@ import curses
 import os
 import copy
 
+class VPalette(object):
+    class ColorGroup(object):
+        Active, Disabled, Inactive = range(3)
+
+    class ColorRole(object):
+        WindowText, \
+        Button, \
+        Light, \
+        Midlight, \
+        Dark, \
+        Mid, \
+        Text, \
+        BrightText, \
+        ButtonText, \
+        Base, \
+        Window, \
+        Shadow, \
+        Highlight, \
+        HighlightedText, \
+        Link, \
+        LinkVisited, \
+        AlternateBase, \
+        NoRole, \
+        ToolTipBase, \
+        ToolTipText = range(20)
+
+    def __init__(self):
+        self._colors = {}
+
+    def color(self, color_group, color_role):
+        return self._colors[(color_group, color_role)]
+
+    def setColor(self, color_group, color_role, color):
+        self._colors[(color_group, color_role)] = color
+
+    def setDefaults(self):
+        self._colors = {
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.WindowText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Button) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Light) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Midlight) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Dark) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Mid) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Text) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.BrightText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.ButtonText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Base) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Window) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Shadow) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Highlight) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.HighlightedText) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Link) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.LinkVisited) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.AlternateBase) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.NoRole) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.ToolTipBase) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.ToolTipText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.WindowText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Button) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Light) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Midlight) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Dark) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Mid) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Text) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.BrightText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.ButtonText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Base) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Window) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Shadow) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Highlight) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.HighlightedText) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Link) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.LinkVisited) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.AlternateBase) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.NoRole) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.ToolTipBase) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.ToolTipText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.WindowText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Button) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Light) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Midlight) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Dark) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Mid) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Text) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.BrightText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.ButtonText) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Base) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Window) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Shadow) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Highlight) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.HighlightedText) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Link) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.LinkVisited) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.AlternateBase) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.NoRole) : VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.ToolTipBase) : VColor( rgb = (0,0,0)),
+            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.ToolTipText) : VColor( rgb = (255,255,255))
+            }
+
+    def copy(self):
+        return copy.deepcopy(self)
+
 class VKeyEvent(object):
     def __init__(self, key_code):
         self._key_code = key_code
@@ -334,6 +436,8 @@ class VWidget(core.VObject):
         self._layout = None
         self._visible = False
         self._palette = None
+        self._enabled = True
+        self._active = True
 
     def keyEvent(self, event):
         if not event.accepted():
@@ -372,6 +476,9 @@ class VWidget(core.VObject):
     def isVisible(self):
         return self._visible
 
+    def minimumSize(self):
+        return (1,1)
+
     def addLayout(self, layout):
         self._layout = layout
         self._layout.setParent(self)
@@ -383,7 +490,7 @@ class VWidget(core.VObject):
 
     def mapToGlobal(self, x, y):
         if self.parent() is None:
-            return (x,y)
+            return (x+self._pos[0],y+self._pos[1])
 
         global_corner = self.parent().mapToGlobal(0,0)
         return (global_corner[0] + self.pos()[0] + x, global_corner[1] + self.pos()[1] + y)
@@ -395,15 +502,51 @@ class VWidget(core.VObject):
         if self._layout is not None:
             self._layout.apply()
 
+        w, h = self.size()
+        if self.isEnabled():
+            if self.isActive():
+                color_group = VPalette.ColorGroup.Active
+            else:
+                color_group = VPalette.ColorGroup.Inactive
+        else:
+            color_group = VPalette.ColorGroup.Disabled
+
+        fg, bg = self.colors(color_group)
+
+        for i in xrange(0, h):
+            painter.write(0, i, ' '*w, fg, bg)
+
         for w in self.children():
             child_painter = VPainter(painter.screen(), w)
             w.render(child_painter)
+
+    def isEnabled(self):
+        return self._enabled
+
+    def isActive(self):
+        return self._active
+
+    def setActive(self, active):
+        self._active = active
+    def setEnabled(self, enabled):
+        self._enabled = enabled
 
     def palette(self):
         if self._palette is None:
             self._palette = VApplication.vApp.palette().copy()
 
         return self._palette
+
+    def setColors(self, fg=None, bg=None):
+        self.palette().setColor(VPalette.ColorGroup.Active, VPalette.ColorRole.WindowText, fg)
+        self.palette().setColor(VPalette.ColorGroup.Active, VPalette.ColorRole.Window, bg)
+
+    def colors(self, color_group = VPalette.ColorGroup.Active):
+
+        fg = self.palette().color(color_group, VPalette.ColorRole.WindowText)
+        bg = self.palette().color(color_group, VPalette.ColorRole.Window)
+
+        return (fg, bg)
 
 class VFrame(VWidget):
     def __init__(self, parent=None):
@@ -417,6 +560,61 @@ class VFrame(VWidget):
         painter.write(0, h-1, '+'+"-"*(w-2)+"+")
 
         super(VFrame, self).render(painter)
+
+class VDialog(VWidget):
+    def __init__(self, parent=None):
+        super(VDialog, self).__init__(parent)
+        self._title = None
+
+    def render(self, painter):
+        if not self.isVisible():
+            return
+
+        super(VDialog, self).render(painter)
+
+        if self.isEnabled():
+            if self.isActive():
+                color_group = VPalette.ColorGroup.Active
+            else:
+                color_group = VPalette.ColorGroup.Inactive
+        else:
+            color_group = VPalette.ColorGroup.Disabled
+
+        fg, bg = self.colors(color_group)
+        w, h = self.size()
+        if self._title:
+
+            #0123456789012
+            #+-| hello |-+
+            dash_length = (w -                  # total width of the dialog
+                           2 -                  # space for the angles
+                           len(self._title) -   # the space for the title itself
+                           2 -                  # the two empty spaces on the sides of the title
+                           2)                   # the vertical bars
+            header = '+' + \
+                     "-"*(dash_length/2) + \
+                     "| " + \
+                     self._title + \
+                     " |" + \
+                     "-"*(dash_length-(dash_length/2)) + \
+                     "+"
+        else:
+            header = '+'+"-"*(w-2)+"+"
+
+        painter.write(0, 0, header, fg, bg)
+
+        for i in xrange(0, h-2):
+            painter.write(0, i+1, '|'+' '*(len(header)-2)+"|", fg, bg)
+        painter.write(0, h-1, '+'+"-"*(len(header)-2)+"+", fg, bg)
+
+    def setTitle(self, title):
+        self._title = title
+
+    def minimumSize(self):
+        if self._title:
+            return (len(self._title) + 8, 2)
+        else:
+            return (2,2)
 
 class VLabel(VWidget):
     def __init__(self, label, parent=None):
@@ -616,6 +814,7 @@ class VCursor(object):
         return VApplication.vApp.screen().cursorPos(x,y)
 
 class VColor(object):
+
     def __init__(self, rgb=None, curses_rgb=None, index=None):
         if rgb is None and curses_rgb is None and index is None:
             raise Exception("Unspecified color")
@@ -681,101 +880,15 @@ class VColor(object):
     def rgbToCursesRgb(rgb):
         return tuple([int(x/255 * 1000) for x in rgb ])
 
-class VPalette(object):
-    class ColorGroup(object):
-        Active, Disabled, Inactive = range(3)
+class VGlobalColor(object):
+    black = VColor(rgb=(255,0,0))
+    red = VColor(rgb=(255,0,0))
+    green = VColor(rgb=(0,255,0))
+    blue = VColor(rgb=(0,0,255))
+    cyan = VColor(rgb=(0,255,255))
+    purple = VColor(rgb=(255,0,255))
+    yellow = VColor(rgb=(255,255,0))
+    white = VColor(rgb=(255,255,255))
 
-    class ColorRole(object):
-        WindowText, \
-        Button, \
-        Light, \
-        Midlight, \
-        Dark, \
-        Mid, \
-        Text, \
-        BrightText, \
-        ButtonText, \
-        Base, \
-        Window, \
-        Shadow, \
-        Highlight, \
-        HighlightedText, \
-        Link, \
-        LinkVisited, \
-        AlternateBase, \
-        NoRole, \
-        ToolTipBase, \
-        ToolTipText = range(20)
 
-    def __init__(self):
-        self._colors = {}
 
-    def color(self, color_group, color_role):
-        return self._colors[(color_group, color_role)]
-
-    def setDefaults(self):
-        self._colors = {
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.WindowText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Button) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Light) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Midlight) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Dark) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Mid) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Text) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.BrightText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.ButtonText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Base) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Window) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Shadow) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Highlight) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.HighlightedText) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Link) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.LinkVisited) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.AlternateBase) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.NoRole) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.ToolTipBase) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.ToolTipText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.WindowText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Button) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Light) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Midlight) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Dark) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Mid) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Text) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.BrightText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.ButtonText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Base) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Window) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Shadow) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Highlight) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.HighlightedText) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.Link) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.LinkVisited) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.AlternateBase) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.NoRole) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.ToolTipBase) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Disabled, VPalette.ColorRole.ToolTipText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.WindowText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Button) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Light) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Midlight) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Dark) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Mid) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Text) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.BrightText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.ButtonText) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Base) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Window) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Shadow) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Highlight) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.HighlightedText) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.Link) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.LinkVisited) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.AlternateBase) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.NoRole) : VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.ToolTipBase) : VColor( rgb = (0,0,0)),
-            ( VPalette.ColorGroup.Inactive, VPalette.ColorRole.ToolTipText) : VColor( rgb = (255,255,255))
-            }
-
-    def copy(self):
-        return copy.deepcopy(self)

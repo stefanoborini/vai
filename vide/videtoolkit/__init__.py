@@ -1,4 +1,5 @@
 import curses
+
 class Key(object):
     Key_Escape    = 0x01000000
     Key_Tab       = 0x01000001
@@ -335,3 +336,5 @@ def videKeyCodeToText(vide_key_code):
     }
 
     return key_map.get(vide_key_code, '')
+
+

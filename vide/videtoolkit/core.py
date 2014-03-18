@@ -29,10 +29,6 @@ class VObject(object):
     def addChild(self, child):
         self._children.append(child)
 
-    @staticmethod
-    def connect(signal, slot):
-        signal.connect(slot)
-
 class VCoreApplication(VObject):
     vApp = None
 
