@@ -1,5 +1,6 @@
 from .. import core
 from .VPalette import VPalette
+from . import VScreen
 import threading
 import Queue
 import os
@@ -46,7 +47,7 @@ class VApplication(core.VCoreApplication):
         if screen:
             self._screen = screen
         else:
-            self._screen = VScreen()
+            self._screen = VScreen.VScreen()
 
         self._top_level_widgets = []
         self._focused_widget = None
