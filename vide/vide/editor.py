@@ -85,8 +85,7 @@ DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up, videtoolkit.Key.Key_Down, videtoolk
 class StatusBar(gui.VLabel):
     def __init__(self, parent):
         super(StatusBar,self).__init__("", parent)
-        index = gui.VApplication.vApp.screen().getColor(6,4)
-        self.setColor(index)
+        #self.setColors()
         self._filename = ""
         self._position = ""
 
@@ -137,25 +136,25 @@ class EditorController(core.VObject):
             return
 
         if self._view_model.state() == INSERT_MODE:
-            if event.key() == Key.Key_Escape:
+            if event.key() == videtoolkit.Key.Key_Escape:
                 self._view_model.setState(COMMAND_MODE)
                 event.accept()
             return
 
         if self._view_model.state() == COMMAND_MODE:
-            if event.key() == Keys.Key_I and len(event.modifiers()) == 0:
+            if event.key() == videtoolkit.Key.Key_I and event.modifiers() == 0:
                 self._view_model.setState(INSERT_MODE)
-            elif event.key() == Keys.Key_O and len(event.modifiers()) == 0:
+            elif event.key() == videtoolkit.Key.Key_O and event.modifiers() == 0:
                 self._view_model.setState(INSERT_MODE)
                 command = InsertLineAfterCommand(self._document_model, 2)
                 self._command_history.append(command)
                 command.execute()
-            elif event.key() == Keys.Key_O and event.modifiers() == [KeyModifiers.ShiftModifier]:
+            elif event.key() == videtoolkit.Key.Key_O and event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
                 self._view_model.setState(INSERT_MODE)
                 command = InsertLineBeforeCommand(self._document_model, 2)
                 self._command_history.append(command)
                 command.execute()
-            elif event.key() == Keys.Key_U and event.modifiers() == [KeyModifiers.ShiftModifier]:
+            elif event.key() == videtoolkit.Key.Key_U and event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
                 if len(self._command_history):
                     command = self._command_history.pop()
                     command.undo()
@@ -188,8 +187,8 @@ class Editor(gui.VWidget):
         num_digits = math.log10(self._document_model.numLines())+1
         for i in xrange(0, h):
             painter.clear(0, i, w, 1)
-            painter.write(0, i, str(i+self._view_model.topLine()).rjust(num_digits+1)+"  ", 0)
-            painter.write(num_digits+3, i, self._document_model.getLine(self._view_model.topLine()+i), 0)
+            painter.write(0, i, str(i+self._view_model.topLine()).rjust(num_digits+1)+"  ")
+            painter.write(num_digits+3, i, self._document_model.getLine(self._view_model.topLine()+i))
 
         super(Editor, self).render(painter)
 
@@ -197,13 +196,13 @@ class Editor(gui.VWidget):
         self._controller.handleKeyEvent(event)
 
     def moveCursor(self, event):
-        if event.key() == Key.Key_Up:
+        if event.key() == videtoolkit.Key.Key_Up:
             self._cursor_pos = (self._cursor_pos[0], max(0, self._cursor_pos[1]-1))
-        elif event.key() == Key.Key_Down:
+        elif event.key() == videtoolkit.Key.Key_Down:
             self._cursor_pos = (self._cursor_pos[0], self._cursor_pos[1]+1)
-        elif event.key() == Key.Key_Left:
+        elif event.key() == videtoolkit.Key.Key_Left:
             self._cursor_pos = (max(self._cursor_pos[0]-1,0), self._cursor_pos[1])
-        elif event.key() == Key.Key_Right:
+        elif event.key() == videtoolkit.Key.Key_Right:
             self._cursor_pos = (self._cursor_pos[0]+1, self._cursor_pos[1])
 
         self._status_bar.setPosition(*self._cursor_pos)

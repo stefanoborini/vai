@@ -5,6 +5,47 @@ import sys
 import curses
 import os
 import copy
+import threading
+import Queue
+import time
+import select
+
+logging.basicConfig(filename='example.log',level=logging.DEBUG)
+
+class KeyEventThread(threading.Thread):
+    def __init__(self, screen, event_queue):
+        super(KeyEventThread, self).__init__()
+        self.daemon = True
+        self.exception_occurred_event = threading.Event()
+        self.stop_event = threading.Event()
+        self.exception = None
+
+        self._screen = screen
+        self._event_queue = event_queue
+
+    def run(self):
+        try:
+            while not self.stop_event.is_set():
+                c = self._screen.getch()
+                if c == 27:
+                    next_c = self._screen.getch()
+                    if next_c == -1:
+                        pass
+                event = VKeyEvent.fromNativeKeyCode(c)
+                self._event_queue.put(event)
+        except Exception as e:
+            self.exception = e
+            self.exception_occurred_event.set()
+
+class TimerWatchdogThread(threading.Thread):
+    def __init__(self, event_queue):
+        super(TimerWatchdogThread, self).__init__()
+        self.daemon = True
+        self._event_queue = event_queue
+        self._timers = []
+
+    def registerTimer(self, timer):
+        pass
 
 class VPalette(object):
     class ColorGroup(object):
@@ -136,22 +177,34 @@ class VKeyEvent(object):
         key_code = nativeToVideKeyCode(native_key_code)
         return VKeyEvent(key_code)
 
+class VPaintEvent(object):
+    pass
+
 class VPainter(object):
     def __init__(self, screen, widget):
         self._screen = screen
         self._widget = widget
 
     def write(self, x, y, string, fg_color=None, bg_color=None):
+        widget_colors = self._widget.currentColors()
+        if fg_color is None:
+            fg_color = widget_colors[0]
+
+        if bg_color is None:
+            bg_color = widget_colors[1]
+
         abs_pos = self._widget.mapToGlobal(x, y)
+        self._widget.palette()
         self._screen.write(abs_pos[0], abs_pos[1], string, fg_color, bg_color)
 
     def screen(self):
         return self._screen
 
     def clear(self, x, y, w, h):
+        widget_colors = self._widget.currentColors()
         abs_pos = self._widget.mapToGlobal(x, y)
         for h_idx in xrange(h):
-            self._screen.write(abs_pos[0], abs_pos[1]+h_idx, ' '*w, 0)
+            self._screen.write(abs_pos[0], abs_pos[1]+h_idx, ' '*w, widget_colors[0], widget_colors[1])
 
 class VScreen(object):
     def __init__(self):
@@ -163,7 +216,7 @@ class VScreen(object):
         curses.raw()
 
         self._curses_screen.keypad(1)
-        self._curses_screen.nodelay(True)
+        self._curses_screen.nodelay(False)
         self._curses_screen.leaveok(True)
         self._curses_screen.notimeout(True)
 
@@ -186,6 +239,8 @@ class VScreen(object):
         return (x,y)
 
     def getch(self, *args):
+        # Prevent to hold the GIL
+        select.select([sys.stdin], [], [])
         return self._curses_screen.getch(*args)
 
     def write(self, x, y, string, fg_color=None, bg_color=None):
@@ -344,6 +399,10 @@ class VVLayout(object):
     def parent(self):
         return self._parent
 
+
+
+
+
 class VApplication(core.VCoreApplication):
     def __init__(self, argv, screen=None):
         super(VApplication, self).__init__(argv)
@@ -356,32 +415,36 @@ class VApplication(core.VCoreApplication):
         self._top_level_widgets = []
         self._focused_widget = None
         self._palette = self.defaultPalette()
+        self._event_queue = Queue.Queue()
+        self._event_thread = KeyEventThread(self._screen, self._event_queue)
+        self._timer_watchdog_thread = TimerWatchdogThread(self._event_queue)
 
     def exec_(self):
         self.renderWidgets()
-        while 1:
+        self._event_thread.start()
+        while True:
+            if self._event_thread.exception_occurred_event.is_set():
+                raise self._event_thread.exception
             self.processEvents()
 
     def processEvents(self):
-        c = self._screen.getch()
-        if c < 0:
-            for t in self._timers:
-                t.heartbeat()
-            self.renderWidgets()
-            return
-        elif c == 27:
-            next_c = self._screen.getch()
-            if next_c == -1:
-                pass
+        event = self._event_queue.get()
+        if isinstance(event, VKeyEvent):
+            if event.key() == 'q':
+                self._event_thread.stop_event.set()
+                return
 
-        event = VKeyEvent.fromNativeKeyCode(c)
-        if self.focusedWidget():
-            self.focusedWidget().keyEvent(event)
-        self._screen.leaveok(False)
-        #self._screen.addch(1,1,c)
-        self.renderWidgets()
+            if self.focusedWidget():
+                self.focusedWidget().keyEvent(event)
+            self._screen.leaveok(False)
+            self.renderWidgets()
+        elif isinstance(event, VPaintEvent):
+            self.renderWidgets()
+        else:
+            pass
+            #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)
-        x,y = self._screen.size()
+        #x,y = self._screen.size()
         #resize = curses.is_term_resized(y, x)
 
         # Action in loop if resize is True:
@@ -390,8 +453,12 @@ class VApplication(core.VCoreApplication):
             #curses.resizeterm(y, x)
             #self.renderWidgets()
 
+    def postEvent(self, event):
+        self._event_queue.put(event)
+
     def exit(self):
         super(VApplication, self).exit()
+        self._event_thread.stop_event.set()
         self._screen.deinit()
 
     def addTopLevelWidget(self, widget):
@@ -434,7 +501,8 @@ class VWidget(core.VObject):
 
         self._pos = (0,0)
         self._layout = None
-        self._visible = False
+        self._visible_implicit = False
+        self._visible_explicit = None
         self._palette = None
         self._enabled = True
         self._active = True
@@ -471,10 +539,17 @@ class VWidget(core.VObject):
         self.setVisible(False)
 
     def setVisible(self, visible):
-        self._visible = visible
+        self._visible_explicit = visible
+        for w in self.children():
+            w.setVisibleImplicit(visible)
+
+    def setVisibleImplicit(self, visible):
+        self._visible_implicit = visible
+        for w in self.children():
+            w.setVisibleImplicit(visible)
 
     def isVisible(self):
-        return self._visible
+        return self._visible_explicit if self._visible_explicit is not None else self._visible_implicit
 
     def minimumSize(self):
         return (1,1)
@@ -528,6 +603,7 @@ class VWidget(core.VObject):
 
     def setActive(self, active):
         self._active = active
+
     def setEnabled(self, enabled):
         self._enabled = enabled
 
@@ -547,6 +623,19 @@ class VWidget(core.VObject):
         bg = self.palette().color(color_group, VPalette.ColorRole.Window)
 
         return (fg, bg)
+
+    def currentColors(self):
+        if self.isActive():
+            color_group = VPalette.ColorGroup.Active
+        else:
+            if isEnabled(self):
+                color_group = VPalette.ColorGroup.Inactive
+            else:
+                color_group = VPalette.ColorGroup.Disabled
+        return self.colors(color_group)
+
+    def update(self):
+        VApplication.vApp.postEvent(VPaintEvent())
 
 class VFrame(VWidget):
     def __init__(self, parent=None):
@@ -569,8 +658,6 @@ class VDialog(VWidget):
     def render(self, painter):
         if not self.isVisible():
             return
-
-        super(VDialog, self).render(painter)
 
         if self.isEnabled():
             if self.isActive():
@@ -634,15 +721,13 @@ class VLabel(VWidget):
         for i in xrange(1+h/2, h):
             painter.write(0, i, ' '*w, fg_color, bg_color)
 
-    def keyEvent(self, event):
-        self._label = self._label + event.key()
-        event.accept()
-
     def minimumSize(self):
         return (len(self._label), 1)
 
     def setText(self, text):
-        self._label = text
+        if text != self._label:
+            self._label = text
+            self.update()
 
 class VLineEdit(VWidget):
     def __init__(self, contents="", parent=None):
@@ -712,8 +797,9 @@ class VLineEdit(VWidget):
 
     def setText(self, text):
         self.deselect()
-        self._text = text
-        self.textChanged.emit(self._text)
+        if text != self._text:
+            self._text = text
+            self.textChanged.emit(self._text)
 
     def backspace(self):
         if self._selection:
@@ -763,6 +849,7 @@ class VLineEdit(VWidget):
             self._text = self._text[:self._cursor_position] + event.text() +  self._text[self._cursor_position:]
             self._cursor_position += len(event.text())
         event.accept()
+        self.update()
 
     def minimumSize(self):
         return (1, 1)
