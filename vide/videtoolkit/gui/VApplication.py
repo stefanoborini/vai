@@ -1,12 +1,12 @@
 from .. import core
-from .VPalette import VPalette
+from . import VPalette
 from . import VScreen
 import threading
 import Queue
 import os
 
 class KeyEventThread(threading.Thread):
-    def __init__(self, screen, event_queue):
+    def __init__(self, screen, key_event_queue, event_available_flag):
         super(KeyEventThread, self).__init__()
         self.daemon = True
         self.exception_occurred_event = threading.Event()
@@ -14,7 +14,8 @@ class KeyEventThread(threading.Thread):
         self.exception = None
 
         self._screen = screen
-        self._event_queue = event_queue
+        self._key_event_queue = key_event_queue
+        self._event_available_flag = event_available_flag
 
     def run(self):
         try:
@@ -25,7 +26,8 @@ class KeyEventThread(threading.Thread):
                     if next_c == -1:
                         pass
                 event = VKeyEvent.fromNativeKeyCode(c)
-                self._event_queue.put(event)
+                self._key_event_queue.put(event)
+                self._event_available_flag.set()
         except Exception as e:
             self.exception = e
             self.exception_occurred_event.set()
@@ -43,7 +45,6 @@ class TimerWatchdogThread(threading.Thread):
 class VApplication(core.VCoreApplication):
     def __init__(self, argv, screen=None):
         super(VApplication, self).__init__(argv)
-        os.environ["ESCDELAY"] = "25"
         if screen:
             self._screen = screen
         else:
@@ -52,31 +53,46 @@ class VApplication(core.VCoreApplication):
         self._top_level_widgets = []
         self._focused_widget = None
         self._palette = self.defaultPalette()
+        self._event_available_flag = threading.Event()
         self._event_queue = Queue.Queue()
-        self._event_thread = KeyEventThread(self._screen, self._event_queue)
-        self._timer_watchdog_thread = TimerWatchdogThread(self._event_queue)
+        self._key_event_queue = Queue.Queue()
+        self._key_event_thread = KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
+        #self._timer_watchdog_thread = TimerWatchdogThread(self._event_queue)
 
     def exec_(self):
         self.renderWidgets()
-        self._event_thread.start()
+        self._key_event_thread.start()
         while True:
-            if self._event_thread.exception_occurred_event.is_set():
-                raise self._event_thread.exception
+            if self._key_event_thread.exception_occurred_event.is_set():
+                raise self._key_event_thread.exception
             self.processEvents()
 
     def processEvents(self):
-        event = self._event_queue.get()
-        if isinstance(event, VKeyEvent):
+        self._event_available_flag.wait()
+        self._event_available_flag.clear()
+
+        try:
+            key_event = self._key_event_queue.get_nowait()
+        except Queue.Empty:
+            key_event = None
+            pass
+
+        if isinstance(key_event, VKeyEvent):
             if event.key() == 'q':
-                self._event_thread.stop_event.set()
+                self._key_event_thread.stop_event.set()
                 return
 
             if self.focusedWidget():
                 self.focusedWidget().keyEvent(event)
             self._screen.leaveok(False)
-            self.renderWidgets()
-        elif isinstance(event, VPaintEvent):
-            self.renderWidgets()
+
+        try:
+            receiver, event = self._event_queue.get_nowait()
+        except Queue.Empty:
+            receiver, event = None, None
+
+        if isinstance(event, VPaintEvent):
+            receiver.paintEvent(event)
         else:
             pass
             #self._stop_flag.append(1)
@@ -90,12 +106,12 @@ class VApplication(core.VCoreApplication):
             #curses.resizeterm(y, x)
             #self.renderWidgets()
 
-    def postEvent(self, event):
-        self._event_queue.put(event)
+    def postEvent(self, receiver, event):
+        self._event_queue.put((receiver, event))
 
     def exit(self):
         super(VApplication, self).exit()
-        self._event_thread.stop_event.set()
+        self._key_event_thread.stop_event.set()
         self._screen.deinit()
 
     def addTopLevelWidget(self, widget):
@@ -118,7 +134,7 @@ class VApplication(core.VCoreApplication):
         return self._focused_widget
 
     def defaultPalette(self):
-        palette = VPalette()
+        palette = VPalette.VPalette()
         palette.setDefaults()
         return palette
 

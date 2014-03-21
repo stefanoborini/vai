@@ -6,6 +6,7 @@ import sys
 
 class VScreen(object):
     def __init__(self):
+        os.environ["ESCDELAY"] = "25"
         self._curses_screen = curses.initscr()
         curses.start_color()
         curses.use_default_colors()
