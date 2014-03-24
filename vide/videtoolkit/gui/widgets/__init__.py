@@ -1,14 +1,16 @@
-from .. import core
-from .. import Key, KeyModifier, nativeToVideKeyCode, videKeyCodeToText
+from ... import core
+from ... import Key, KeyModifier, nativeToVideKeyCode, videKeyCodeToText
 import logging
 import sys
 import os
 import copy
 import select
-from .VApplication import VApplication
-from .VColor import VColor
-from .VPalette import VPalette
-from .VScreen import VScreen
+from ..VApplication import VApplication
+from ..VColor import VColor
+from ..VPalette import VPalette
+from ..VScreen import VScreen
+from ..VPainter import VPainter
+from ..VWidget import VWidget
 
 class VFrame(VWidget):
     def __init__(self, parent=None):
@@ -77,12 +79,13 @@ class VDialog(VWidget):
             return (2,2)
 
 class VLabel(VWidget):
-    def __init__(self, label, parent=None):
+    def __init__(self, label="", parent=None):
         super(VLabel, self).__init__(parent)
         self._label = label
 
-    def render(self, painter):
-        super(VLabel, self).render(painter)
+    def paintEvent(self, event):
+        #super(VLabel, self).render(painter)
+        painter = VPainter(self)
         w, h = self.size()
         fg_color = self.palette().color(VPalette.ColorGroup.Active,
                                         VPalette.ColorRole.WindowText)

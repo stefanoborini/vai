@@ -1,6 +1,8 @@
 from .. import core
+from . import events
 from . import VPalette
 from . import VScreen
+from .VPainter import VPainter
 import threading
 import Queue
 import os
@@ -25,19 +27,12 @@ class KeyEventThread(threading.Thread):
                     next_c = self._screen.getch()
                     if next_c == -1:
                         pass
-                event = VKeyEvent.fromNativeKeyCode(c)
+                event = events.VKeyEvent.fromNativeKeyCode(c)
                 self._key_event_queue.put(event)
                 self._event_available_flag.set()
         except Exception as e:
             self.exception = e
             self.exception_occurred_event.set()
-
-class TimerWatchdogThread(threading.Thread):
-    def __init__(self, event_queue):
-        super(TimerWatchdogThread, self).__init__()
-        self.daemon = True
-        self._event_queue = event_queue
-        self._timers = []
 
     def registerTimer(self, timer):
         pass
@@ -57,15 +52,16 @@ class VApplication(core.VCoreApplication):
         self._event_queue = Queue.Queue()
         self._key_event_queue = Queue.Queue()
         self._key_event_thread = KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
-        #self._timer_watchdog_thread = TimerWatchdogThread(self._event_queue)
 
     def exec_(self):
-        self.renderWidgets()
         self._key_event_thread.start()
+        for w in self._top_level_widgets:
+            self.postEvent(w, events.VPaintEvent())
         while True:
             if self._key_event_thread.exception_occurred_event.is_set():
                 raise self._key_event_thread.exception
             self.processEvents()
+            self._screen.refresh()
 
     def processEvents(self):
         self._event_available_flag.wait()
@@ -77,13 +73,13 @@ class VApplication(core.VCoreApplication):
             key_event = None
             pass
 
-        if isinstance(key_event, VKeyEvent):
-            if event.key() == 'q':
+        if isinstance(key_event, events.VKeyEvent):
+            if key_event.key() == 'q':
                 self._key_event_thread.stop_event.set()
                 return
 
             if self.focusedWidget():
-                self.focusedWidget().keyEvent(event)
+                self.focusedWidget().keyEvent(key_event)
             self._screen.leaveok(False)
 
         try:
@@ -91,10 +87,20 @@ class VApplication(core.VCoreApplication):
         except Queue.Empty:
             receiver, event = None, None
 
-        if isinstance(event, VPaintEvent):
+        if isinstance(event, events.VPaintEvent):
             receiver.paintEvent(event)
-        else:
-            pass
+#            children = receiver.children()
+#            while len(children) != 0:
+#                child = children.pop()
+#                if len(child.children()):
+#                    children.extend(child.children())
+#                    continue
+#                child.paintEvent(event)
+
+            self._screen.refresh()
+
+        elif isinstance(event, events.VTimerEvent):
+            receiver.timerEvent(event)
             #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)
         #x,y = self._screen.size()
@@ -108,6 +114,7 @@ class VApplication(core.VCoreApplication):
 
     def postEvent(self, receiver, event):
         self._event_queue.put((receiver, event))
+        self._event_available_flag.set()
 
     def exit(self):
         super(VApplication, self).exit()
@@ -116,13 +123,6 @@ class VApplication(core.VCoreApplication):
 
     def addTopLevelWidget(self, widget):
         self._top_level_widgets.append(widget)
-
-    def renderWidgets(self):
-        for w in self._top_level_widgets:
-            painter = VPainter(self._screen, w)
-            w.render(painter)
-            #self._screen.setCursorPos(*curpos)
-            self._screen.refresh()
 
     def screen(self):
         return self._screen

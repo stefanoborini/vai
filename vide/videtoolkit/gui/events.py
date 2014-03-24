@@ -31,3 +31,6 @@ class VKeyEvent(object):
 class VPaintEvent(object):
     pass
 
+
+class VTimerEvent(object): pass
+

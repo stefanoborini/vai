@@ -3,6 +3,7 @@ from . import VColor
 import curses
 import select
 import sys
+import os
 
 class VScreen(object):
     def __init__(self):
@@ -104,6 +105,33 @@ class VScreen(object):
                          )[0]
 
         return closest[1]
+
+class VScreenArea(object):
+    def __init__(self, screen, abs_topleft_x, abs_topleft_y, abs_bottomright_x, abs_bottomright_y):
+        self._screen = screen
+        self._abs_topleft = (abs_topleft_x, abs_topleft_y)
+        self._abs_bottomright = (abs_bottomright_x, abs_bottomright_y)
+
+    def write(self, x, y, string, fg_color=None, bg_color=None):
+        size = self.size()
+        if x >= size[0] or y >= size[1]:
+            return
+
+        if x < 0 or y < 0:
+            return
+
+        if (x+len(string) >= size[0]):
+            string = string[:size[0]-x]
+
+        self._screen.write(x+self._abs_topleft[0], y+self._abs_topleft[1], string, fg_color, bg_color)
+
+    def size(self):
+        return ( self._abs_bottomright[0]-self._abs_topleft[0],
+                 self._abs_bottomright[1]-self._abs_topleft[1]
+               )
+
+    def screen(self):
+        return self._screen
 
 class DummyVScreen(object):
     def __init__(self):

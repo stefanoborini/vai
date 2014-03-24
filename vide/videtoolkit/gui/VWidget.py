@@ -1,3 +1,10 @@
+from .. import core
+from .VApplication import VApplication
+from .VPalette import VPalette
+from .VPainter import VPainter
+from .VScreen import VScreenArea
+
+from .events import VPaintEvent
 class VWidget(core.VObject):
     def __init__(self, parent=None):
         super(VWidget, self).__init__(parent)
@@ -17,17 +24,18 @@ class VWidget(core.VObject):
         self._active = True
 
     def keyEvent(self, event):
-        if not event.accepted():
-            self._parent.keyEvent(event)
+        pass
 
     def setFocus(self):
         VApplication.vApp.setFocusWidget(self)
 
     def move(self, x, y):
         self._pos = (x,y)
+        self.update()
 
     def resize(self, w, h):
         self._size = (w,h)
+        self.update()
 
     def pos(self):
         return self._pos
@@ -51,11 +59,13 @@ class VWidget(core.VObject):
         self._visible_explicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)
+        self.update()
 
     def setVisibleImplicit(self, visible):
         self._visible_implicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)
+        self.update()
 
     def isVisible(self):
         return self._visible_explicit if self._visible_explicit is not None else self._visible_implicit
@@ -71,6 +81,7 @@ class VWidget(core.VObject):
         self._pos = (x,y)
         min_size = self.minimumSize()
         self._size = (max(min_size[0], w) , max(min_size[1], h))
+        self.update()
 
     def mapToGlobal(self, x, y):
         if self.parent() is None:
@@ -79,12 +90,23 @@ class VWidget(core.VObject):
         global_corner = self.parent().mapToGlobal(0,0)
         return (global_corner[0] + self.pos()[0] + x, global_corner[1] + self.pos()[1] + y)
 
-    def render(self, painter):
+    def screenArea(self):
+        abs_pos_topleft = self.mapToGlobal(0,0)
+        abs_pos_bottomright = self.mapToGlobal(self.width()-1, self.height()-1)
+
+        return VScreenArea( VApplication.vApp.screen(),
+                            abs_pos_topleft[0],
+                            abs_pos_topleft[1],
+                            abs_pos_bottomright[0],
+                            abs_pos_bottomright[1])
+
+    def paintEvent(self, event):
         if not self.isVisible():
             return
 
-        if self._layout is not None:
-            self._layout.apply()
+        painter = VPainter(self)
+        #if self._layout is not None:
+        #    self._layout.apply()
 
         w, h = self.size()
         if self.isEnabled():
@@ -99,10 +121,6 @@ class VWidget(core.VObject):
 
         for i in xrange(0, h):
             painter.write(0, i, ' '*w, fg, bg)
-
-        for w in self.children():
-            child_painter = VPainter(painter.screen(), w)
-            w.render(child_painter)
 
     def isEnabled(self):
         return self._enabled
@@ -144,5 +162,5 @@ class VWidget(core.VObject):
         return self.colors(color_group)
 
     def update(self):
-        VApplication.vApp.postEvent(VPaintEvent())
+        VApplication.vApp.postEvent(self,VPaintEvent())
 

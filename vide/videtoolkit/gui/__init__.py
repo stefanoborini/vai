@@ -7,9 +7,10 @@ import copy
 import select
 from .VApplication import VApplication
 from .VColor import VColor
+from .VColor import VGlobalColor
 from .VPalette import VPalette
-from .VScreen import VScreen
-
+from .VScreen import VScreen, VScreenArea
+from .widgets import VLabel
 
 class VHLayout(object):
     def __init__(self):
