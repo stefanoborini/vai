@@ -6,6 +6,7 @@ from . import VScreen
 from .VPainter import VPainter
 import threading
 import Queue
+import logging
 import os
 
 class KeyEventThread(threading.Thread):
@@ -65,36 +66,43 @@ class VApplication(core.VCoreApplication):
             self._screen.refresh()
 
     def processEvents(self):
+        logging.info("Waiting for events")
         self._event_available_flag.wait()
         self._event_available_flag.clear()
+        logging.info("Event available")
+        while True:
+            try:
+                key_event = self._key_event_queue.get_nowait()
+            except Queue.Empty:
+                key_event = None
 
-        try:
-            key_event = self._key_event_queue.get_nowait()
-        except Queue.Empty:
-            key_event = None
-            pass
+            if key_event is None:
+                break
 
-        if isinstance(key_event, events.VKeyEvent):
-            if key_event.key() == 'q':
-                self._key_event_thread.stop_event.set()
+            if isinstance(key_event, events.VKeyEvent):
+                if self.focusedWidget():
+                    self.focusedWidget().keyEvent(key_event)
+                logging.info("Key event. Delivering to "+str(self.focusedWidget()))
+                self._screen.leaveok(False)
                 return
 
-            if self.focusedWidget():
-                self.focusedWidget().keyEvent(key_event)
-            self._screen.leaveok(False)
+        while True:
+            try:
+                receiver, event = self._event_queue.get_nowait()
+            except Queue.Empty:
+                receiver, event = None, None
 
-        try:
-            receiver, event = self._event_queue.get_nowait()
-        except Queue.Empty:
-            receiver, event = None, None
+            if event is None:
+                break
 
-        if isinstance(event, events.VPaintEvent):
-            for widget in receiver.tree():
-                if widget.isVisible():
-                    widget.paintEvent(event)
+            if isinstance(event, events.VPaintEvent):
+                logging.info("Paint event. Receiver "+str(receiver))
+                for widget in receiver.tree():
+                    if widget.isVisible():
+                        widget.paintEvent(event)
 
-        elif isinstance(event, coreevents.VTimerEvent):
-            receiver.timerEvent(event)
+            elif isinstance(event, coreevents.VTimerEvent):
+                receiver.timerEvent(event)
             #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)
         #x,y = self._screen.size()
@@ -107,6 +115,7 @@ class VApplication(core.VCoreApplication):
             #self.renderWidgets()
 
     def postEvent(self, receiver, event):
+        logging.info("Posting event: " + str(receiver) + " " + str(event))
         self._event_queue.put((receiver, event))
         self._event_available_flag.set()
 

@@ -1,6 +1,5 @@
 from . import VColor
 import itertools
-
 import curses
 import select
 import sys
@@ -46,7 +45,7 @@ class VScreen(object):
 
     def write(self, x, y, string, fg_color=None, bg_color=None):
         size = self.size()
-        if x >= size[0] or y >= size[1]:
+        if self.outOfBounds(x,y):
             return
 
         color_pair = self.getColorPair(fg_color, bg_color)
@@ -75,6 +74,8 @@ class VScreen(object):
             return self._color_pairs.index( (-1, -1) )
 
     def setCursorPos(self, x, y):
+        if self.outOfBounds(x,y):
+            return
         curses.setsyx(y,x)
         self._curses_screen.move(y,x)
         self.refresh()
@@ -113,6 +114,9 @@ class VScreen(object):
                          )[0]
 
         return closest[1]
+
+    def outOfBounds(self, x, y):
+        return (x >= self.size()[0] or y >= self.size()[1] or x < 0 or y < 0)
 
 class VScreenArea(object):
     def __init__(self, screen, abs_x, abs_y, w, h):

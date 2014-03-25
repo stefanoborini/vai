@@ -8,11 +8,13 @@ import select
 from .VApplication import VApplication
 from .VColor import VColor
 from .VColor import VGlobalColor
+from .VCursor import VCursor
 from .VPalette import VPalette
 from .VScreen import VScreen, VScreenArea, DummyVScreen
 from .VWidget import VWidget
 from .widgets import VLabel
 from .widgets import VDialog
+from .widgets import VLineEdit
 
 class VHLayout(object):
     def __init__(self):
@@ -63,14 +65,6 @@ class VVLayout(object):
 
     def parent(self):
         return self._parent
-
-class VCursor(object):
-    @staticmethod
-    def setPos(x,y):
-        VApplication.vApp.screen().setCursorPos(x,y)
-
-    def pos(x,y):
-        return VApplication.vApp.screen().cursorPos(x,y)
 
 
 

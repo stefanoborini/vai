@@ -1,4 +1,6 @@
 import curses
+import logging
+logging.basicConfig(filename='videtoolkit.log',level=logging.DEBUG)
 
 class Key(object):
     Key_Escape    = 0x01000000
