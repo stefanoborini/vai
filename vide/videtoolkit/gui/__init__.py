@@ -9,8 +9,10 @@ from .VApplication import VApplication
 from .VColor import VColor
 from .VColor import VGlobalColor
 from .VPalette import VPalette
-from .VScreen import VScreen, VScreenArea
+from .VScreen import VScreen, VScreenArea, DummyVScreen
+from .VWidget import VWidget
 from .widgets import VLabel
+from .widgets import VDialog
 
 class VHLayout(object):
     def __init__(self):

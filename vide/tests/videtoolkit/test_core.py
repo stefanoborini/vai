@@ -20,6 +20,14 @@ class TestCore(unittest.TestCase):
         self.assertEqual(len(c1.children()), 0)
         self.assertEqual(len(c2.children()), 0)
 
+    def testVObjectTree(self):
+        p = core.VObject()
+        c1 = core.VObject(p)
+        c2 = core.VObject(p)
+        c3 = core.VObject(c1)
+
+        self.assertEqual(p.tree(), [p, c1, c3, c2])
+
     def testVSignal(self):
         arg = []
         sender = core.VObject()

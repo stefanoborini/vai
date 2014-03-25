@@ -26,14 +26,10 @@ class TestVApplicationInterface(unittest.TestCase):
     def testPalette(self):
         self.assertTrue(isinstance(self.app.palette(), gui.VPalette))
 
-    def testColors(self):
-        app = gui.VApplication([])
-        print app.numColors()
-        app.supportedColors()
 
 class TestGui2(unittest.TestCase):
     def testVColor(self):
-        color = gui.VColor((1000,100,500))
+        color = gui.VColor((255,25,127))
         self.assertEqual(color.rgb(), (255, 25, 127))
         self.assertEqual(color.hexString(), "FF197F")
 

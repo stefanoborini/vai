@@ -1,4 +1,5 @@
 from .. import core
+from ..core import events as coreevents
 from . import events
 from . import VPalette
 from . import VScreen
@@ -88,18 +89,11 @@ class VApplication(core.VCoreApplication):
             receiver, event = None, None
 
         if isinstance(event, events.VPaintEvent):
-            receiver.paintEvent(event)
-#            children = receiver.children()
-#            while len(children) != 0:
-#                child = children.pop()
-#                if len(child.children()):
-#                    children.extend(child.children())
-#                    continue
-#                child.paintEvent(event)
+            for widget in receiver.tree():
+                if widget.isVisible():
+                    widget.paintEvent(event)
 
-            self._screen.refresh()
-
-        elif isinstance(event, events.VTimerEvent):
+        elif isinstance(event, coreevents.VTimerEvent):
             receiver.timerEvent(event)
             #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)

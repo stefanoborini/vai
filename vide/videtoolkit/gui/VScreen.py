@@ -1,4 +1,5 @@
 from . import VColor
+import itertools
 
 import curses
 import select
@@ -68,7 +69,10 @@ class VScreen(object):
 
         if fg_index == 0 and bg_index == 0:
             return self._color_pairs.index( (-1, -1) )
-        return self._color_pairs.index( (fg_index, bg_index) )
+        try:
+            return self._color_pairs.index( (fg_index, bg_index) )
+        except:
+            return self._color_pairs.index( (-1, -1) )
 
     def setCursorPos(self, x, y):
         curses.setsyx(y,x)
@@ -88,12 +92,16 @@ class VScreen(object):
         # Init color pairs
         counter = 1
         self._color_pairs = [ (-1, -1) ]
-        for bg in range(0, self.numColors()):
-            for fg in range(0, self.numColors()):
+        for bg in range(0, self.numColors(), 2):
+            for fg in range(0, self.numColors(), 2):
                 if fg == 0 and bg == 0:
                     continue
                 self._color_pairs.append((fg, bg))
-                curses.init_pair(counter, fg, bg)
+                try:
+                    curses.init_pair(counter, fg, bg)
+                except:
+                    raise Exception(str(counter))
+                    pass
                 counter += 1
 
     def _findClosestColorIndex(self, color):
@@ -107,42 +115,48 @@ class VScreen(object):
         return closest[1]
 
 class VScreenArea(object):
-    def __init__(self, screen, abs_topleft_x, abs_topleft_y, abs_bottomright_x, abs_bottomright_y):
+    def __init__(self, screen, abs_x, abs_y, w, h):
         self._screen = screen
-        self._abs_topleft = (abs_topleft_x, abs_topleft_y)
-        self._abs_bottomright = (abs_bottomright_x, abs_bottomright_y)
+        self._topleft_coords = (abs_x, abs_y)
+        self._size = (w, h)
 
-    def write(self, x, y, string, fg_color=None, bg_color=None):
+    def write(self, rel_x, rel_y, string, fg_color=None, bg_color=None):
         size = self.size()
-        if x >= size[0] or y >= size[1]:
+        if rel_x >= size[0] or rel_y >= size[1]:
             return
 
-        if x < 0 or y < 0:
+        if rel_x < 0 or rel_y < 0:
             return
 
-        if (x+len(string) >= size[0]):
-            string = string[:size[0]-x]
+        if (rel_x+len(string) >= size[0]):
+            string = string[:size[0]-rel_x]
 
-        self._screen.write(x+self._abs_topleft[0], y+self._abs_topleft[1], string, fg_color, bg_color)
+        self._screen.write(rel_x+self._topleft_coords[0],
+                           rel_y+self._topleft_coords[1],
+                           string,
+                           fg_color,
+                           bg_color)
 
     def size(self):
-        return ( self._abs_bottomright[0]-self._abs_topleft[0],
-                 self._abs_bottomright[1]-self._abs_topleft[1]
-               )
+        return self._size
 
     def screen(self):
         return self._screen
 
+    def clear(self):
+        for y in xrange(self._size[1]):
+            self.write(0, y, ' '*self._size[0])
+
 class DummyVScreen(object):
-    def __init__(self):
+    def __init__(self, w, h):
         self._cursor_pos = (0,0)
         self._render_output = []
-        self._size = (60, 25)
+        self._size = (w, h)
         for h in xrange(self._size[1]):
             row = []
             self._render_output.append(row)
             for w in xrange(self._size[0]):
-                row.append(' ')
+                row.append('.')
 
         self._log = []
         self._log.append("Inited screen")
@@ -151,6 +165,7 @@ class DummyVScreen(object):
 
     def refresh(self):
         self._log.append("Refresh")
+        print self
 
     def size(self):
         return self._size
@@ -173,7 +188,7 @@ class DummyVScreen(object):
     def getColor(self, fg, bg):
         return 0
 
-    def write(self, x, y, string, color):
+    def write(self, x, y, string, fg_color=None, bg_color=None):
         for pos in xrange(len(string)):
             try:
                 self._render_output[y][x+pos] = string[pos]
@@ -181,10 +196,16 @@ class DummyVScreen(object):
                 pass
 
     def dump(self):
-        print "+"*(self._size[0]+2)
-        for r in self._render_output:
-            print "+"+''.join(r)+"+"
-        print "+"*(self._size[0]+2)
+        ret = []
+        ret.append(" "+"".join(list(itertools.islice(itertools.cycle(map(str, range(10))), self._size[0]+1))))
+        #print "+"*(self._size[0]+2)
+        for i, r in enumerate(self._render_output):
+            ret.append(str(i%10)+''.join(r)+"+")
+        ret.append( "+"*(self._size[0]+2))
+        return ret
+
+    def __str__(self):
+        return "\n".join(self.dump())
 
     def charAt(self, x, y):
         return self._render_output[y][x]

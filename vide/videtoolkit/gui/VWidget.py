@@ -5,17 +5,20 @@ from .VPainter import VPainter
 from .VScreen import VScreenArea
 
 from .events import VPaintEvent
+
 class VWidget(core.VObject):
     def __init__(self, parent=None):
         super(VWidget, self).__init__(parent)
         if parent is None:
             VApplication.vApp.addTopLevelWidget(self)
             self._size = VApplication.vApp.screen().size()
+            self._pos = (0,0)
             self.setFocus()
         else:
-            self._size = self.parent().size()
+            contents_rect = self.parent().contentsRect()
+            self._pos = contents_rect[0], contents_rect[1]
+            self._size = contents_rect[2], contents_rect[3]
 
-        self._pos = (0,0)
         self._layout = None
         self._visible_implicit = False
         self._visible_explicit = None
@@ -42,6 +45,9 @@ class VWidget(core.VObject):
 
     def size(self):
         return self._size
+
+    def rect(self):
+        return (0,0, self.width(), self.height())
 
     def width(self):
         return self._size[0]
@@ -92,18 +98,14 @@ class VWidget(core.VObject):
 
     def screenArea(self):
         abs_pos_topleft = self.mapToGlobal(0,0)
-        abs_pos_bottomright = self.mapToGlobal(self.width()-1, self.height()-1)
 
         return VScreenArea( VApplication.vApp.screen(),
                             abs_pos_topleft[0],
                             abs_pos_topleft[1],
-                            abs_pos_bottomright[0],
-                            abs_pos_bottomright[1])
+                            self.width(),
+                            self.height())
 
     def paintEvent(self, event):
-        if not self.isVisible():
-            return
-
         painter = VPainter(self)
         #if self._layout is not None:
         #    self._layout.apply()
@@ -164,3 +166,12 @@ class VWidget(core.VObject):
     def update(self):
         VApplication.vApp.postEvent(self,VPaintEvent())
 
+    def contentsRect(self):
+        return (self.contentsMargins()[0],
+                self.contentsMargins()[1],
+                self.width()-self.contentsMargins()[0]-self.contentsMargins()[2],
+                self.height()-self.contentsMargins()[1]-self.contentsMargins()[3]
+                )
+
+    def contentsMargins(self):
+        return (0,0,0,0)
