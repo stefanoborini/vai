@@ -31,6 +31,6 @@ class TestVScreenArea(unittest.TestCase):
         self.assertEqual(screen.stringAt(4,8,12), '.          .')
         self.assertEqual(screen.stringAt(4,9,12), '.          .')
         self.assertEqual(screen.stringAt(4,10,12),'............')
-        print screen
+
 if __name__ == '__main__':
     unittest.main()

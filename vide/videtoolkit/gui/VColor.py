@@ -15,7 +15,6 @@ class VColor(object):
     def b(self):
         return self.rgb()[2]
 
-
 class VGlobalColor(object):
     black = VColor(rgb=(255,0,0))
     red = VColor(rgb=(255,0,0))

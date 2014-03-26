@@ -62,14 +62,14 @@ class VApplication(core.VCoreApplication):
         while True:
             if self._key_event_thread.exception_occurred_event.is_set():
                 raise self._key_event_thread.exception
+            logging.info("Waiting for events")
+            self._event_available_flag.wait()
+            self._event_available_flag.clear()
+            logging.info("Event available")
             self.processEvents()
             self._screen.refresh()
 
     def processEvents(self):
-        logging.info("Waiting for events")
-        self._event_available_flag.wait()
-        self._event_available_flag.clear()
-        logging.info("Event available")
         while True:
             try:
                 key_event = self._key_event_queue.get_nowait()
@@ -80,11 +80,11 @@ class VApplication(core.VCoreApplication):
                 break
 
             if isinstance(key_event, events.VKeyEvent):
+                logging.info("Key event")
                 if self.focusedWidget():
+                    logging.info("Delivering to "+str(self.focusedWidget()))
                     self.focusedWidget().keyEvent(key_event)
-                logging.info("Key event. Delivering to "+str(self.focusedWidget()))
                 self._screen.leaveok(False)
-                return
 
         while True:
             try:

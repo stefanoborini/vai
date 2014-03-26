@@ -156,6 +156,7 @@ class DummyVScreen(object):
         self._cursor_pos = (0,0)
         self._render_output = []
         self._size = (w, h)
+        self._text = ""
         for h in xrange(self._size[1]):
             row = []
             self._render_output.append(row)
@@ -187,7 +188,14 @@ class DummyVScreen(object):
         pass
 
     def getch(self, *args):
-        return -1
+        if len(self._text) == 0:
+            return -1
+        char_ret, self._text = self._text[0], self._text[1:]
+
+        return char_ret
+
+    def typeText(self, text):
+        self._text = text
 
     def getColor(self, fg, bg):
         return 0
@@ -198,7 +206,6 @@ class DummyVScreen(object):
                 self._render_output[y][x+pos] = string[pos]
             except:
                 pass
-
     def dump(self):
         ret = []
         ret.append(" "+"".join(list(itertools.islice(itertools.cycle(map(str, range(10))), self._size[0]+1))))
