@@ -19,6 +19,7 @@ class VScreen(object):
         self._curses_screen.leaveok(True)
         self._curses_screen.notimeout(True)
 
+        self._cursor_pos = (0,0)
         self._initColors()
         self._initColorPairs()
 
@@ -28,11 +29,11 @@ class VScreen(object):
         curses.echo()
         curses.endwin()
 
-    def leaveok(self, flag):
-        self._curses_screen.leaveok(flag)
-
     def refresh(self):
-        self._curses_screen.refresh()
+        self._curses_screen.noutrefresh()
+        curses.setsyx(self._cursor_pos[1], self._cursor_pos[0])
+        curses.doupdate()
+
 
     def size(self):
         y, x = self._curses_screen.getmaxyx()
@@ -76,13 +77,13 @@ class VScreen(object):
     def setCursorPos(self, x, y):
         if self.outOfBounds(x,y):
             return
-        curses.setsyx(y,x)
-        self._curses_screen.move(y,x)
-        self.refresh()
+
+        self._cursor_pos = (x,y)
 
     def cursorPos(self):
-        pos = self._curses_screen.getyx()
-        return pos[1], pos[0]
+        return self._cursor_pos
+        #pos = self._curses_screen.getyx()
+        #return pos[1], pos[0]
 
     def _initColors(self):
         self._colors = []
@@ -180,9 +181,6 @@ class DummyVScreen(object):
 
     def setCursorPos(self, x, y):
         self._cursor_pos = (x,y)
-
-    def leaveok(self, flag):
-        pass
 
     def addstr(self, *args):
         pass

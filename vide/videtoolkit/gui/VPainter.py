@@ -15,6 +15,6 @@ class VPainter(object):
     def clear(self, x, y, w, h):
         widget_colors = self._widget.currentColors()
         for h_idx in xrange(h):
-            self._widget.screenArea().write(x, y, h_idx, ' '*w, widget_colors[0], widget_colors[1])
+            self._widget.screenArea().write(x, y+h_idx, ' '*w, widget_colors[0], widget_colors[1])
 
 

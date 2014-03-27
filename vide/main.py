@@ -1,24 +1,15 @@
 from videtoolkit import core, gui
 from vide import editor
+from vide.EditorModel import EditorModel
 import time
 import sys
 
 try:
     app = gui.VApplication(sys.argv)
 
-    model = editor.EditorModel("setup.cfg")
+    model = EditorModel("setup.cfg")
     widget = editor.Editor(model)
-
-    #tabwidget = gui.VTabWidget()
-    #label = gui.VLabel("Pretty Text", tabwidget)
-    #tabwidget.addTab(label, "foo")
-    #tabwidget.addTab(label, "bar")
-    #tabwidget.addTab(label, "baz")
-    #tabwidget.addTab(label, "baww")
-    #label.setColor(1)
-    #label.setGeometry(30,30,20,10)
-    #tabwidget.show()
-
+    widget.show()
     app.exec_()
 except Exception as e:
     import traceback

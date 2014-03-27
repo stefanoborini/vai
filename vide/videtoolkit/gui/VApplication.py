@@ -80,11 +80,10 @@ class VApplication(core.VCoreApplication):
                 break
 
             if isinstance(key_event, events.VKeyEvent):
-                logging.info("Key event")
+                logging.info("Key event %d %x" % (key_event.key(), key_event.modifiers()))
                 if self.focusedWidget():
                     logging.info("Delivering to "+str(self.focusedWidget()))
                     self.focusedWidget().keyEvent(key_event)
-                self._screen.leaveok(False)
 
         while True:
             try:

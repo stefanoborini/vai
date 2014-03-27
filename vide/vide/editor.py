@@ -1,60 +1,8 @@
 import videtoolkit
 from videtoolkit import gui, core, utils
+import logging
 import curses
 import math
-
-class InsertLineAfterCommand(object):
-    def __init__(self, model, line_number):
-        self._model = model
-        self._line_number = line_number
-
-    def execute(self):
-        self._model.insertAfter(self._line_number)
-
-    def undo(self):
-        self._model.deleteLine(self._line_number+1)
-
-class InsertLineBeforeCommand(object):
-    def __init__(self, model, line_number):
-        self._model = model
-        self._line_number = line_number
-
-    def execute(self):
-        self._model.insertBefore(self._line_number)
-
-    def undo(self):
-        self._model.deleteLine(self._line_number)
-
-class EditorModel(core.VObject):
-    def __init__(self, filename=None):
-        if filename:
-            self._contents = open(filename).readlines()
-            self._filename = filename
-        else:
-            self._contents = []
-            self._filename = 'noname.txt'
-
-    def getLine(self, line):
-        try:
-            return self._contents[line]
-        except:
-            return ""
-
-    def insertAfter(self, line_number):
-        self._contents.insert(line_number+1,'')
-
-    def insertBefore(self, line_number):
-        self._contents.insert(line_number,'')
-
-    def deleteLine(self, line_number):
-        self._contents.pop(line_number)
-
-    def filename(self):
-        return self._filename
-
-    def numLines(self):
-        return len(self._contents)
-
 
 COMMAND_MODE = -1
 INSERT_MODE = 1
@@ -85,9 +33,9 @@ DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up, videtoolkit.Key.Key_Down, videtoolk
 class StatusBar(gui.VLabel):
     def __init__(self, parent):
         super(StatusBar,self).__init__("", parent)
-        #self.setColors()
         self._filename = ""
         self._position = ""
+        self.setColors(gui.VGlobalColor.cyan, gui.VGlobalColor.blue)
 
     def setFilename(self, filename):
         self._filename = filename
@@ -104,10 +52,11 @@ class StatusBar(gui.VLabel):
 
 class CommandBar(gui.VLabel):
     def __init__(self, view_model, parent=None):
-        super(CommandBar,self).__init__("", parent)
+        super(CommandBar,self).__init__(parent)
         self._view_model = view_model
-        self._view_model.changed.connect(self.update)
+        self._view_model.changed.connect(self.updateContent)
         self._mode = None
+        self._updateText()
 
     def _updateText(self):
         if self._mode == INSERT_MODE:
@@ -119,7 +68,7 @@ class CommandBar(gui.VLabel):
         self._mode = mode
         self._updateText()
 
-    def update(self):
+    def updateContent(self):
         self.setMode(self._view_model.state())
 
 class EditorController(core.VObject):
@@ -131,6 +80,7 @@ class EditorController(core.VObject):
 
     def handleKeyEvent(self, event):
         if event.key() in DIRECTIONAL_KEYS:
+            logging.info("Directional key")
             self._view.moveCursor(event)
             event.accept()
             return
@@ -159,6 +109,7 @@ class EditorController(core.VObject):
                     command = self._command_history.pop()
                     command.undo()
 
+
             event.accept()
 
 class Editor(gui.VWidget):
@@ -168,7 +119,6 @@ class Editor(gui.VWidget):
         self._view_model = ViewModel()
         self._view_model.changed.connect(self.viewModelChanged)
         self._controller = EditorController(self._document_model, self._view_model, self)
-        self._cursor_pos = (0,0)
         self._status_bar = StatusBar(self)
         self._status_bar.move(0, self.size()[1]-2)
         self._status_bar.resize(self.size()[0], 1)
@@ -178,19 +128,23 @@ class Editor(gui.VWidget):
         self._command_bar.move(0, self.size()[1]-1)
         self._command_bar.resize(self.size()[0], 1)
 
+        self._cursor_pos = (2,2)
+        self.setFocus()
+
 
     def statusBar(self):
         return self._status_bar
 
-    def render(self, painter):
+    def paintEvent(self, event):
         w, h = self.size()
-        num_digits = math.log10(self._document_model.numLines())+1
-        for i in xrange(0, h):
+        painter = gui.VPainter(self)
+        num_digits = int(math.log10(self._document_model.numLines()))+1
+        for i in xrange(0, h-2):
             painter.clear(0, i, w, 1)
             painter.write(0, i, str(i+self._view_model.topLine()).rjust(num_digits+1)+"  ")
             painter.write(num_digits+3, i, self._document_model.getLine(self._view_model.topLine()+i))
 
-        super(Editor, self).render(painter)
+        gui.VCursor.setPos(self._cursor_pos[0], self._cursor_pos[1])
 
     def keyEvent(self, event):
         self._controller.handleKeyEvent(event)
@@ -206,6 +160,7 @@ class Editor(gui.VWidget):
             self._cursor_pos = (self._cursor_pos[0]+1, self._cursor_pos[1])
 
         self._status_bar.setPosition(*self._cursor_pos)
+        logging.info("moving cursor %s" % str(self._cursor_pos))
         gui.VCursor.setPos(self._cursor_pos[0]+self.pos()[0], self._cursor_pos[1]+self.pos()[1])
 
     def viewModelChanged(self):

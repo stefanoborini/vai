@@ -164,8 +164,6 @@ def nativeToVideKeyCode(native_key_code):
       4                    : Key.Key_D | KeyModifier.ControlModifier,
       10                   : Key.Key_Return,
       27                   : Key.Key_Escape,
-      curses.KEY_LEFT      : Key.Key_Left,
-      curses.KEY_RIGHT     : Key.Key_Right,
       32                   : Key.Key_Space,
       65                   : Key.Key_A | KeyModifier.ShiftModifier,
       66                   : Key.Key_B | KeyModifier.ShiftModifier,
@@ -229,10 +227,14 @@ def nativeToVideKeyCode(native_key_code):
       124                  : Key.Key_Bar,
       125                  : Key.Key_BraceRight,
       126                  : Key.Key_AsciiTilde,
-      127                  : Key.Key_Backspace
+      127                  : Key.Key_Backspace,
+      258                  : Key.Key_Down,
+      259                  : Key.Key_Up,
+      260                  : Key.Key_Left,
+      261                  : Key.Key_Right,
     }
 
-    return key_mapper.get(native_key_code, Key.Key_unknown)
+    return key_mapper.get(native_key_code)
 
 def isKeyCodePrintable(vide_key_code):
     return ((vide_key_code & Key.NonPrintableMask) == 0)
