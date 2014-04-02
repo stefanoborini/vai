@@ -34,19 +34,32 @@ class VScreen(object):
         curses.setsyx(self._cursor_pos[1], self._cursor_pos[0])
         curses.doupdate()
 
+    def rect(self):
+        return self.topLeft() + self.size()
 
     def size(self):
         y, x = self._curses_screen.getmaxyx()
         return (x,y)
+
+    def topLeft(self):
+        return (0,0)
+
+    def width(self):
+        return self.size()[0]
+
+    def height(self):
+        return self.size()[1]
 
     def getch(self, *args):
         # Prevent to hold the GIL
         select.select([sys.stdin], [], [])
         return self._curses_screen.getch(*args)
 
-    def write(self, x, y, string, fg_color=None, bg_color=None):
+    def write(self, pos, string, fg_color=None, bg_color=None):
+        x,y = pos
         size = self.size()
-        if self.outOfBounds(x,y):
+        if self.outOfBounds(pos):
+            logging.info("out of bound in Screen.write: %s %s" % (str(pos), string))
             return
 
         color_pair = self.getColorPair(fg_color, bg_color)
@@ -74,11 +87,12 @@ class VScreen(object):
         except:
             return self._color_pairs.index( (-1, -1) )
 
-    def setCursorPos(self, x, y):
-        if self.outOfBounds(x,y):
+    def setCursorPos(self, pos):
+        if self.outOfBounds(pos):
+            logging.info("out of bound in Screen.setCursorPos: %s" % str(pos))
             return
 
-        self._cursor_pos = (x,y)
+        self._cursor_pos = pos
 
     def cursorPos(self):
         return self._cursor_pos
@@ -116,17 +130,18 @@ class VScreen(object):
 
         return closest[1]
 
-    def outOfBounds(self, x, y):
+    def outOfBounds(self, pos):
+        x, y = pos
         return (x >= self.size()[0] or y >= self.size()[1] or x < 0 or y < 0)
 
 class VScreenArea(object):
-    def __init__(self, screen, abs_x, abs_y, w, h):
+    def __init__(self, screen, rect):
         self._screen = screen
-        self._topleft_coords = (abs_x, abs_y)
-        self._size = (w, h)
+        self._rect = rect
 
-    def write(self, rel_x, rel_y, string, fg_color=None, bg_color=None):
+    def write(self, pos, string, fg_color=None, bg_color=None):
         size = self.size()
+        rel_x, rel_y = pos
         if rel_x >= size[0] or rel_y >= size[1]:
             return
 
@@ -136,21 +151,36 @@ class VScreenArea(object):
         if (rel_x+len(string) >= size[0]):
             string = string[:size[0]-rel_x]
 
-        self._screen.write(rel_x+self._topleft_coords[0],
-                           rel_y+self._topleft_coords[1],
-                           string,
-                           fg_color,
-                           bg_color)
+        self._screen.write( (rel_x+self.topLeft()[0], rel_y+self.topLeft()[1]),
+                             string,
+                             fg_color,
+                             bg_color)
+
+    def rect(self):
+        return self._rect
 
     def size(self):
-        return self._size
+        return (self._rect[2], self._rect[3])
+
+    def topLeft(self):
+        return (self._rect[0], self._rect[1])
+
+    def width(self):
+        return self._rect[2]
+
+    def height(self):
+        return self._rect[3]
 
     def screen(self):
         return self._screen
 
     def clear(self):
-        for y in xrange(self._size[1]):
-            self.write(0, y, ' '*self._size[0])
+        for y in xrange(self.height()):
+            self.write( (0, y), ' '*self.width())
+
+    def outOfBounds(self, pos):
+        x, y = pos
+        return (x >= self.size()[0] or y >= self.size()[1] or x < 0 or y < 0)
 
 class DummyVScreen(object):
     def __init__(self, w, h):

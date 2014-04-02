@@ -15,10 +15,10 @@ class VLabel(VWidget):
         bg_color = self.palette().color(VPalette.ColorGroup.Active,
                                         VPalette.ColorRole.Window)
         for i in xrange(0, h/2):
-            painter.write(0, i, ' '*w, fg_color, bg_color)
-        painter.write(0, h/2, self._label + ' '*(w-len(self._label)), fg_color, bg_color)
+            painter.write( (0, i), ' '*w, fg_color, bg_color)
+        painter.write( (0, h/2), self._label + ' '*(w-len(self._label)), fg_color, bg_color)
         for i in xrange(1+h/2, h):
-            painter.write(0, i, ' '*w, fg_color, bg_color)
+            painter.write( (0, i), ' '*w, fg_color, bg_color)
 
     def minimumSize(self):
         return (len(self._label), 1)

@@ -1,13 +1,13 @@
 from videtoolkit import core, gui
 from vide import editor
-from vide.EditorModel import EditorModel
+from vide.EditorModel import TextDocument
 import time
 import sys
 
 try:
     app = gui.VApplication(sys.argv)
 
-    model = EditorModel("setup.cfg")
+    model = TextDocument("main.py")
     widget = editor.Editor(model)
     widget.show()
     app.exec_()

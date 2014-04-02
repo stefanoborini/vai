@@ -11,13 +11,10 @@ class VWidget(core.VObject):
         super(VWidget, self).__init__(parent)
         if parent is None:
             VApplication.vApp.addTopLevelWidget(self)
-            self._size = VApplication.vApp.screen().size()
-            self._pos = (0,0)
+            self._geometry = (0,0) + VApplication.vApp.screen().size()
             self.setFocus()
         else:
-            contents_rect = self.parent().contentsRect()
-            self._pos = contents_rect[0], contents_rect[1]
-            self._size = contents_rect[2], contents_rect[3]
+            self._geometry = self.parent().contentsRect()
 
         self._layout = None
         self._visible_implicit = False
@@ -33,27 +30,30 @@ class VWidget(core.VObject):
         VApplication.vApp.setFocusWidget(self)
 
     def move(self, x, y):
-        self._pos = (x,y)
+        self._geometry = (x, y) + self.size()
         self.update()
 
     def resize(self, w, h):
-        self._size = (w,h)
+        self._geometry = self.pos() + (w, h)
         self.update()
 
     def pos(self):
-        return self._pos
+        return (self._geometry[0], self._geometry[1])
 
     def size(self):
-        return self._size
+        return (self._geometry[2], self._geometry[3])
 
     def rect(self):
-        return (0,0, self.width(), self.height())
+        return (0,0) + self.size()
+
+    def geometry(self):
+        return self._geometry
 
     def width(self):
-        return self._size[0]
+        return self.size()[0]
 
     def height(self):
-        return self._size[1]
+        return self.size()[1]
 
     def show(self):
         self.setVisible(True)
@@ -83,27 +83,29 @@ class VWidget(core.VObject):
         self._layout = layout
         self._layout.setParent(self)
 
-    def setGeometry(self, x, y, w, h):
-        self._pos = (x,y)
-        min_size = self.minimumSize()
-        self._size = (max(min_size[0], w) , max(min_size[1], h))
+    def setGeometry(self, rect):
+        x, y, w, h = rect
+        min_size = self.minimumS1ize()
+        self._geometry = (x,y) + ( max(min_size[0], w), max(min_size[1], h) )
         self.update()
 
-    def mapToGlobal(self, x, y):
+    def mapToGlobal(self, pos):
+        x,y = pos
         if self.parent() is None:
-            return (x+self._pos[0],y+self._pos[1])
+            return (x+self.pos()[0],y+self.pos()[1])
 
-        global_corner = self.parent().mapToGlobal(0,0)
+        global_corner = self.parent().mapToGlobal((0,0))
         return (global_corner[0] + self.pos()[0] + x, global_corner[1] + self.pos()[1] + y)
 
     def screenArea(self):
-        abs_pos_topleft = self.mapToGlobal(0,0)
+        abs_pos_topleft = self.mapToGlobal((0,0))
 
         return VScreenArea( VApplication.vApp.screen(),
-                            abs_pos_topleft[0],
-                            abs_pos_topleft[1],
-                            self.width(),
-                            self.height())
+                            (abs_pos_topleft[0],
+                             abs_pos_topleft[1],
+                             self.width(),
+                             self.height()
+                             ))
 
     def paintEvent(self, event):
         painter = VPainter(self)
@@ -122,7 +124,7 @@ class VWidget(core.VObject):
         fg, bg = self.colors(color_group)
 
         for i in xrange(0, h):
-            painter.write(0, i, ' '*w, fg, bg)
+            painter.write( (0, i), ' '*w, fg, bg)
 
     def isEnabled(self):
         return self._enabled

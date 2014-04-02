@@ -2,10 +2,11 @@ from .VApplication import VApplication
 
 class VCursor(object):
     @staticmethod
-    def setPos(x,y):
-        VApplication.vApp.screen().setCursorPos(x,y)
+    def setPos(pos):
+        VApplication.vApp.screen().setCursorPos(pos)
 
-    def pos(x,y):
-        return VApplication.vApp.screen().cursorPos(x,y)
+    @staticmethod
+    def pos():
+        return VApplication.vApp.screen().cursorPos()
 
 

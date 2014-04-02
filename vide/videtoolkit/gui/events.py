@@ -20,6 +20,12 @@ class VKeyEvent(object):
     def accept(self):
         self._accepted = True
 
+    def ignore(self):
+        self._accepted = False
+
+    def setAccepted(self, accepted):
+        self._accepted = accepted
+
     def accepted(self):
         return self._accepted
 

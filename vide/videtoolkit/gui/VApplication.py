@@ -1,8 +1,8 @@
 from .. import core
 from ..core import events as coreevents
 from . import events
-from . import VPalette
-from . import VScreen
+from .VPalette import VPalette
+from .VScreen import VScreen
 from .VPainter import VPainter
 import threading
 import Queue
@@ -45,7 +45,7 @@ class VApplication(core.VCoreApplication):
         if screen:
             self._screen = screen
         else:
-            self._screen = VScreen.VScreen()
+            self._screen = VScreen()
 
         self._top_level_widgets = []
         self._focused_widget = None
@@ -81,9 +81,17 @@ class VApplication(core.VCoreApplication):
 
             if isinstance(key_event, events.VKeyEvent):
                 logging.info("Key event %d %x" % (key_event.key(), key_event.modifiers()))
-                if self.focusedWidget():
-                    logging.info("Delivering to "+str(self.focusedWidget()))
-                    self.focusedWidget().keyEvent(key_event)
+                if not self.focusedWidget():
+                    logging.info("Key event ignored. No widget has focus.")
+                    continue
+
+                key_event.setAccepted(False)
+                for widget in self.focusedWidget().traverseToRoot():
+                    logging.info("Attempting delivery to "+str(widget))
+                    widget.keyEvent(key_event)
+                    if key_event.accepted():
+                        logging.info("Event accepted by "+str(widget))
+                        break
 
         while True:
             try:
@@ -136,7 +144,7 @@ class VApplication(core.VCoreApplication):
         return self._focused_widget
 
     def defaultPalette(self):
-        palette = VPalette.VPalette()
+        palette = VPalette()
         palette.setDefaults()
         return palette
 
