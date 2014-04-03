@@ -5,6 +5,8 @@ from .VPainter import VPainter
 from .VScreen import VScreenArea
 
 from .events import VPaintEvent
+import logging
+
 
 class VWidget(core.VObject):
     def __init__(self, parent=None):
@@ -62,12 +64,14 @@ class VWidget(core.VObject):
         self.setVisible(False)
 
     def setVisible(self, visible):
+        logging.info("Setting explicit visibility for %s : %s" % (str(self), str(visible)))
         self._visible_explicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)
         self.update()
 
     def setVisibleImplicit(self, visible):
+        logging.info("Setting implicit visibility for %s : %s" % (str(self), str(visible)))
         self._visible_implicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)

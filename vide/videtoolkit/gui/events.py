@@ -32,6 +32,8 @@ class VKeyEvent(object):
     @staticmethod
     def fromNativeKeyCode(native_key_code):
         key_code = nativeToVideKeyCode(native_key_code)
+        if key_code is None:
+            return None
         return VKeyEvent(key_code)
 
 class VPaintEvent(object):

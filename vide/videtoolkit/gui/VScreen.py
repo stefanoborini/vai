@@ -50,10 +50,20 @@ class VScreen(object):
     def height(self):
         return self.size()[1]
 
-    def getch(self, *args):
+    def getKeyCode(self):
         # Prevent to hold the GIL
         select.select([sys.stdin], [], [])
-        return self._curses_screen.getch(*args)
+
+        self._curses_screen.nodelay(False)
+        c = self._curses_screen.getch()
+        if c == 27:
+            self._curses_screen.nodelay(True)
+            next_c = self._curses_screen.getch()
+            self._curses_screen.nodelay(False)
+            if next_c == -1:
+                pass
+
+        return c
 
     def write(self, pos, string, fg_color=None, bg_color=None):
         x,y = pos

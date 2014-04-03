@@ -24,14 +24,13 @@ class KeyEventThread(threading.Thread):
     def run(self):
         try:
             while not self.stop_event.is_set():
-                c = self._screen.getch()
-                if c == 27:
-                    next_c = self._screen.getch()
-                    if next_c == -1:
-                        pass
+                c = self._screen.getKeyCode()
                 event = events.VKeyEvent.fromNativeKeyCode(c)
-                self._key_event_queue.put(event)
-                self._event_available_flag.set()
+                if event is not None:
+                    self._key_event_queue.put(event)
+                    self._event_available_flag.set()
+                else:
+                    logging.info("Unknown key code "+str(c))
         except Exception as e:
             self.exception = e
             self.exception_occurred_event.set()
@@ -70,6 +69,7 @@ class VApplication(core.VCoreApplication):
             self._screen.refresh()
 
     def processEvents(self):
+        logging.info("---- processing events -------")
         while True:
             try:
                 key_event = self._key_event_queue.get_nowait()
@@ -104,12 +104,22 @@ class VApplication(core.VCoreApplication):
 
             if isinstance(event, events.VPaintEvent):
                 logging.info("Paint event. Receiver "+str(receiver))
-                for widget in receiver.tree():
-                    if widget.isVisible():
-                        widget.paintEvent(event)
+                repaint_queue = [receiver]
+                while len(repaint_queue) > 0:
+                    widget = repaint_queue.pop(0)
+                    if not widget.isVisible():
+                        logging.info("Widget %s not visible. skipping." % str(widget))
+                        continue
+
+                    logging.info("Widget %s visible. painting." % str(widget))
+                    widget.paintEvent(event)
+                    repaint_queue.extend(widget.children())
 
             elif isinstance(event, coreevents.VTimerEvent):
                 receiver.timerEvent(event)
+
+        logging.info("---- Done processing events -------")
+
             #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)
         #x,y = self._screen.size()

@@ -3,7 +3,7 @@ from . import flags
 
 class CommandBar(gui.VLabel):
     def __init__(self, parent=None):
-        super(CommandBar,self).__init__(parent)
+        super(CommandBar,self).__init__("", parent)
         self._mode = None
         self._updateText()
 

@@ -31,25 +31,27 @@ class ViewModel(core.VObject):
         self._editor_mode = flags.COMMAND_MODE
         self._document_pos_at_top = DocumentPos(1,1)
         self._badges = {}
-        self.changed = core.VSignal(self)
+        self.modeChanged = core.VSignal(self)
+        self.documentPosChanged = core.VSignal(self)
+        self.badgeChanged = core.VSignal(self)
 
     def editorMode(self):
         return self._editor_mode
 
     def setEditorMode(self, mode):
         self._editor_mode = mode
-        self.changed.emit()
+        self.modeChanged.emit(self._editor_mode)
 
     def documentPosAtTop(self):
         return self._document_pos_at_top
 
     def setDocumentPosAtTop(self, doc_pos):
         self._document_pos_at_top = doc_pos
-        self.changed.emit()
+        self.documentPosChanged.emit()
 
     def addBadge(self, doc_line, badge):
         self._badges[doc_line] = badge
-        self.changed.emit()
+        self.badgeChanged.emit()
 
     def badge(self, doc_line):
         return self._badges.get(doc_line)
@@ -85,8 +87,10 @@ class EditorController(core.VObject):
                 self._view.moveCursor(flags.DOWN)
                 self._view.moveCursor(flags.HOME)
             else:
-                self._document_model.insertAt(self._view.cursorToDocumentPos(), event.text())
-                self._view.moveCursor(flags.RIGHT)
+                text = event.text()
+                if len(text) != 0:
+                    self._document_model.insertAt(self._view.cursorToDocumentPos(), event.text())
+                    self._view.moveCursor(flags.RIGHT)
 
         if self._view_model.editorMode() == flags.COMMAND_MODE:
             if event.key() == videtoolkit.Key.Key_I and event.modifiers() == 0:
@@ -213,7 +217,7 @@ class Editor(gui.VWidget):
         super(Editor, self).__init__(parent)
         self._document_model = document_model
         self._view_model = ViewModel()
-        self._view_model.changed.connect(self.viewModelChanged)
+        #self._view_model.changed.connect(self.viewModelChanged)
 
         self._createStatusBar()
         self._createCommandBar()
@@ -233,6 +237,7 @@ class Editor(gui.VWidget):
         self._command_bar.move(0, self.size()[1]-1)
         self._command_bar.resize(self.size()[0], 1)
         self._command_bar.setMode(flags.COMMAND_MODE)
+        self._view_model.modeChanged.connect(self._command_bar.setMode)
 
     def _createSideRuler(self):
         self._side_ruler = SideRuler(self)
