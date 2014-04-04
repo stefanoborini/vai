@@ -1,7 +1,9 @@
 from .. import Key, KeyModifier, nativeToVideKeyCode, videKeyCodeToText
+from ..core.events import VEvent
 
-class VKeyEvent(object):
+class VKeyEvent(VEvent):
     def __init__(self, key_code):
+        super(VKeyEvent, self).__init__(VEvent.EventType.KeyPress)
         self._key_code = key_code
         self._accepted = False
 
@@ -17,18 +19,6 @@ class VKeyEvent(object):
     def text(self):
         return videKeyCodeToText(self._key_code)
 
-    def accept(self):
-        self._accepted = True
-
-    def ignore(self):
-        self._accepted = False
-
-    def setAccepted(self, accepted):
-        self._accepted = accepted
-
-    def accepted(self):
-        return self._accepted
-
     @staticmethod
     def fromNativeKeyCode(native_key_code):
         key_code = nativeToVideKeyCode(native_key_code)
@@ -36,6 +26,7 @@ class VKeyEvent(object):
             return None
         return VKeyEvent(key_code)
 
-class VPaintEvent(object):
-    pass
+class VPaintEvent(VEvent):
+    def __init__(self):
+        super(VPaintEvent, self).__init__(VEvent.EventType.Paint)
 

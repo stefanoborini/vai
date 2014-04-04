@@ -75,6 +75,7 @@ class VLineEdit(VWidget):
         if text != self._text:
             self._text = text
             self.textChanged.emit(self._text)
+            self.update()
 
     def backspace(self):
         if self._selection:
@@ -103,9 +104,11 @@ class VLineEdit(VWidget):
     def paintEvent(self, event):
         w, h = self.size()
         painter = VPainter(self)
-        painter.write(0, 0, self._text + ' '*(w-len(self._text)))
+        painter.write( (0, 0), self._text + ' '*(w-len(self._text)))
 
-        VCursor.setPos(self.mapToGlobal(0,0)[0]+self._cursor_position,self.mapToGlobal(0,0)[1])
+        VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
+                         self.mapToGlobal((0,0))[1])
+                         )
 
     def keyEvent(self, event):
         if event.key() == Key.Key_Return:

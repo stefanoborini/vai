@@ -110,6 +110,8 @@ class EditorController(core.VObject):
                 if len(self._command_history):
                     command = self._command_history.pop()
                     command.undo()
+            elif event.key() == videtoolkit.Key.Key_Colon and event.modifiers() == 0:
+                pass
 
 
             event.accept()

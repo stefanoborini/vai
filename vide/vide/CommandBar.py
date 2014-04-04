@@ -1,9 +1,9 @@
 from videtoolkit import gui, core, utils
 from . import flags
 
-class CommandBar(gui.VLabel):
+class CommandBar(gui.VLineEdit):
     def __init__(self, parent=None):
-        super(CommandBar,self).__init__("", parent)
+        super(CommandBar,self).__init__(parent=parent)
         self._mode = None
         self._updateText()
 

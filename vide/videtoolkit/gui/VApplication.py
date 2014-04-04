@@ -89,7 +89,7 @@ class VApplication(core.VCoreApplication):
                 for widget in self.focusedWidget().traverseToRoot():
                     logging.info("Attempting delivery to "+str(widget))
                     widget.keyEvent(key_event)
-                    if key_event.accepted():
+                    if key_event.isAccepted():
                         logging.info("Event accepted by "+str(widget))
                         break
 
