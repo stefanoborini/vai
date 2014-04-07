@@ -189,6 +189,7 @@ def nativeToVideKeyCode(native_key_code):
       26                   : Key.Key_Z | KeyModifier.ControlModifier,
       27                   : Key.Key_Escape,
       32                   : Key.Key_Space,
+      58                   : Key.Key_Colon,
       65                   : Key.Key_A | KeyModifier.ShiftModifier,
       66                   : Key.Key_B | KeyModifier.ShiftModifier,
       67                   : Key.Key_C | KeyModifier.ShiftModifier,

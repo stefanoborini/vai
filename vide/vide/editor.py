@@ -15,6 +15,20 @@ import math
 DocumentPos = namedtuple('DocumentPos', ['row', 'column'])
 CursorPos = namedtuple('CursorPos', ['x', 'y'])
 
+class EditAreaEventFilter(core.VObject):
+    def __init__(self, view_model, command_bar):
+        self._view_model = view_model
+        self._command_bar = command_bar
+
+    def eventFilter(self, event):
+        logging.info("Event filter!")
+        if isinstance(event, gui.VKeyEvent) and event.key() == videtoolkit.Key.Key_Colon:
+            self._view_model.setEditorMode(flags.COMMAND_INPUT_MODE)
+            self._command_bar.setFocus()
+            return True
+
+        return False
+
 class LineBadge(object):
     def __init__(self, mark, description=None, fg_color=None, bg_color=None):
        self._mark = mark
@@ -226,7 +240,6 @@ class Editor(gui.VWidget):
         self._createSideRuler()
         self._createEditArea()
 
-        self._edit_area.setFocus()
 
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
@@ -240,6 +253,7 @@ class Editor(gui.VWidget):
         self._command_bar.resize(self.size()[0], 1)
         self._command_bar.setMode(flags.COMMAND_MODE)
         self._view_model.modeChanged.connect(self._command_bar.setMode)
+        self._command_bar.returnPressed.connect(self.executeCommand)
 
     def _createSideRuler(self):
         self._side_ruler = SideRuler(self)
@@ -251,6 +265,28 @@ class Editor(gui.VWidget):
         self._edit_area.move(4, 0)
         self._edit_area.resize(self.size()[0]-4, self.size()[1]-3)
 
+        self._edit_area_event_filter = EditAreaEventFilter(self._view_model, self._command_bar)
+        self._edit_area.installEventFilter(self._edit_area_event_filter)
+
     def viewModelChanged(self):
         self.update()
+
+    def executeCommand(self):
+        command_text = self._command_bar.commandText().strip()
+        logging.info("Executing command "+command_text)
+
+        if command_text == 'q':
+            gui.QApplication.qApp.exit()
+        elif command_text == "w":
+            self.doSave()
+
+        self._command_bar.clear()
+        self._edit_area.setFocus()
+
+    def doSave(self):
+        logging.info("Saving file")
+
+    def show(self):
+        super(Editor, self).show()
+        self._edit_area.setFocus()
 

@@ -1,10 +1,11 @@
 from .. import core
+from ..core import events as coreevents
 from .VApplication import VApplication
 from .VPalette import VPalette
 from .VPainter import VPainter
 from .VScreen import VScreenArea
 
-from .events import VPaintEvent
+from .events import VPaintEvent, VFocusEvent
 import logging
 
 
@@ -29,7 +30,11 @@ class VWidget(core.VObject):
         pass
 
     def setFocus(self):
-        VApplication.vApp.setFocusWidget(self)
+        current_focus = VApplication.vApp.focusWidget()
+        if current_focus:
+            VApplication.vApp.postEvent(current_focus, VFocusEvent(coreevents.VEvent.EventType.FocusOut))
+
+        VApplication.vApp.postEvent(self, VFocusEvent(coreevents.VEvent.EventType.FocusIn))
 
     def move(self, x, y):
         self._geometry = (x, y) + self.size()
@@ -89,7 +94,7 @@ class VWidget(core.VObject):
 
     def setGeometry(self, rect):
         x, y, w, h = rect
-        min_size = self.minimumS1ize()
+        min_size = self.minimumSize()
         self._geometry = (x,y) + ( max(min_size[0], w), max(min_size[1], h) )
         self.update()
 
@@ -111,6 +116,33 @@ class VWidget(core.VObject):
                              self.height()
                              ))
 
+
+    def event(self, event):
+        if isinstance(event, VPaintEvent):
+            logging.info("Paint event. Receiver "+str(self))
+            repaint_queue = [self]
+            while len(repaint_queue) > 0:
+                widget = repaint_queue.pop(0)
+                if not widget.isVisible():
+                    logging.info("Widget %s not visible. skipping." % str(widget))
+                    continue
+
+                logging.info("Widget %s visible. painting." % str(widget))
+                widget.paintEvent(event)
+                repaint_queue.extend(widget.children())
+
+            return True
+        elif isinstance(event, VFocusEvent):
+            if event.eventType() == coreevents.VEvent.EventType.FocusIn:
+                self.focusInEvent(event)
+            elif event.eventType() == coreevents.VEvent.EventType.FocusOut:
+                self.focusOutEvent(event)
+            return True
+        else:
+            return super(VWidget, self).event(event)
+
+        return False
+
     def paintEvent(self, event):
         painter = VPainter(self)
         #if self._layout is not None:
@@ -129,6 +161,14 @@ class VWidget(core.VObject):
 
         for i in xrange(0, h):
             painter.write( (0, i), ' '*w, fg, bg)
+
+    def focusInEvent(self, event):
+        logging.info("FocusIn event")
+        VApplication.vApp.setFocusWidget(self)
+
+    def focusOutEvent(self, event):
+        logging.info("FocusOut event")
+        VApplication.vApp.setFocusWidget(None)
 
     def isEnabled(self):
         return self._enabled

@@ -85,6 +85,7 @@ class VLineEdit(VWidget):
 
     def clear(self):
         self.setText("")
+        self._cursor_position = 0
 
     def cursorForward(self, mark):
         pass
@@ -99,7 +100,7 @@ class VLineEdit(VWidget):
         pass
 
     def minimumSizeHint(self):
-        return (1, 1)
+        return (len(self._text), 1)
 
     def paintEvent(self, event):
         w, h = self.size()
@@ -130,7 +131,7 @@ class VLineEdit(VWidget):
         self.update()
 
     def minimumSize(self):
-        return (1, 1)
+        return (len(self._text), 1)
 
     def selectedText(self):
         pass

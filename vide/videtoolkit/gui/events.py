@@ -26,6 +26,10 @@ class VKeyEvent(VEvent):
             return None
         return VKeyEvent(key_code)
 
+class VFocusEvent(VEvent):
+    def __init__(self, focus_type):
+        super(VFocusEvent, self).__init__(focus_type)
+
 class VPaintEvent(VEvent):
     def __init__(self):
         super(VPaintEvent, self).__init__(VEvent.EventType.Paint)

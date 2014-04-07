@@ -47,7 +47,7 @@ class VApplication(core.VCoreApplication):
             self._screen = VScreen()
 
         self._top_level_widgets = []
-        self._focused_widget = None
+        self._focus_widget = None
         self._palette = self.defaultPalette()
         self._event_available_flag = threading.Event()
         self._event_queue = Queue.Queue()
@@ -70,6 +70,11 @@ class VApplication(core.VCoreApplication):
 
     def processEvents(self):
         logging.info("---- processing events -------")
+        self._processKeyEvents()
+        self._processRemainingEvents()
+
+
+    def _processKeyEvents(self):
         while True:
             try:
                 key_event = self._key_event_queue.get_nowait()
@@ -77,22 +82,37 @@ class VApplication(core.VCoreApplication):
                 key_event = None
 
             if key_event is None:
-                break
+                return
+
 
             if isinstance(key_event, events.VKeyEvent):
-                logging.info("Key event %d %x" % (key_event.key(), key_event.modifiers()))
-                if not self.focusedWidget():
-                    logging.info("Key event ignored. No widget has focus.")
-                    continue
+                self._processSingleKeyEvent(key_event)
 
-                key_event.setAccepted(False)
-                for widget in self.focusedWidget().traverseToRoot():
-                    logging.info("Attempting delivery to "+str(widget))
-                    widget.keyEvent(key_event)
-                    if key_event.isAccepted():
-                        logging.info("Event accepted by "+str(widget))
-                        break
+    def _processSingleKeyEvent(self, key_event):
+        logging.info("Key event %d %x" % (key_event.key(), key_event.modifiers()))
 
+        if not self.focusWidget():
+            logging.info("Key event ignored. No widget has focus.")
+            return
+
+        key_event.setAccepted(False)
+        for widget in self.focusWidget().traverseToRoot():
+            logging.info("Attempting delivery to "+str(widget))
+            stop_event = False
+            for event_filter in reversed(widget.installedEventFilters()):
+                stop_event = stop_event & event_filter.eventFilter(key_event)
+                if key_event.isAccepted():
+                    logging.info("Event accepted by filter "+str(widget))
+                    return
+
+            if not stop_event:
+                widget.keyEvent(key_event)
+
+            if key_event.isAccepted():
+                logging.info("Event accepted by "+str(widget))
+                return
+
+    def _processRemainingEvents(self):
         while True:
             try:
                 receiver, event = self._event_queue.get_nowait()
@@ -102,21 +122,7 @@ class VApplication(core.VCoreApplication):
             if event is None:
                 break
 
-            if isinstance(event, events.VPaintEvent):
-                logging.info("Paint event. Receiver "+str(receiver))
-                repaint_queue = [receiver]
-                while len(repaint_queue) > 0:
-                    widget = repaint_queue.pop(0)
-                    if not widget.isVisible():
-                        logging.info("Widget %s not visible. skipping." % str(widget))
-                        continue
-
-                    logging.info("Widget %s visible. painting." % str(widget))
-                    widget.paintEvent(event)
-                    repaint_queue.extend(widget.children())
-
-            elif isinstance(event, coreevents.VTimerEvent):
-                receiver.timerEvent(event)
+            receiver.event(event)
 
         logging.info("---- Done processing events -------")
 
@@ -147,11 +153,11 @@ class VApplication(core.VCoreApplication):
     def screen(self):
         return self._screen
 
-    def setFocusWidget(self, widget):
-        self._focused_widget = widget
+    def focusWidget(self):
+        return self._focus_widget
 
-    def focusedWidget(self):
-        return self._focused_widget
+    def setFocusWidget(self, widget):
+        self._focus_widget = widget
 
     def defaultPalette(self):
         palette = VPalette()

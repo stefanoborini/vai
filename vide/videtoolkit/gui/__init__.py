@@ -7,6 +7,7 @@ from .VScreen import VScreen, VScreenArea, DummyVScreen
 from .VWidget import VWidget
 from .widgets import VLabel, VDialog, VLineEdit
 from .layouts import VHLayout, VVLayout
+from .events import VKeyEvent, VPaintEvent
 
 
 
