@@ -79,3 +79,10 @@ class TextDocument(core.VObject):
     def numLines(self):
         return len(self._contents)
 
+    def saveAs(self, filename):
+        self._filename = filename
+
+        with open(self._filename,'w') as f:
+            f.write("".join(self._contents))
+
+

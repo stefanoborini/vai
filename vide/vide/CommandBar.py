@@ -1,4 +1,5 @@
 from videtoolkit import gui, core, utils
+import videtoolkit
 from . import flags
 import logging
 
@@ -6,13 +7,15 @@ class CommandBar(gui.VWidget):
     def __init__(self, parent=None):
         super(CommandBar,self).__init__(parent=parent)
         self.returnPressed = core.VSignal(self)
+        self.escapePressed = core.VSignal(self)
 
         self._mode = flags.COMMAND_MODE
         self._state_label = gui.VLabel(parent=self)
-        self._state_label.setGeometry((0,0,10,1))
+        self._state_label.setGeometry((0,0,1,1))
         self._line_edit = gui.VLineEdit(parent=self)
         self._line_edit.returnPressed.connect(self.returnPressed)
-        self._line_edit.setGeometry((11,0,50,1))
+        self._line_edit.setGeometry((1,0,self.width()-1,1))
+        self._line_edit.installEventFilter(self)
         self._updateText()
 
     def setMode(self, mode):
@@ -33,16 +36,27 @@ class CommandBar(gui.VWidget):
 
     def _updateText(self):
         if self._mode == flags.INSERT_MODE:
-            self._state_label.setText("-- INSERT --")
-        if self._mode == flags.COMMAND_INPUT_MODE:
-            self._state_label.setText(":")
+            text = "-- INSERT --"
+        elif self._mode == flags.COMMAND_INPUT_MODE:
+            text = ":"
         elif self._mode == flags.REPLACE_MODE:
-            self._state_label.setText("-- REPLACE --")
+            text = "-- REPLACE --"
         elif self._mode == flags.VISUAL_BLOCK_MODE:
-            self._state_label.setText("-- VISUAL BLOCK --")
+            text = "-- VISUAL BLOCK --"
         elif self._mode == flags.VISUAL_LINE_MODE:
-            self._state_label.setText("-- VISUAL LINE --")
+            text = "-- VISUAL LINE --"
         elif self._mode == flags.VISUAL_MODE:
-            self._state_label.setText("-- VISUAL --")
+            text = "-- VISUAL --"
         else:
-            self._state_label.setText("")
+            text = ""
+
+        self._state_label.resize( (len(text), 1) )
+        self._state_label.setText(text)
+        self._line_edit.setGeometry((len(text),0,self.width()-len(text),1))
+
+    def eventFilter(self, event):
+        if isinstance(event, gui.VKeyEvent):
+            if event.key() == videtoolkit.Key.Key_Escape:
+                self.escapePressed.emit()
+                return True
+        return False

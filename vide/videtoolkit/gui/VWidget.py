@@ -36,19 +36,17 @@ class VWidget(core.VObject):
 
         VApplication.vApp.postEvent(self, VFocusEvent(coreevents.VEvent.EventType.FocusIn))
 
-    def move(self, x, y):
-        self._geometry = (x, y) + self.size()
-        self.update()
+    def move(self, pos):
+        self.setGeometry(pos + self.size())
 
-    def resize(self, w, h):
-        self._geometry = self.pos() + (w, h)
-        self.update()
+    def resize(self, size):
+        self.setGeometry(self.pos() + size)
 
     def pos(self):
-        return (self._geometry[0], self._geometry[1])
+        return self.geometry()[0:2]
 
     def size(self):
-        return (self._geometry[2], self._geometry[3])
+        return self.geometry()[2:4]
 
     def rect(self):
         return (0,0) + self.size()
@@ -57,10 +55,10 @@ class VWidget(core.VObject):
         return self._geometry
 
     def width(self):
-        return self.size()[0]
+        return self.geometry()[2]
 
     def height(self):
-        return self.size()[1]
+        return self.geometry()[3]
 
     def show(self):
         self.setVisible(True)
@@ -93,6 +91,7 @@ class VWidget(core.VObject):
         self._layout.setParent(self)
 
     def setGeometry(self, rect):
+        logging.info("VWidget.setGeometry %s" % str(rect))
         x, y, w, h = rect
         min_size = self.minimumSize()
         self._geometry = (x,y) + ( max(min_size[0], w), max(min_size[1], h) )

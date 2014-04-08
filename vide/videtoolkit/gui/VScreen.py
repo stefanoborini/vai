@@ -4,6 +4,7 @@ import curses
 import select
 import sys
 import os
+import logging
 
 class VScreen(object):
     def __init__(self):
@@ -67,18 +68,30 @@ class VScreen(object):
 
     def write(self, pos, string, fg_color=None, bg_color=None):
         x,y = pos
-        size = self.size()
-        if self.outOfBounds(pos):
-            logging.info("out of bound in Screen.write: %s %s" % (str(pos), string))
+        w,h = self.size()
+        if y < 0 or y >= h or x >= w:
+            logging.info("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            out_string = out_string[:w-rel_x]
+            return
+
+        out_string = string
+        if x < 0:
+            logging.info("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            out_string = string[-x:]
+
+        if len(out_string) == 0:
             return
 
         color_pair = self.getColorPair(fg_color, bg_color)
-        if (x+len(string) >= size[0]):
-            string = string[:size[0]-x]
-            self._curses_screen.addstr(y, x, string[1:], curses.color_pair(color_pair))
-            self._curses_screen.insstr(y, x, string[0], curses.color_pair(color_pair))
+        if (x+len(out_string) > w):
+            logging.info("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            out_string = out_string[:w-x]
+
+        if (x+len(out_string) == w):
+            self._curses_screen.addstr(y, x, out_string[1:], curses.color_pair(color_pair))
+            self._curses_screen.insstr(y, x, out_string[0], curses.color_pair(color_pair))
         else:
-            self._curses_screen.addstr(y, x, string, curses.color_pair(color_pair))
+            self._curses_screen.addstr(y, x, out_string, curses.color_pair(color_pair))
 
     def numColors(self):
         return curses.COLORS
@@ -150,16 +163,24 @@ class VScreenArea(object):
         self._rect = rect
 
     def write(self, pos, string, fg_color=None, bg_color=None):
-        size = self.size()
         rel_x, rel_y = pos
-        if rel_x >= size[0] or rel_y >= size[1]:
+        w, h = self.size()
+
+        if rel_y < 0 or rel_y >= h or rel_x >= w:
+            logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             return
 
-        if rel_x < 0 or rel_y < 0:
+        out_string = string
+        if rel_x < 0:
+            logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            out_string = string[-rel_x:]
+
+        if len(out_string) == 0:
             return
 
-        if (rel_x+len(string) >= size[0]):
-            string = string[:size[0]-rel_x]
+        if (rel_x+len(out_string) > w):
+            logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            out_string = out_string[:w-rel_x]
 
         self._screen.write( (rel_x+self.topLeft()[0], rel_y+self.topLeft()[1]),
                              string,

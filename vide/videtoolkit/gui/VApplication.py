@@ -97,20 +97,21 @@ class VApplication(core.VCoreApplication):
 
         key_event.setAccepted(False)
         for widget in self.focusWidget().traverseToRoot():
-            logging.info("Attempting delivery to "+str(widget))
+            logging.info("KeyEvent attempting delivery to "+str(widget))
             stop_event = False
             for event_filter in reversed(widget.installedEventFilters()):
-                stop_event = stop_event & event_filter.eventFilter(key_event)
+                stop_event = stop_event | event_filter.eventFilter(key_event)
                 if key_event.isAccepted():
-                    logging.info("Event accepted by filter "+str(widget))
+                    logging.info("KeyEvent accepted by filter "+str(event_filter))
                     return
 
             if not stop_event:
+                logging.info("KeyEvent not stopped. Sending to widget "+str(widget))
                 widget.keyEvent(key_event)
 
-            if key_event.isAccepted():
-                logging.info("Event accepted by "+str(widget))
-                return
+                if key_event.isAccepted():
+                    logging.info("KeyEvent accepted by "+str(widget))
+                    return
 
     def _processRemainingEvents(self):
         while True:

@@ -226,8 +226,6 @@ class EditArea(gui.VWidget):
         #self._status_bar.setPosition(new_doc_pos)
         gui.VCursor.setPos( self.mapToGlobal(new_pos))
 
-
-
 class Editor(gui.VWidget):
     def __init__(self, document_model, parent=None):
         super(Editor, self).__init__(parent)
@@ -243,27 +241,28 @@ class Editor(gui.VWidget):
 
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
-        self._status_bar.move(0, self.size()[1]-2)
-        self._status_bar.resize(self.size()[0], 1)
+        self._status_bar.move( (0, self.height()-2) )
+        self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setFilename(self._document_model.filename())
 
     def _createCommandBar(self):
         self._command_bar = CommandBar(self)
-        self._command_bar.move(0, self.size()[1]-1)
-        self._command_bar.resize(self.size()[0], 1)
+        self._command_bar.move( (0, self.height()-1) )
+        self._command_bar.resize( (self.width(), 1) )
         self._command_bar.setMode(flags.COMMAND_MODE)
         self._view_model.modeChanged.connect(self._command_bar.setMode)
         self._command_bar.returnPressed.connect(self.executeCommand)
+        self._command_bar.escapePressed.connect(self.abortCommand)
 
     def _createSideRuler(self):
         self._side_ruler = SideRuler(self)
-        self._side_ruler.move(0, 0)
-        self._side_ruler.resize(4, self.size()[1]-2)
+        self._side_ruler.move( (0, 0) )
+        self._side_ruler.resize( (4, self.height()-2) )
 
     def _createEditArea(self):
         self._edit_area = EditArea(self._document_model, self._view_model, parent = self)
-        self._edit_area.move(4, 0)
-        self._edit_area.resize(self.size()[0]-4, self.size()[1]-3)
+        self._edit_area.move( (4, 0) )
+        self._edit_area.resize( (self.width()-4, self.height()-3) )
 
         self._edit_area_event_filter = EditAreaEventFilter(self._view_model, self._command_bar)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
@@ -283,8 +282,14 @@ class Editor(gui.VWidget):
         self._command_bar.clear()
         self._edit_area.setFocus()
 
+    def abortCommand(self):
+        logging.info("Aborting command")
+        self._command_bar.clear()
+        self._edit_area.setFocus()
+
     def doSave(self):
         logging.info("Saving file")
+        self._document_model.saveAs("output")
 
     def show(self):
         super(Editor, self).show()
