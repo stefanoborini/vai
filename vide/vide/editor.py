@@ -107,8 +107,12 @@ class EditorController(core.VObject):
                     self._view.moveCursor(flags.RIGHT)
 
         if self._view_model.editorMode() == flags.COMMAND_MODE:
-            if event.key() == videtoolkit.Key.Key_I and event.modifiers() == 0:
+            if event.key() == videtoolkit.Key.Key_I:
+                if event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
+                    self._view.moveCursor(flags.HOME)
                 self._view_model.setEditorMode(flags.INSERT_MODE)
+            if event.key() == videtoolkit.Key.Key_X and event.modifiers() == 0:
+                self._document_model.deleteAt(self._view.cursorToDocumentPos(),1)
             elif event.key() == videtoolkit.Key.Key_O and event.modifiers() == 0:
                 self._view_model.setEditorMode(flags.INSERT_MODE)
                 command = commands.CreateLineCommand(self._document_model, self._view.cursorToDocumentPos().row+1)
@@ -120,6 +124,12 @@ class EditorController(core.VObject):
                 command = commands.CreateLineCommand(self._document_model, self._view.cursorToDocumentPos().row)
                 self._command_history.append(command)
                 command.execute()
+            elif event.key() == videtoolkit.Key.Key_A and event.modifiers() == 0:
+                self._view_model.setEditorMode(flags.INSERT_MODE)
+                self._view.moveCursor(flags.LEFT)
+            elif event.key() == videtoolkit.Key.Key_A and event.modifiers() &  videtoolkit.KeyModifier.ShiftModifier:
+                self._view_model.setEditorMode(flags.INSERT_MODE)
+                self._view.moveCursor(flags.END)
             elif event.key() == videtoolkit.Key.Key_U and event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
                 if len(self._command_history):
                     command = self._command_history.pop()
@@ -220,6 +230,8 @@ class EditArea(gui.VWidget):
                        )
         elif direction == flags.HOME:
             new_pos = CursorPos(0, cursor_pos.y)
+        elif direction == flags.END:
+            new_pos = CursorPos(min(current_surrounding_lines_length[0], self.width()-1), cursor_pos.y)
 
         self._cursor_pos = new_pos
         #new_doc_pos = self.cursorToDocumentPos(new_pos)
@@ -285,6 +297,7 @@ class Editor(gui.VWidget):
     def abortCommand(self):
         logging.info("Aborting command")
         self._command_bar.clear()
+        self._view_model.setEditorMode(flags.COMMAND_MODE)
         self._edit_area.setFocus()
 
     def doSave(self):
