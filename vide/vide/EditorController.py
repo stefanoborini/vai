@@ -1,6 +1,7 @@
 import videtoolkit
 from videtoolkit import core
 from . import flags
+from . import commands
 import logging
 
 DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up,

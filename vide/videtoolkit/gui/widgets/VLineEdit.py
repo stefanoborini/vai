@@ -108,9 +108,10 @@ class VLineEdit(VWidget):
         w, h = self.size()
         painter = VPainter(self)
         painter.write( (0, 0), self._text + ' '*(w-len(self._text)))
-        VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
-                         self.mapToGlobal((0,0))[1])
-                         )
+        if self.hasFocus():
+            VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
+                             self.mapToGlobal((0,0))[1])
+                             )
 
     def focusInEvent(self, event):
         VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,

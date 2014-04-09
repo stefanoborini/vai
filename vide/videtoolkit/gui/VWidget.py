@@ -33,6 +33,9 @@ class VWidget(core.VObject):
     def setFocus(self):
         VApplication.vApp.setFocusWidget(self)
 
+    def hasFocus(self):
+        return (self is VApplication.vApp.focusWidget())
+
     def move(self, pos):
         self.setGeometry(pos + self.size())
 

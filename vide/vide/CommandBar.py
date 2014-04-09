@@ -61,4 +61,7 @@ class CommandBar(gui.VWidget):
             if event.key() == videtoolkit.Key.Key_Escape:
                 self.escapePressed.emit()
                 return True
+            elif event.key() == videtoolkit.Key.Key_Backspace and len(self.commandText()) == 0:
+                self.escapePressed.emit()
+                return True
         return False
