@@ -2,6 +2,9 @@ import curses
 import logging
 logging.basicConfig(filename='videtoolkit.log',level=logging.DEBUG)
 
+class FocusPolicy(object):
+    NoFocus = 0
+    StrongFocus = 11
 class Key(object):
     Key_Escape    = 0x01000000
     Key_Tab       = 0x01000001

@@ -1,6 +1,6 @@
 from videtoolkit import core, gui
 from vide import editor
-from vide.EditorModel import TextDocument
+from vide.TextDocument import TextDocument
 import time
 import sys
 

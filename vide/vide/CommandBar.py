@@ -10,8 +10,10 @@ class CommandBar(gui.VWidget):
         self.escapePressed = core.VSignal(self)
 
         self._mode = flags.COMMAND_MODE
+
         self._state_label = gui.VLabel(parent=self)
         self._state_label.setGeometry((0,0,1,1))
+
         self._line_edit = gui.VLineEdit(parent=self)
         self._line_edit.returnPressed.connect(self.returnPressed)
         self._line_edit.setGeometry((1,0,self.width()-1,1))

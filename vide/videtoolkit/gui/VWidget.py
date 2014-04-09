@@ -1,4 +1,5 @@
 from .. import core
+from .. import FocusPolicy
 from ..core import events as coreevents
 from .VApplication import VApplication
 from .VPalette import VPalette
@@ -15,7 +16,6 @@ class VWidget(core.VObject):
         if parent is None:
             VApplication.vApp.addTopLevelWidget(self)
             self._geometry = (0,0) + VApplication.vApp.screen().size()
-            self.setFocus()
         else:
             self._geometry = self.parent().contentsRect()
 
@@ -25,16 +25,13 @@ class VWidget(core.VObject):
         self._palette = None
         self._enabled = True
         self._active = True
+        self._focus_policy = FocusPolicy.NoFocus
 
     def keyEvent(self, event):
         pass
 
     def setFocus(self):
-        current_focus = VApplication.vApp.focusWidget()
-        if current_focus:
-            VApplication.vApp.postEvent(current_focus, VFocusEvent(coreevents.VEvent.EventType.FocusOut))
-
-        VApplication.vApp.postEvent(self, VFocusEvent(coreevents.VEvent.EventType.FocusIn))
+        VApplication.vApp.setFocusWidget(self)
 
     def move(self, pos):
         self.setGeometry(pos + self.size())
@@ -115,7 +112,6 @@ class VWidget(core.VObject):
                              self.height()
                              ))
 
-
     def event(self, event):
         if isinstance(event, VPaintEvent):
             logging.info("Paint event. Receiver "+str(self))
@@ -163,11 +159,15 @@ class VWidget(core.VObject):
 
     def focusInEvent(self, event):
         logging.info("FocusIn event")
-        VApplication.vApp.setFocusWidget(self)
 
     def focusOutEvent(self, event):
         logging.info("FocusOut event")
-        VApplication.vApp.setFocusWidget(None)
+
+    def setFocusPolicy(self, policy):
+        self._focus_policy = policy
+
+    def focusPolicy(self):
+        return self._focus_policy
 
     def isEnabled(self):
         return self._enabled

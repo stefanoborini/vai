@@ -1,9 +1,11 @@
+from .. import FocusPolicy
 from .. import core
 from ..core import events as coreevents
 from . import events
 from .VPalette import VPalette
 from .VScreen import VScreen
 from .VPainter import VPainter
+from .events import VFocusEvent
 import threading
 import Queue
 import logging
@@ -72,6 +74,7 @@ class VApplication(core.VCoreApplication):
         logging.info("---- processing events -------")
         self._processKeyEvents()
         self._processRemainingEvents()
+        logging.info("---- Done processing events -------")
 
 
     def _processKeyEvents(self):
@@ -125,8 +128,6 @@ class VApplication(core.VCoreApplication):
 
             receiver.event(event)
 
-        logging.info("---- Done processing events -------")
-
             #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)
         #x,y = self._screen.size()
@@ -139,7 +140,7 @@ class VApplication(core.VCoreApplication):
             #self.renderWidgets()
 
     def postEvent(self, receiver, event):
-        logging.info("Posting event: " + str(receiver) + " " + str(event))
+        logging.info(" <posted " + str(receiver) + " " + str(event))
         self._event_queue.put((receiver, event))
         self._event_available_flag.set()
 
@@ -158,7 +159,23 @@ class VApplication(core.VCoreApplication):
         return self._focus_widget
 
     def setFocusWidget(self, widget):
-        self._focus_widget = widget
+        if self._focus_widget is widget:
+            return
+
+        logging.info("Setting focus on widget %s." % widget)
+
+        if self._focus_widget is not None:
+            logging.info("Focus out on widget %s." % self._focus_widget)
+            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(coreevents.VEvent.EventType.FocusOut))
+
+        self._focus_widget = None
+        if widget is not None:
+            if widget.focusPolicy() == FocusPolicy.NoFocus:
+                logging.info("Focus not accepted on widget %s due to its focus policy." % self._focus_widget)
+                return
+
+            self._focus_widget = widget
+            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(coreevents.VEvent.EventType.FocusIn))
 
     def defaultPalette(self):
         palette = VPalette()

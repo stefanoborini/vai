@@ -1,3 +1,4 @@
+from ... import FocusPolicy
 from ... import core
 from ... import Key
 from ..VWidget import VWidget
@@ -11,6 +12,7 @@ class VLineEdit(VWidget):
         self._cursor_position = len(self._text)
         self._selection = None
         self._max_length = 32767
+        self.setFocusPolicy(FocusPolicy.StrongFocus)
 
         self.returnPressed = core.VSignal(self)
         self.cursorPositionChanged = core.VSignal(self)
@@ -106,7 +108,11 @@ class VLineEdit(VWidget):
         w, h = self.size()
         painter = VPainter(self)
         painter.write( (0, 0), self._text + ' '*(w-len(self._text)))
+        VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
+                         self.mapToGlobal((0,0))[1])
+                         )
 
+    def focusInEvent(self, event):
         VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
                          self.mapToGlobal((0,0))[1])
                          )
