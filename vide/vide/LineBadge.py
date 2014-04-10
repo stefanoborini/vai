@@ -5,7 +5,7 @@ class LineBadge(object):
        self._fg_color = fg_color
        self._bg_color = bg_color
 
-    def mark():
+    def mark(self):
         return self._mark
 
 

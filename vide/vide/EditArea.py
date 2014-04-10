@@ -1,5 +1,5 @@
 import videtoolkit
-from videtoolkit import gui
+from videtoolkit import gui, core
 from .EditorController import EditorController
 from .positions import CursorPos, DocumentPos
 from . import flags
@@ -15,16 +15,33 @@ class EditArea(gui.VWidget):
         self._cursor_pos = CursorPos(0,0)
         self.setFocusPolicy(videtoolkit.FocusPolicy.StrongFocus)
 
+        self.scrollDown = core.VSignal(self)
+        self.scrollDown.connect(self.scrollDownSlot)
+        self.scrollUp = core.VSignal(self)
+        self.scrollUp.connect(self.scrollUpSlot)
+
     def paintEvent(self, event):
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.clear( (0, 0, w, h))
         for i in xrange(0, h):
-            document_line = self._view_model.documentPosAtTop()[1]+i
+            document_line = self._view_model.documentPosAtTop().row + i
             if document_line < self._document_model.numLines():
                 painter.write( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))
 
         gui.VCursor.setPos( self.mapToGlobal(self._cursor_pos))
+
+    def scrollDownSlot(self):
+        top_pos = self._view_model.documentPosAtTop()
+        new_pos = DocumentPos(top_pos.row+1, top_pos.column)
+        self._view_model.setDocumentPosAtTop(new_pos)
+        self.update()
+
+    def scrollUpSlot(self):
+        top_pos = self._view_model.documentPosAtTop()
+        new_pos = DocumentPos(top_pos.row-1, top_pos.column)
+        self._view_model.setDocumentPosAtTop(new_pos)
+        self.update()
 
     def cursorPos(self):
         return self._cursor_pos
@@ -81,12 +98,18 @@ class EditArea(gui.VWidget):
             new_pos = CursorPos( min(cursor_pos.x, current_surrounding_lines_length[-1]+mode_offset),
                                  max(cursor_pos.y-1, 0)
                       )
+            if cursor_pos.y-1 < 0:
+                self.scrollUp.emit()
+
         elif direction == flags.DOWN:
             if current_surrounding_lines_length[1] is None:
                 return
             new_pos = CursorPos(min(cursor_pos.x, current_surrounding_lines_length[1]+mode_offset),
                                 min(cursor_pos.y+1, self.height()-1)
                       )
+            if cursor_pos.y+1 >= self.height():
+                self.scrollDown.emit()
+
         elif direction == flags.LEFT:
             new_pos = CursorPos(max(cursor_pos.x-1,0), cursor_pos.y)
         elif direction == flags.RIGHT:

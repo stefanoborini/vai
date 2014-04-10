@@ -1,11 +1,14 @@
 from videtoolkit import gui, core, utils
 
 from .SideRuler import SideRuler
+from .SideRulerController import SideRulerController
 from .StatusBar import StatusBar
+from .StatusBarController import StatusBarController
 from .CommandBar import CommandBar
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
 from .ViewModel import ViewModel
+from .LineBadge import LineBadge
 from . import commands
 from . import flags
 import logging
@@ -27,6 +30,7 @@ class Editor(gui.VWidget):
         self._status_bar.move( (0, self.height()-2) )
         self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setFilename(self._document_model.filename())
+        self._status_bar_controller = StatusBarController(self._status_bar, self._view_model)
 
     def _createCommandBar(self):
         self._command_bar = CommandBar(self)
@@ -41,11 +45,13 @@ class Editor(gui.VWidget):
         self._side_ruler = SideRuler(self)
         self._side_ruler.move( (0, 0) )
         self._side_ruler.resize( (4, self.height()-2) )
+        self._side_ruler.addBadge(3,LineBadge(mark="*"))
+        self._side_ruler_controller = SideRulerController(self._side_ruler, self._view_model)
 
     def _createEditArea(self):
         self._edit_area = EditArea(self._document_model, self._view_model, parent = self)
         self._edit_area.move( (4, 0) )
-        self._edit_area.resize( (self.width()-4, self.height()-3) )
+        self._edit_area.resize( (self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
 
         self._edit_area_event_filter = EditAreaEventFilter(self._view_model, self._command_bar)

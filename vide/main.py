@@ -7,7 +7,7 @@ import sys
 try:
     app = gui.VApplication(sys.argv)
 
-    model = TextDocument("main.py")
+    model = TextDocument(sys.argv[1])
     widget = editor.Editor(model)
     widget.show()
     app.exec_()
