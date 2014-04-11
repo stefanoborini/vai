@@ -9,7 +9,9 @@ from .events import VFocusEvent
 import threading
 import Queue
 import logging
+import collections
 import os
+import time
 
 class KeyEventThread(threading.Thread):
     def __init__(self, screen, key_event_queue, event_available_flag):
@@ -25,8 +27,14 @@ class KeyEventThread(threading.Thread):
 
     def run(self):
         try:
+            last_event = (None, time.time())
             while not self.stop_event.is_set():
                 c = self._screen.getKeyCode()
+
+                if last_event[0] == c and time.time()-last_event[1] < 0.04:
+                    continue
+                last_event = (c, time.time())
+
                 event = events.VKeyEvent.fromNativeKeyCode(c)
                 if event is not None:
                     self._key_event_queue.put(event)

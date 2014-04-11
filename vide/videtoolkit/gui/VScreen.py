@@ -100,8 +100,8 @@ class VScreen(object):
         return self._colors
 
     def getColorPair(self, fg=None, bg=None):
-        fg_index = -1 if fg is None else self._findClosestColorIndex(fg)
-        bg_index = -1 if bg is None else self._findClosestColorIndex(bg)
+        fg_index = -1 #if fg is None else self._findClosestColorIndex(fg)
+        bg_index = -1 #if bg is None else self._findClosestColorIndex(bg)
 
         if fg_index == 0 and bg_index == 0:
             return self._color_pairs.index( (-1, -1) )
@@ -206,8 +206,9 @@ class VScreenArea(object):
         return self._screen
 
     def clear(self):
-        for y in xrange(self.height()):
-            self.write( (0, y), ' '*self.width())
+        self._screen.erase()
+        #for y in xrange(self.height()):
+            #self.write( (0, y), ' '*self.width())
 
     def outOfBounds(self, pos):
         x, y = pos
