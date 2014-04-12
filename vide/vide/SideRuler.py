@@ -1,5 +1,6 @@
 from videtoolkit import gui, core, utils
 import math
+import logging
 
 class SideRuler(gui.VWidget):
     def __init__(self, parent):
@@ -10,11 +11,13 @@ class SideRuler(gui.VWidget):
         self._badges = {}
 
     def paintEvent(self, event):
+        logging.error("painting sideruler")
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.clear( (0, 0, w, h) )
         num_digits = self._lineNumberWidth()
         entries = _computeLineValues(self._start, h, self._skip_intervals)
+        logging.error("%s" %str(self._badges))
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
@@ -30,7 +33,6 @@ class SideRuler(gui.VWidget):
                 bg_color = gui.VGlobalColor.red
             else:
                 bg_color = gui.VGlobalColor.blue
-
             painter.write( (0, i), str(current).rjust(num_digits) + badge_mark + border,
                             fg_color=gui.VGlobalColor.cyan, bg_color=bg_color)
 
@@ -57,6 +59,7 @@ class SideRuler(gui.VWidget):
 
 
     def addBadge(self, line, badge):
+        logging.error("added badge %s %s" % (line, badge))
         self._badges[line] = badge
         self.update()
 def _computeLineValues(start, how_many, skip):
