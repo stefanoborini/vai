@@ -5,6 +5,7 @@ import select
 import sys
 import os
 import logging
+import threading
 
 class VScreen(object):
     def __init__(self):
@@ -19,6 +20,7 @@ class VScreen(object):
         self._curses_screen.nodelay(False)
         self._curses_screen.leaveok(True)
         self._curses_screen.notimeout(True)
+        self._curses_lock = threading.Lock()
 
         self._cursor_pos = (0,0)
         self._initColors()
@@ -31,15 +33,17 @@ class VScreen(object):
         curses.endwin()
 
     def refresh(self):
-        self._curses_screen.noutrefresh()
-        curses.setsyx(self._cursor_pos[1], self._cursor_pos[0])
-        curses.doupdate()
+        with self._curses_lock:
+            self._curses_screen.noutrefresh()
+            curses.setsyx(self._cursor_pos[1], self._cursor_pos[0])
+            curses.doupdate()
 
     def rect(self):
         return self.topLeft() + self.size()
 
     def size(self):
-        y, x = self._curses_screen.getmaxyx()
+        with self._curses_lock:
+            y, x = self._curses_screen.getmaxyx()
         return (x,y)
 
     def topLeft(self):
@@ -55,12 +59,18 @@ class VScreen(object):
         # Prevent to hold the GIL
         select.select([sys.stdin], [], [])
 
-        self._curses_screen.nodelay(False)
+        with self._curses_lock:
+            self._curses_screen.nodelay(False)
+
         c = self._curses_screen.getch()
         if c == 27:
-            self._curses_screen.nodelay(True)
+            with self._curses_lock:
+                self._curses_screen.nodelay(True)
             next_c = self._curses_screen.getch()
-            self._curses_screen.nodelay(False)
+
+            with self._curses_lock:
+                self._curses_screen.nodelay(False)
+
             if next_c == -1:
                 pass
 
@@ -88,10 +98,13 @@ class VScreen(object):
             out_string = out_string[:w-x]
 
         if (x+len(out_string) == w):
-            self._curses_screen.addstr(y, x, out_string[1:], curses.color_pair(color_pair))
-            self._curses_screen.insstr(y, x, out_string[0], curses.color_pair(color_pair))
+            with self._curses_lock:
+                self._curses_screen.addstr(y, x, out_string[1:], curses.color_pair(color_pair))
+                self._curses_screen.insstr(y, x, out_string[0], curses.color_pair(color_pair))
         else:
-            self._curses_screen.addstr(y, x, out_string, curses.color_pair(color_pair))
+            with self._curses_lock:
+                self._curses_screen.addstr(y, x, out_string, curses.color_pair(color_pair))
+
 
     def numColors(self):
         return curses.COLORS
@@ -100,15 +113,19 @@ class VScreen(object):
         return self._colors
 
     def getColorPair(self, fg=None, bg=None):
-        fg_index = -1 #if fg is None else self._findClosestColorIndex(fg)
-        bg_index = -1 #if bg is None else self._findClosestColorIndex(bg)
+        fg_index = -1 if fg is None else self._findClosestColorIndex(fg)
+        bg_index = -1 if bg is None else self._findClosestColorIndex(bg)
 
+        self._curses_lock.acquire()
         if fg_index == 0 and bg_index == 0:
-            return self._color_pairs.index( (-1, -1) )
+            index = self._color_pairs.index( (-1, -1) )
         try:
-            return self._color_pairs.index( (fg_index, bg_index) )
+            index = self._color_pairs.index( (fg_index, bg_index) )
         except:
-            return self._color_pairs.index( (-1, -1) )
+            index = self._color_pairs.index( (-1, -1) )
+
+        self._curses_lock.release()
+        return index
 
     def setCursorPos(self, pos):
         if self.outOfBounds(pos):
@@ -119,8 +136,6 @@ class VScreen(object):
 
     def cursorPos(self):
         return self._cursor_pos
-        #pos = self._curses_screen.getyx()
-        #return pos[1], pos[0]
 
     def _initColors(self):
         self._colors = []
@@ -143,14 +158,18 @@ class VScreen(object):
                     pass
                 counter += 1
 
-    def _findClosestColorIndex(self, color):
+    def _findClosestColorIndex(self, color, color_memoize={}):
+        index = color_memoize.get(color.rgb())
+        if index is not None:
+            return index
+
         closest = sorted([(VColor.distance(color, screen_color),
                            index)
                            for index, screen_color in enumerate(self._colors)
                          ],
                          key=lambda x: x[0]
                          )[0]
-
+        color_memoize[color.rgb()] = closest[1]
         return closest[1]
 
     def outOfBounds(self, pos):

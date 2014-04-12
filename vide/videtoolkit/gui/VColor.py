@@ -26,8 +26,7 @@ class VGlobalColor(object):
     white = VColor(rgb=(255,255,255))
 
 def distance(color1, color2):
-    return 0
-    #(color1.r() - color2.r())**2 + (color1.g() - color2.g())**2 + (color1.b() - color2.b())**2
+    return (color1.r() - color2.r())**2 + (color1.g() - color2.g())**2 + (color1.b() - color2.b())**2
 
 def cursesRgbToRgb(curses_rgb):
     return tuple([int(x/1000.0 * 255) for x in curses_rgb ])

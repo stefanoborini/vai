@@ -87,6 +87,7 @@ class VApplication(core.VCoreApplication):
 
     def _processKeyEvents(self):
         while True:
+            logging.error("key queue %d" % self._key_event_queue.qsize())
             try:
                 key_event = self._key_event_queue.get_nowait()
             except Queue.Empty:
@@ -126,6 +127,7 @@ class VApplication(core.VCoreApplication):
 
     def _processRemainingEvents(self):
         while True:
+            logging.error("data queue %d" % self._key_event_queue.qsize())
             try:
                 receiver, event = self._event_queue.get_nowait()
             except Queue.Empty:

@@ -1,6 +1,5 @@
-import curses
 import logging
-logging.basicConfig(filename='videtoolkit.log',level=logging.DEBUG)
+logging.basicConfig(filename='videtoolkit.log',level=logging.ERROR)
 
 class FocusPolicy(object):
     NoFocus = 0
