@@ -15,6 +15,7 @@ from ..VWidget import VWidget
 from .VFrame import VFrame
 from .VDialog import VDialog
 from .VLabel import VLabel
+from .VToolTip import VToolTip
 from .VLineEdit import VLineEdit
 from .VPushButton import VPushButton
 from .VTabWidget import VTabWidget

@@ -74,11 +74,11 @@ class Editor(gui.VWidget):
             info = self._linter.lint(self._document_model)
             for i in info:
                 if i[1] == 'E':
-                    self._side_ruler.addBadge(i[2],LineBadge(mark="E", bg_color=gui.VGlobalColor.red))
+                    self._side_ruler.addBadge(i[2],LineBadge(mark="E", description=i[6], bg_color=gui.VGlobalColor.red))
                 elif i[1] == 'W':
-                    self._side_ruler.addBadge(i[2],LineBadge(mark="W", bg_color=gui.VGlobalColor.brown))
+                    self._side_ruler.addBadge(i[2],LineBadge(mark="W", description=i[6],bg_color=gui.VGlobalColor.brown))
                 else:
-                    self._side_ruler.addBadge(i[2],LineBadge(mark="*", bg_color=gui.VGlobalColor.cyan))
+                    self._side_ruler.addBadge(i[2],LineBadge(mark="*", description=i[6],bg_color=gui.VGlobalColor.cyan))
 
 
         self._command_bar.clear()
@@ -93,13 +93,16 @@ class Editor(gui.VWidget):
     def doSave(self):
         logging.info("Saving file")
         self._document_model.saveAs("output")
-
     def show(self):
         super(Editor, self).show()
         self._edit_area.setFocus()
 
     def updateDocumentCursorInfo(self, document_pos):
         self._status_bar.setPosition(document_pos)
-        #tooltip.move((1,1))
-        #tooltip.show()
+        badge = self._side_ruler.badge(document_pos.row)
+        if badge is not None:
+            label = gui.VLabel(badge.description(), parent=self._edit_area)
+            label.resize(label.minimumSize())
+            label.move((0,0))
+            label.show()
 

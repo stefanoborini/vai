@@ -105,6 +105,9 @@ class VWidget(core.VObject):
         global_corner = self.parent().mapToGlobal((0,0))
         return (global_corner[0] + self.pos()[0] + x, global_corner[1] + self.pos()[1] + y)
 
+
+
+
     def screenArea(self):
         abs_pos_topleft = self.mapToGlobal((0,0))
 

@@ -63,6 +63,10 @@ class SideRuler(gui.VWidget):
         logging.error("added badge %s %s" % (line, badge))
         self._badges[line] = badge
         self.update()
+
+    def badge(self, line):
+        return self._badges.get(line)
+
 def _computeLineValues(start, how_many, skip):
     result = []
     current = start
