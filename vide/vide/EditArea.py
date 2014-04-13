@@ -20,6 +20,8 @@ class EditArea(gui.VWidget):
         self.scrollUp = core.VSignal(self)
         self.scrollUp.connect(self.scrollUpSlot)
 
+        self.cursorPositionChanged = core.VSignal(self)
+
     def paintEvent(self, event):
         w, h = self.size()
         painter = gui.VPainter(self)
@@ -126,5 +128,6 @@ class EditArea(gui.VWidget):
         self._cursor_pos = new_pos
         #new_doc_pos = self.cursorToDocumentPos(new_pos)
         #self._status_bar.setPosition(new_doc_pos)
+        self.cursorPositionChanged.emit(self.cursorToDocumentPos())
         gui.VCursor.setPos( self.mapToGlobal(new_pos))
 

@@ -54,6 +54,7 @@ class Editor(gui.VWidget):
         self._edit_area.move( (4, 0) )
         self._edit_area.resize( (self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
+        self._edit_area.cursorPositionChanged.connect(self.updateDocumentCursorInfo)
 
         self._edit_area_event_filter = EditAreaEventFilter(self._view_model, self._command_bar)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
@@ -72,7 +73,12 @@ class Editor(gui.VWidget):
         elif command_text == "l":
             info = self._linter.lint(self._document_model)
             for i in info:
-                self._side_ruler.addBadge(i[1],LineBadge(mark="*"))
+                if i[1] == 'E':
+                    self._side_ruler.addBadge(i[2],LineBadge(mark="E", bg_color=gui.VGlobalColor.red))
+                elif i[1] == 'W':
+                    self._side_ruler.addBadge(i[2],LineBadge(mark="W", bg_color=gui.VGlobalColor.brown))
+                else:
+                    self._side_ruler.addBadge(i[2],LineBadge(mark="*", bg_color=gui.VGlobalColor.cyan))
 
 
         self._command_bar.clear()
@@ -91,4 +97,9 @@ class Editor(gui.VWidget):
     def show(self):
         super(Editor, self).show()
         self._edit_area.setFocus()
+
+    def updateDocumentCursorInfo(self, document_pos):
+        self._status_bar.setPosition(document_pos)
+        #tooltip.move((1,1))
+        #tooltip.show()
 

@@ -21,9 +21,10 @@ class VGlobalColor(object):
     green = VColor(rgb=(0,255,0))
     blue = VColor(rgb=(0,0,255))
     cyan = VColor(rgb=(0,255,255))
-    purple = VColor(rgb=(255,0,255))
+    magenta = VColor(rgb=(255,0,255))
     yellow = VColor(rgb=(255,255,0))
     white = VColor(rgb=(255,255,255))
+    brown = VColor(rgb=(170,170,0))
 
 def distance(color1, color2):
     return (color1.r() - color2.r())**2 + (color1.g() - color2.g())**2 + (color1.b() - color2.b())**2

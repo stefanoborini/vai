@@ -38,13 +38,13 @@ class VPalette(object):
 
     def setDefaults(self):
         self._colors = {
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.WindowText) : VColor.VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.WindowText) : VColor.VColor( rgb = (170,170,170)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.Button) : VColor.VColor( rgb = (255,255,255)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.Light) : VColor.VColor( rgb = (255,255,255)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.Midlight) : VColor.VColor( rgb = (255,255,255)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.Dark) : VColor.VColor( rgb = (255,255,255)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.Mid) : VColor.VColor( rgb = (255,255,255)),
-            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Text) : VColor.VColor( rgb = (255,255,255)),
+            ( VPalette.ColorGroup.Active, VPalette.ColorRole.Text) : VColor.VColor( rgb = (170,170,170)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.BrightText) : VColor.VColor( rgb = (255,255,255)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.ButtonText) : VColor.VColor( rgb = (255,255,255)),
             ( VPalette.ColorGroup.Active, VPalette.ColorRole.Base) : VColor.VColor( rgb = (0,0,0)),

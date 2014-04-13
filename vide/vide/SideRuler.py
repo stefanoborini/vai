@@ -21,6 +21,8 @@ class SideRuler(gui.VWidget):
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
+            bg_color = gui.VGlobalColor.blue
+
             if self._end is not None and current > self._end:
                 painter.write( (0, i), "~".ljust(num_digits)+" "+border,
                                 fg_color=gui.VGlobalColor.blue,
@@ -30,11 +32,10 @@ class SideRuler(gui.VWidget):
             badge = self._badges.get(current)
             if badge is not None:
                 badge_mark = badge.mark()
-                bg_color = gui.VGlobalColor.red
-            else:
-                bg_color = gui.VGlobalColor.blue
+                bg_color = badge.bgColor()
+
             painter.write( (0, i), str(current).rjust(num_digits) + badge_mark + border,
-                            fg_color=gui.VGlobalColor.cyan, bg_color=bg_color)
+                            fg_color=gui.VGlobalColor.yellow, bg_color=bg_color)
 
 #    def _computeExpectedValues(self):
 #        if self._end_line is None:

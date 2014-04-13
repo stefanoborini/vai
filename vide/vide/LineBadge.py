@@ -8,4 +8,5 @@ class LineBadge(object):
     def mark(self):
         return self._mark
 
-
+    def bgColor(self):
+        return self._bg_color
