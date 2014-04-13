@@ -18,7 +18,7 @@ class VScreen(object):
         curses.cbreak()
         curses.raw()
         self._curses_screen.keypad(1)
-        self._curses_screen.nodelay(False)
+        self._curses_screen.nodelay(True)
         self._curses_screen.leaveok(True)
         self._curses_screen.notimeout(True)
         self._curses_lock = threading.Lock()
@@ -61,19 +61,11 @@ class VScreen(object):
         select.select([sys.stdin], [], [])
 
         with self._curses_lock:
-            self._curses_screen.nodelay(False)
-
-        c = self._curses_screen.getch()
-        if c == 27:
-            with self._curses_lock:
-                self._curses_screen.nodelay(True)
-            next_c = self._curses_screen.getch()
-
-            with self._curses_lock:
-                self._curses_screen.nodelay(False)
-
-            if next_c == -1:
-                pass
+            c = self._curses_screen.getch()
+            if c == 27:
+                next_c = self._curses_screen.getch()
+                if next_c == -1:
+                    pass
 
         return c
 
