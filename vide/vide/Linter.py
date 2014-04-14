@@ -3,8 +3,6 @@ import io
 import logging
 import subprocess
 import os
-from pylint.lint import Run
-from pylint.reporters.text import ParseableTextReporter
 
 class Linter(object):
     def __init__(self):
@@ -16,7 +14,7 @@ class Linter(object):
         env = os.environ
         env['LC_ALL']='en_US.UTF-8'
         env['LANG']='en_US.UTF-8'
-        proc = subprocess.Popen(['/Users/sbo/.local/bin/pylint',
+        proc = subprocess.Popen(['pylint',
                            tmpfile.name,
                            "--msg-template='%s:{C}:{line}:{column}:{msg_id}:{obj}:{msg}'" % document.filename(),
                            '-r'
@@ -24,10 +22,12 @@ class Linter(object):
                            ],
                            stdout = subprocess.PIPE,
                            stderr = subprocess.STDOUT,
-                           env=env
+                           env=env,
+                           universal_newlines=True
                            )
         proc.wait()
         lint_results = proc.stdout.read().splitlines()
+
 
         result = []
         for line in lint_results:
