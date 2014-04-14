@@ -217,7 +217,7 @@ class VGlobalScreenColor(object):
 
     @classmethod
     def allColors(cls):
-        return [c for c in cls.__dict__.values() if isinstance(c, VScreenColor)]
+        return [c for c in list(cls.__dict__.values()) if isinstance(c, VScreenColor)]
 
 
 
@@ -284,10 +284,10 @@ class DummyVScreen(object):
         self._render_output = []
         self._size = (w, h)
         self._text = ""
-        for h in xrange(self._size[1]):
+        for h in range(self._size[1]):
             row = []
             self._render_output.append(row)
-            for w in xrange(self._size[0]):
+            for w in range(self._size[0]):
                 row.append('.')
 
         self._log = []
@@ -297,7 +297,7 @@ class DummyVScreen(object):
 
     def refresh(self):
         self._log.append("Refresh")
-        print self
+        print(self)
 
     def size(self):
         return self._size
@@ -325,14 +325,14 @@ class DummyVScreen(object):
         return 0
 
     def write(self, x, y, string, fg_color=None, bg_color=None):
-        for pos in xrange(len(string)):
+        for pos in range(len(string)):
             try:
                 self._render_output[y][x+pos] = string[pos]
             except:
                 pass
     def dump(self):
         ret = []
-        ret.append(" "+"".join(list(itertools.islice(itertools.cycle(map(str, range(10))), self._size[0]+1))))
+        ret.append(" "+"".join(list(itertools.islice(itertools.cycle(list(map(str, list(range(10))))), self._size[0]+1))))
         #print "+"*(self._size[0]+2)
         for i, r in enumerate(self._render_output):
             ret.append(str(i%10)+''.join(r)+"+")

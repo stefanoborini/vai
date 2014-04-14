@@ -26,7 +26,7 @@ class EditArea(gui.VWidget):
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.clear( (0, 0, w, h))
-        for i in xrange(0, h):
+        for i in range(0, h):
             document_line = self._view_model.documentPosAtTop().row + i
             if document_line < self._document_model.numLines():
                 painter.write( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))

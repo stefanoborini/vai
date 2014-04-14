@@ -4,7 +4,7 @@ INSERT_MODE, \
 REPLACE_MODE, \
 VISUAL_BLOCK_MODE, \
 VISUAL_LINE_MODE, \
-VISUAL_MODE = range(7)
+VISUAL_MODE = list(range(7))
 
-UP, DOWN, LEFT, RIGHT, HOME, END = range(6)
+UP, DOWN, LEFT, RIGHT, HOME, END = list(range(6))
 

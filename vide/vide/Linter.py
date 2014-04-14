@@ -1,5 +1,5 @@
 import tempfile
-import StringIO
+import io
 import logging
 import subprocess
 import os

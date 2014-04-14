@@ -3,7 +3,7 @@ import copy
 
 class VPalette(object):
     class ColorGroup(object):
-        Active, Disabled, Inactive = range(3)
+        Active, Disabled, Inactive = list(range(3))
 
     class ColorRole(object):
         WindowText, \
@@ -25,7 +25,7 @@ class VPalette(object):
         AlternateBase, \
         NoRole, \
         ToolTipBase, \
-        ToolTipText = range(20)
+        ToolTipText = list(range(20))
 
     def __init__(self):
         self._colors = {}

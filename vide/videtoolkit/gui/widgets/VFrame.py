@@ -40,7 +40,7 @@ class VFrame(VWidget):
         painter = VPainter(self)
         painter.write(0, 0, header, fg, bg)
 
-        for i in xrange(0, h-2):
+        for i in range(0, h-2):
             painter.write(0, i+1, '|'+' '*(len(header)-2)+"|", fg, bg)
         painter.write(0, h-1, '+'+"-"*(len(header)-2)+"+", fg, bg)
 

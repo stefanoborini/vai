@@ -160,7 +160,7 @@ class VWidget(core.VObject):
 
         fg, bg = self.colors(color_group)
 
-        for i in xrange(0, h):
+        for i in range(0, h):
             painter.write( (0, i), ' '*w, fg, bg)
 
     def focusInEvent(self, event):

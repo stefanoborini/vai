@@ -70,7 +70,7 @@ class SideRuler(gui.VWidget):
 def _computeLineValues(start, how_many, skip):
     result = []
     current = start
-    for i in xrange(how_many):
+    for i in range(how_many):
         for interval in skip:
             begin, end = interval
             if begin < current < end:

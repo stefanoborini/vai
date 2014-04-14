@@ -7,7 +7,7 @@ from .VScreen import VScreen
 from .VPainter import VPainter
 from .events import VFocusEvent
 import threading
-import Queue
+import queue
 import logging
 import collections
 import os
@@ -60,8 +60,8 @@ class VApplication(core.VCoreApplication):
         self._focus_widget = None
         self._palette = self.defaultPalette()
         self._event_available_flag = threading.Event()
-        self._event_queue = Queue.Queue()
-        self._key_event_queue = Queue.Queue()
+        self._event_queue = queue.Queue()
+        self._key_event_queue = queue.Queue()
         self._key_event_thread = KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
 
     def exec_(self):
@@ -90,7 +90,7 @@ class VApplication(core.VCoreApplication):
             logging.error("key queue %d" % self._key_event_queue.qsize())
             try:
                 key_event = self._key_event_queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 key_event = None
 
             if key_event is None:
@@ -130,7 +130,7 @@ class VApplication(core.VCoreApplication):
             logging.error("data queue %d" % self._key_event_queue.qsize())
             try:
                 receiver, event = self._event_queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 receiver, event = None, None
 
             if event is None:
