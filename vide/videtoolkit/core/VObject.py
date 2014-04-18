@@ -1,7 +1,23 @@
 from .events import VTimerEvent
+import logging
+
 
 class VObject(object):
+    def __new__(cls, *args, **kwargs):
+        instance = object.__new__(cls)
+        logger = logging.getLogger(cls.__name__)
+        instance.logger = logger
+        if hasattr(cls, "debug"):
+            level = getattr(cls, "debug")
+            instance.logger.setLevel(level)
+            instance.logger.log(level, "Debugging enabled for "+str(cls.__name__))
+        else:
+            instance.logger.setLevel(logging.CRITICAL+1)
+
+        return instance
+
     def __init__(self, parent = None):
+
         self._parent = parent
         self._children = []
         self._event_filters = []
@@ -18,7 +34,7 @@ class VObject(object):
         self._children.append(child)
 
     def tree(self):
-        result = [self ]
+        result = [self]
         for c in self.children():
             result.extend(c.tree())
         return result

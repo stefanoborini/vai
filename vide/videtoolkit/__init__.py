@@ -1,5 +1,5 @@
 import logging
-logging.basicConfig(filename='videtoolkit.log',level=logging.ERROR)
+logging.basicConfig(filename='videtoolkit.log')
 
 class FocusPolicy(object):
     NoFocus = 0
