@@ -5,7 +5,7 @@ from . import events
 from .VPalette import VPalette
 from .VScreen import VScreen
 from .VPainter import VPainter
-from .events import VFocusEvent
+from .events import VFocusEvent, VPaintEvent
 import threading
 import queue
 import logging
@@ -15,7 +15,7 @@ import time
 
 class KeyEventThread(threading.Thread):
     def __init__(self, screen, key_event_queue, event_available_flag):
-        super(KeyEventThread, self).__init__()
+        super().__init__()
         self.daemon = True
         self.exception_occurred_event = threading.Event()
         self.stop_event = threading.Event()
@@ -50,13 +50,14 @@ class KeyEventThread(threading.Thread):
 
 class VApplication(core.VCoreApplication):
     def __init__(self, argv, screen=None):
-        super(VApplication, self).__init__(argv)
-        if screen:
+        from . import VWidget
+        super().__init__(argv)
+        if screen is not None:
             self._screen = screen
         else:
             self._screen = VScreen()
 
-        self._top_level_widgets = []
+        self._root_widget = VWidget()
         self._focus_widget = None
         self._palette = self.defaultPalette()
         self._event_available_flag = threading.Event()
@@ -66,8 +67,7 @@ class VApplication(core.VCoreApplication):
 
     def exec_(self):
         self._key_event_thread.start()
-        for w in self._top_level_widgets:
-            self.postEvent(w, events.VPaintEvent())
+        self.postEvent(self._root_widget, events.VPaintEvent())
         while True:
             if self._key_event_thread.exception_occurred_event.is_set():
                 raise self._key_event_thread.exception
@@ -136,6 +136,11 @@ class VApplication(core.VCoreApplication):
             if event is None:
                 break
 
+            if isinstance(event, VPaintEvent):
+                for w in receiver.rightTree():
+                    if w.rect().intersects(receiver.rect()):
+                        self.postEvent(w, VPaintEvent())
+
             receiver.event(event)
 
             #self._stop_flag.append(1)
@@ -155,12 +160,12 @@ class VApplication(core.VCoreApplication):
         self._event_available_flag.set()
 
     def exit(self):
-        super(VApplication, self).exit()
+        super().exit()
         self._key_event_thread.stop_event.set()
         self._screen.deinit()
 
     def addTopLevelWidget(self, widget):
-        self._top_level_widgets.append(widget)
+        self._root_widget.addChild(widget)
 
     def screen(self):
         return self._screen
@@ -195,3 +200,9 @@ class VApplication(core.VCoreApplication):
     def palette(self):
         return self._palette
 
+    def rootWidget(self):
+        try:
+            return self._root_widget
+        except AttributeError:
+            self._root_widget = None
+            return self._root_widget

@@ -1,11 +1,11 @@
 from . import VColor
 import copy
 
-class VPalette(object):
-    class ColorGroup(object):
+class VPalette:
+    class ColorGroup:
         Active, Disabled, Inactive = list(range(3))
 
-    class ColorRole(object):
+    class ColorRole:
         WindowText, \
         Button, \
         Light, \

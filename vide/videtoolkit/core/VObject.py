@@ -39,12 +39,19 @@ class VObject(object):
             result.extend(c.tree())
         return result
 
+    def root(self):
+        return self.traverseToRoot()[-1]
+
     def traverseToRoot(self):
         result = [self]
         if self.parent() is None:
             return result
         result.extend(self.parent().traverseToRoot())
         return result
+
+    def rightTree(self):
+        depth_first_tree = self.root().tree()
+        return depth_first_tree[depth_first_tree.index(self)+1:]
 
     def installEventFilter(self, event_filter):
         self._event_filters.append(event_filter)

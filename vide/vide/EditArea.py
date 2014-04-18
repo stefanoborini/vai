@@ -55,7 +55,7 @@ class EditArea(gui.VWidget):
     def focusInEvent(self, event):
         gui.VCursor.setPos(self.mapToGlobal(self._cursor_pos))
 
-    def cursorToDocumentPos(self):
+    def documentPos(self):
         top_pos = self._view_model.documentPosAtTop()
         doc_pos = DocumentPos(top_pos.row+self.cursorPos().y, top_pos.column+self.cursorPos().x)
         if doc_pos.row > self._document_model.numLines():
@@ -83,7 +83,7 @@ class EditArea(gui.VWidget):
 
     def moveCursor(self, direction):
         cursor_pos = self.cursorPos()
-        current_doc_pos = self.cursorToDocumentPos()
+        current_doc_pos = self.documentPos()
         current_surrounding_lines_length = {}
         for offset in [-1, 0, 1]:
             line_num=current_doc_pos.row+offset
@@ -128,6 +128,6 @@ class EditArea(gui.VWidget):
         self._cursor_pos = new_pos
         #new_doc_pos = self.cursorToDocumentPos(new_pos)
         #self._status_bar.setPosition(new_doc_pos)
-        self.cursorPositionChanged.emit(self.cursorToDocumentPos())
+        self.cursorPositionChanged.emit(self.documentPos())
         gui.VCursor.setPos( self.mapToGlobal(new_pos))
 

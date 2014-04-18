@@ -1,13 +1,13 @@
 import unittest
 from videtoolkit import core
 
-class TestCore(unittest.TestCase):
-    def testVObject(self):
+class TestVObject(unittest.TestCase):
+    def testInstantiation(self):
         o = core.VObject()
         self.assertEqual(o.parent(), None)
         self.assertEqual(len(o.children()), 0)
 
-    def testVObjectParent(self):
+    def testParent(self):
         p = core.VObject()
         c1 = core.VObject(p)
         c2 = core.VObject(p)
@@ -20,7 +20,7 @@ class TestCore(unittest.TestCase):
         self.assertEqual(len(c1.children()), 0)
         self.assertEqual(len(c2.children()), 0)
 
-    def testVObjectTree(self):
+    def testTree(self):
         p = core.VObject()
         c1 = core.VObject(p)
         c2 = core.VObject(p)
@@ -37,6 +37,35 @@ class TestCore(unittest.TestCase):
         self.assertEqual(p.traverseToRoot(), [p])
         self.assertEqual(c3.traverseToRoot(), [c3, c1, p])
 
+    def testRoot(self):
+        p = core.VObject()
+        c1 = core.VObject(p)
+        c2 = core.VObject(p)
+        c3 = core.VObject(c1)
+
+        self.assertEqual(p.root(), p)
+        self.assertEqual(c1.root(), p)
+        self.assertEqual(c2.root(), p)
+        self.assertEqual(c3.root(), p)
+
+    def testRightTree(self):
+        p = core.VObject()
+        c1_1 = core.VObject(p)
+        c2_1 =   core.VObject(c1_1)
+        c2_2 =   core.VObject(c1_1)
+        c3_1 =     core.VObject(c2_2)
+        c3_2 =     core.VObject(c2_2)
+        c2_3 =   core.VObject(c1_1)
+        c1_2 = core.VObject(p)
+        c2_4 =   core.VObject(c1_2)
+        c3_3 =     core.VObject(c2_4)
+        c2_5 =   core.VObject(c1_2)
+        c1_3 = core.VObject(p)
+
+        self.assertEqual(c3_1.rightTree(), [c3_2, c2_3, c1_2, c2_4, c3_3, c2_5, c1_3])
+        self.assertEqual(c3_3.rightTree(), [c2_5, c1_3])
+
+class TestCore(unittest.TestCase):
     def testVSignal(self):
         arg = []
         sender = core.VObject()
@@ -58,6 +87,8 @@ class TestCore(unittest.TestCase):
 
         self.assertEqual(list(p), [3,2])
 
+
+class TestVRect(unittest.TestCase):
     def testVRect(self):
         r = core.VRect((2,3), (4,5))
         self.assertIsInstance(r.size(), core.VSize)
@@ -102,11 +133,32 @@ class TestCore(unittest.TestCase):
         self.assertEqual(r.top(), 3)
         self.assertEqual(r.bottom(), 7)
 
+class testVSize(unittest.TestCase):
     def testVSize(self):
         v = core.VSize(width=4, height=5)
         self.assertEqual(v.height(), 5)
         self.assertEqual(v.width(), 4)
         self.assertEqual(tuple(v), (4,5))
+
+class testVPoint(unittest.TestCase):
+    def testVPoint(self):
+        v = core.VPoint(x=4, y=5)
+        self.assertEqual(v.x(), 4)
+        self.assertEqual(v.y(), 5)
+        self.assertEqual(tuple(v), (4,5))
+
+    def testSum(self):
+        v1 = core.VPoint(x=4, y=5)
+        v2 = core.VPoint(x=2, y=3)
+        vres = v1+v2
+        self.assertEqual(vres.x(), 6)
+        self.assertEqual(vres.y(), 8)
+    def testDifference(self):
+        v1 = core.VPoint(x=4, y=5)
+        v2 = core.VPoint(x=2, y=2)
+        vres = v1-v2
+        self.assertEqual(vres.x(), 2)
+        self.assertEqual(vres.y(), 3)
 
 if __name__ == '__main__':
     unittest.main()

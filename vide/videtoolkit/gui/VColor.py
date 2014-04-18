@@ -1,4 +1,4 @@
-class VColor(object):
+class VColor:
     def __init__(self, rgb):
         self._rgb = rgb
 
@@ -15,7 +15,7 @@ class VColor(object):
     def b(self):
         return self.rgb()[2]
 
-class VGlobalColor(object):
+class VGlobalColor:
     black = VColor(rgb=(255,0,0))
     red = VColor(rgb=(255,0,0))
     green = VColor(rgb=(0,255,0))
@@ -28,10 +28,4 @@ class VGlobalColor(object):
 
 def distance(color1, color2):
     return (color1.r() - color2.r())**2 + (color1.g() - color2.g())**2 + (color1.b() - color2.b())**2
-
-def cursesRgbToRgb(curses_rgb):
-    return tuple([int(x/1000.0 * 255) for x in curses_rgb ])
-
-def rgbToCursesRgb(rgb):
-    return tuple([int(x/255 * 1000) for x in rgb ])
 

@@ -1,8 +1,8 @@
-class VPainter(object):
+class VPainter:
     def __init__(self, widget):
         self._widget = widget
 
-    def write(self, pos, string, fg_color=None, bg_color=None):
+    def drawText(self, pos, string, fg_color=None, bg_color=None):
         widget_colors = self._widget.currentColors()
         if fg_color is None:
             fg_color = widget_colors[0]
@@ -12,10 +12,11 @@ class VPainter(object):
 
         self._widget.screenArea().write(pos, string, fg_color, bg_color)
 
-    def clear(self, rect):
-        x, y, w, h = rect
+    def eraseRect(self, rect):
         widget_colors = self._widget.currentColors()
-        for h_idx in range(h):
-            self._widget.screenArea().write( (x, y+h_idx), ' '*w, widget_colors[0], widget_colors[1])
+        for h_idx in range(rect.height()):
+            self._widget.screenArea().write( VPoint(rect.x(), rect.y()+h_idx),
+                                             ' '*rect.width(),
+                                             widget_colors[0], widget_colors[1])
 
 

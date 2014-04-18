@@ -3,12 +3,22 @@ from videtoolkit import gui, core, utils
 EOL='\n'
 
 class TextDocument(core.VObject):
+    """
+    Represents the contents of a file.
+
+    Line numbers and column numbers are 1-based, which is the
+    standard behavior in vim. To prevent errors, document
+    positions use the DocumentPos namedtuple, instead of a
+    simple tuple.
+    """
     def __init__(self, filename=None):
         if filename:
             self._filename = filename
             self._contents = open(filename).readlines()
+            # Always add an EOL character at the very end if not already there.
+            # It appears to be a common convention in the unix world.
             if len(self._contents) > 0 and self._contents[-1][-1] != EOL:
-                self._contents[-1] = self._contents[-1] + '\n'
+                self._contents[-1] = self._contents[-1] + EOL
         else:
             self._contents = []
             self._filename = 'noname.txt'
@@ -21,21 +31,25 @@ class TextDocument(core.VObject):
         return len(self._contents) == 0
 
     def getLine(self, line_number):
+        self._checkLineNumber(line_number)
         return self._contents[line_number-1]
 
     def hasLine(self, line_number):
         try:
-            self._contents[line_number-1]
+            self.getLine(line_number)
         except:
             return False
         return True
 
     def lineLength(self, line_number):
-        return len(self._contents[line_number-1])
+        return len(self.getLine(line_number))
 
     def createLineAfter(self, line_number):
+        self._checkLineNumber(line_number)
+        # Add an EOL if not already there
         if self._contents[line_number-1][-1] != EOL:
             self._contents[line_number-1] = self._contents[line_number-1]+EOL
+
         self._contents.insert(line_number, EOL)
 
     def createLine(self, line_number):
@@ -78,6 +92,10 @@ class TextDocument(core.VObject):
 
     def numLines(self):
         return len(self._contents)
+
+    def _checkLineNumber(self, line_number):
+        if line_number < 1 or line_number > len(self._contents):
+            raise Exception("Out of bound request in getLine")
 
     def saveAs(self, filename):
         self._filename = filename

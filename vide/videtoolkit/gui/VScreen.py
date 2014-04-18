@@ -1,4 +1,5 @@
 from . import VColor
+from .. import core
 import itertools
 import curses
 import select
@@ -8,7 +9,6 @@ import logging
 import threading
 
 class VScreen(object):
-
     def __init__(self):
         os.environ["ESCDELAY"] = "25"
         self._curses_screen = curses.initscr()
@@ -24,7 +24,7 @@ class VScreen(object):
         self._curses_lock = threading.Lock()
         self._color_lookup_cache = {}
 
-        self._cursor_pos = (0,0)
+        self._cursor_pos = core.VPoint(0,0)
         self._initColorPairs()
 
     def deinit(self):
@@ -36,25 +36,25 @@ class VScreen(object):
     def refresh(self):
         with self._curses_lock:
             self._curses_screen.noutrefresh()
-            curses.setsyx(self._cursor_pos[1], self._cursor_pos[0])
+            curses.setsyx(self._cursor_pos.y(), self._cursor_pos.x())
             curses.doupdate()
 
     def rect(self):
-        return self.topLeft() + self.size()
+        return VRect(self.topLeft(), self.size())
 
     def size(self):
         with self._curses_lock:
             y, x = self._curses_screen.getmaxyx()
-        return (x,y)
+        return VSize(x,y)
 
     def topLeft(self):
-        return (0,0)
+        return core.VPoint(0,0)
 
     def width(self):
-        return self.size()[0]
+        return self.size().width()
 
     def height(self):
-        return self.size()[1]
+        return self.size().height()
 
     def getKeyCode(self):
         # Prevent to hold the GIL
@@ -238,6 +238,7 @@ class VScreenArea(object):
         if rel_x < 0:
             logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = string[-rel_x:]
+            rel_x = 0
 
         if len(out_string) == 0:
             return
@@ -246,8 +247,8 @@ class VScreenArea(object):
             logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = out_string[:w-rel_x]
 
-        self._screen.write( (rel_x+self.topLeft()[0], rel_y+self.topLeft()[1]),
-                             string,
+        self._screen.write( core.VPoint(rel_x, rel_y)+self.topLeft(),
+                             out_string,
                              fg_color,
                              bg_color)
 
@@ -255,24 +256,23 @@ class VScreenArea(object):
         return self._rect
 
     def size(self):
-        return (self._rect[2], self._rect[3])
+        return self._rect.size()
 
     def topLeft(self):
-        return (self._rect[0], self._rect[1])
+        return self._rect.topLeft()
 
     def width(self):
-        return self._rect[2]
+        return self._rect.width()
 
     def height(self):
-        return self._rect[3]
+        return self._rect.height()
 
     def screen(self):
         return self._screen
 
-    def clear(self):
-        self._screen.erase()
-        #for y in xrange(self.height()):
-            #self.write( (0, y), ' '*self.width())
+    def erase(self):
+        for y in range(self.height()):
+            self.write( core.VPoint(0, y), ' '*self.width())
 
     def outOfBounds(self, pos):
         x, y = pos
@@ -281,17 +281,28 @@ class VScreenArea(object):
 class DummyVScreen(object):
     def __init__(self, w, h):
         self._cursor_pos = (0,0)
-        self._render_output = []
         self._size = (w, h)
         self._text = ""
+
+        self._render_output = []
         for h in range(self._size[1]):
             row = []
             self._render_output.append(row)
             for w in range(self._size[0]):
                 row.append('.')
 
+        self.erase()
         self._log = []
         self._log.append("Inited screen")
+
+    def erase(self):
+        self._render_output = []
+        for h in range(self._size[1]):
+            row = []
+            self._render_output.append(row)
+            for w in range(self._size[0]):
+                row.append('.')
+
     def deinit(self):
         self._log.append("Deinited screen")
 
@@ -324,10 +335,10 @@ class DummyVScreen(object):
     def getColor(self, fg, bg):
         return 0
 
-    def write(self, x, y, string, fg_color=None, bg_color=None):
-        for pos in range(len(string)):
+    def write(self, pos, string, fg_color=None, bg_color=None):
+        for pos_x in range(len(string)):
             try:
-                self._render_output[y][x+pos] = string[pos]
+                self._render_output[pos.y()][pos.x()+pos_x] = string[pos_x]
             except:
                 pass
     def dump(self):
