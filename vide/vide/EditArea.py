@@ -128,6 +128,6 @@ class EditArea(gui.VWidget):
         self._cursor_pos = new_pos
         #new_doc_pos = self.cursorToDocumentPos(new_pos)
         #self._status_bar.setPosition(new_doc_pos)
-        self.cursorPositionChanged.emit(self.documentPos())
         gui.VCursor.setPos( self.mapToGlobal(core.VPoint(new_pos[0], new_pos[1])))
+        self.cursorPositionChanged.emit(self.documentPos())
 

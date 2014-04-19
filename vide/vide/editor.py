@@ -111,7 +111,7 @@ class Editor(gui.VWidget):
         badge = self._side_ruler.badge(document_pos.row)
         if badge is not None:
             self._info_hover_box.setText(badge.description())
-            self._info_hover_box.move(core.VPoint(0, gui.VCursor.pos().y()-1))
+            self._info_hover_box.move(core.VPoint(0, gui.VCursor.pos().y()+1))
             self._info_hover_box.show()
         else:
             self._info_hover_box.hide()
