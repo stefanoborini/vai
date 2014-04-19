@@ -1,3 +1,5 @@
+from .. import core
+
 class VPainter:
     def __init__(self, widget):
         self._widget = widget
@@ -15,8 +17,9 @@ class VPainter:
     def eraseRect(self, rect):
         widget_colors = self._widget.currentColors()
         for h_idx in range(rect.height()):
-            self._widget.screenArea().write( VPoint(rect.x(), rect.y()+h_idx),
+            self._widget.screenArea().write( rect.topLeft() + core.VPoint(0, h_idx),
                                              ' '*rect.width(),
                                              widget_colors[0], widget_colors[1])
 
-
+    def erase(self):
+        self.eraseRect(self._widget.rect())

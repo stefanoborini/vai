@@ -35,10 +35,10 @@ class VRect(object):
     def moveTo(self, top_left):
         self._top_left = top_left
     def intersects(self, other):
-        return (self.left() < other.right()
-                and self.right() > other.left()
-                and self.top() < other.bottom()
-                and self.bottom() > other.top())
+        return (self.left() <= other.right()
+                and self.right() >= other.left()
+                and self.top() <= other.bottom()
+                and self.bottom() >= other.top())
 
     def x(self):
         return self.topLeft().x()
@@ -61,3 +61,5 @@ class VRect(object):
     def bottomRight(self):
         return VPoint(self.right(), self.bottom())
 
+    def __str__(self):
+        return "VRect(x=%d, y=%d, width=%d, height=%d)" % (self.x(), self.y(), self.width(), self.height())

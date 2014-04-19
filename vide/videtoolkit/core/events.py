@@ -7,6 +7,7 @@ class VEvent(object):
         FocusIn = 8
         FocusOut = 9
         Paint = 12
+        Move = 13
         Show = 17
         Hide = 18
 

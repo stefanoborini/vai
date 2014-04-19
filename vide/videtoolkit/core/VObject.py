@@ -32,11 +32,16 @@ class VObject(object):
 
     def addChild(self, child):
         self._children.append(child)
+    def removeChild(self, child):
+        self._children.remove(child)
 
-    def tree(self):
+    def depthFirstFullTree(self):
+        return self.root().depthFirstSubTree()
+
+    def depthFirstSubTree(self):
         result = [self]
         for c in self.children():
-            result.extend(c.tree())
+            result.extend(c.depthFirstSubTree())
         return result
 
     def root(self):
@@ -49,9 +54,12 @@ class VObject(object):
         result.extend(self.parent().traverseToRoot())
         return result
 
-    def rightTree(self):
-        depth_first_tree = self.root().tree()
+    def depthFirstRightTree(self):
+        depth_first_tree = self.depthFirstFullTree()
         return depth_first_tree[depth_first_tree.index(self)+1:]
+    def depthFirstLeftTree(self):
+        depth_first_tree = self.depthFirstFullTree()
+        return depth_first_tree[:depth_first_tree.index(self)]
 
     def installEventFilter(self, event_filter):
         self._event_filters.append(event_filter)

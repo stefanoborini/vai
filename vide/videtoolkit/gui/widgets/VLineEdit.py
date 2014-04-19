@@ -102,21 +102,17 @@ class VLineEdit(VWidget):
         pass
 
     def minimumSizeHint(self):
-        return (len(self._text), 1)
+        return core.VSize(len(self._text), 1)
 
     def paintEvent(self, event):
         w, h = self.size()
         painter = VPainter(self)
-        painter.write( (0, 0), self._text + ' '*(w-len(self._text)))
+        painter.drawText( core.VPoint(0, 0), self._text + ' '*(w-len(self._text)))
         if self.hasFocus():
-            VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
-                             self.mapToGlobal((0,0))[1])
-                             )
+            VCursor.setPos(self.mapToGlobal(core.VPoint(0,0)) + core.VPoint(self._cursor_position,0))
 
     def focusInEvent(self, event):
-        VCursor.setPos( (self.mapToGlobal((0,0))[0]+self._cursor_position,
-                         self.mapToGlobal((0,0))[1])
-                         )
+        VCursor.setPos(self.mapToGlobal(core.VPoint(0,0)) + core.VPoint(self._cursor_position,0))
 
     def keyEvent(self, event):
         if event.key() == Key.Key_Return:
@@ -138,7 +134,7 @@ class VLineEdit(VWidget):
         self.update()
 
     def minimumSize(self):
-        return (len(self._text), 1)
+        return core.VSize(len(self._text), 1)
 
     def selectedText(self):
         pass

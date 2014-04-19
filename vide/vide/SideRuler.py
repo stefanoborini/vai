@@ -3,6 +3,7 @@ import math
 import logging
 
 class SideRuler(gui.VWidget):
+    debug = logging.INFO
     def __init__(self, parent):
         super(SideRuler, self).__init__(parent)
         self._start = 1
@@ -11,20 +12,20 @@ class SideRuler(gui.VWidget):
         self._badges = {}
 
     def paintEvent(self, event):
-        logging.error("painting sideruler")
+        self.logger.info("Painting sideruler")
         w, h = self.size()
         painter = gui.VPainter(self)
-        painter.clear( (0, 0, w, h) )
+        painter.erase()
         num_digits = self._lineNumberWidth()
         entries = _computeLineValues(self._start, h, self._skip_intervals)
-        logging.error("%s" %str(self._badges))
+        self.logger.info("Badges %s" % str(self._badges))
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
             bg_color = gui.VGlobalColor.blue
 
             if self._end is not None and current > self._end:
-                painter.write( (0, i), "~".ljust(num_digits)+" "+border,
+                painter.drawText( core.VPoint(0, i), "~".ljust(num_digits)+" "+border,
                                 fg_color=gui.VGlobalColor.blue,
                 )
                 continue
@@ -34,8 +35,10 @@ class SideRuler(gui.VWidget):
                 badge_mark = badge.mark()
                 bg_color = badge.bgColor()
 
-            painter.write( (0, i), str(current).rjust(num_digits) + badge_mark + border,
+            painter.drawText( core.VPoint(0, i), str(current).rjust(num_digits) + badge_mark + border,
                             fg_color=gui.VGlobalColor.yellow, bg_color=bg_color)
+
+        self.logger.info("Done painting sideruler")
 
 #    def _computeExpectedValues(self):
 #        if self._end_line is None:
@@ -48,7 +51,7 @@ class SideRuler(gui.VWidget):
         self.update()
 
     def minimumSize(self):
-        return (self._lineNumberWidth(), 1)
+        return core.VSize(self._lineNumberWidth(), 1)
 
     def _lineNumberWidth(self):
 

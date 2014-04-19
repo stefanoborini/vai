@@ -45,7 +45,7 @@ class VScreen(object):
     def size(self):
         with self._curses_lock:
             y, x = self._curses_screen.getmaxyx()
-        return VSize(x,y)
+        return core.VSize(x,y)
 
     def topLeft(self):
         return core.VPoint(0,0)
@@ -165,7 +165,7 @@ class VScreen(object):
 
     def outOfBounds(self, pos):
         x, y = pos
-        return (x >= self.size()[0] or y >= self.size()[1] or x < 0 or y < 0)
+        return (x >= self.size().width() or y >= self.size().height() or x < 0 or y < 0)
 
 class VScreenColor(object):
     def __init__(self, color_idx, attr, equiv_rgb):
