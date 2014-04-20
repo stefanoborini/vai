@@ -35,7 +35,7 @@ class VProgressBar(VWidget):
                        bar_text[int(bar_total_length/2)-1+len(percentage_text):]
 
         final_text += '[' + bar_text + ']'
-        painter.drawText( core.VPoint(0, 0), final_text, fg_color, bg_color)
+        painter.drawText( (0, 0), final_text, fg_color, bg_color)
 
     def minimumSize(self):
         if len(self._text) > 0:
@@ -43,7 +43,7 @@ class VProgressBar(VWidget):
         else:
             width = len("[100%]")
 
-        return core.VSize(width, 1)
+        return (width, 1)
 
     def setValue(self, value):
         if self._value != value and (self._minimum < value < self._maximum):

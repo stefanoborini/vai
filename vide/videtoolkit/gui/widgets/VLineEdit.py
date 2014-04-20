@@ -1,5 +1,6 @@
 from ... import FocusPolicy
 from ... import core
+from ...consts import Index
 from ... import Key
 from ..VWidget import VWidget
 from ..VPainter import VPainter
@@ -7,7 +8,7 @@ from ..VCursor import VCursor
 
 class VLineEdit(VWidget):
     def __init__(self, contents="", parent=None):
-        super(VLineEdit, self).__init__(parent)
+        super().__init__(parent)
         self._text = contents
         self._cursor_position = len(self._text)
         self._selection = None
@@ -107,12 +108,20 @@ class VLineEdit(VWidget):
     def paintEvent(self, event):
         w, h = self.size()
         painter = VPainter(self)
-        painter.drawText( core.VPoint(0, 0), self._text + ' '*(w-len(self._text)))
+        painter.drawText( (0, 0), self._text + ' '*(w-len(self._text)))
         if self.hasFocus():
-            VCursor.setPos(self.mapToGlobal(core.VPoint(0,0)) + core.VPoint(self._cursor_position,0))
+            abs_top_left = self.mapToGlobal((0,0))
+            VCursor.setPos( (abs_top_left[Index.X] + self._cursor_position,
+                             abs_top_left[Index.Y]
+                            )
+                          )
 
     def focusInEvent(self, event):
-        VCursor.setPos(self.mapToGlobal(core.VPoint(0,0)) + core.VPoint(self._cursor_position,0))
+        abs_top_left = self.mapToGlobal((0,0))
+        VCursor.setPos( (abs_top_left[Index.X] + self._cursor_position,
+                         abs_top_left[Index.Y]
+                        )
+                      )
 
     def keyEvent(self, event):
         if event.key() == Key.Key_Return:
@@ -134,7 +143,7 @@ class VLineEdit(VWidget):
         self.update()
 
     def minimumSize(self):
-        return core.VSize(len(self._text), 1)
+        return (len(self._text), 1)
 
     def selectedText(self):
         pass

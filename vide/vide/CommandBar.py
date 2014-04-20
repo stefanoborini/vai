@@ -12,11 +12,11 @@ class CommandBar(gui.VWidget):
         self._mode = flags.COMMAND_MODE
 
         self._state_label = gui.VLabel(parent=self)
-        self._state_label.setGeometry(core.VRect( core.VPoint(0,0), core.VSize(1,1)))
+        self._state_label.setGeometry((0,0,1,1))
 
         self._line_edit = gui.VLineEdit(parent=self)
         self._line_edit.returnPressed.connect(self.returnPressed)
-        self._line_edit.setGeometry(core.VRect( core.VPoint(1,0),core.VSize(self.width()-1,1)))
+        self._line_edit.setGeometry((1,0,self.width()-1,1))
         self._line_edit.installEventFilter(self)
         self._updateText()
 
@@ -52,9 +52,9 @@ class CommandBar(gui.VWidget):
         else:
             text = ""
 
-        self._state_label.resize( core.VSize(len(text), 1) )
+        self._state_label.resize( (len(text), 1) )
         self._state_label.setText(text)
-        self._line_edit.setGeometry(core.VRect( core.VPoint(len(text),0), core.VSize(self.width()-len(text),1)))
+        self._line_edit.setGeometry( (len(text), 0, self.width()-len(text), 1) )
 
     def eventFilter(self, event):
         if isinstance(event, gui.VKeyEvent):

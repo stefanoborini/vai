@@ -5,7 +5,14 @@ from vide.TextDocument import TextDocument
 import time
 import sys
 
+def usage():
+    print("Usage: %s filename" % sys.argv[0])
+
 try:
+    if len(sys.argv) < 2:
+        usage()
+        sys.exit(0)
+
     app = gui.VApplication(sys.argv)
 
     model = TextDocument(sys.argv[1])

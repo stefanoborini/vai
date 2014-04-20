@@ -29,9 +29,9 @@ class EditArea(gui.VWidget):
         for i in range(0, h):
             document_line = self._view_model.documentPosAtTop().row + i
             if document_line < self._document_model.numLines():
-                painter.drawText( core.VPoint(0, i), self._document_model.getLine(document_line).replace('\n', ' '))
+                painter.drawText( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))
 
-        gui.VCursor.setPos( self.mapToGlobal(core.VPoint(self._cursor_pos[0], self._cursor_pos[1])))
+        gui.VCursor.setPos( self.mapToGlobal((self._cursor_pos[0], self._cursor_pos[1])))
 
     def scrollDownSlot(self):
         top_pos = self._view_model.documentPosAtTop()
@@ -53,7 +53,7 @@ class EditArea(gui.VWidget):
         self.update()
 
     def focusInEvent(self, event):
-        gui.VCursor.setPos(self.mapToGlobal(core.VPoint(self._cursor_pos[0], self._cursor_pos[1])))
+        gui.VCursor.setPos(self.mapToGlobal((self._cursor_pos[0], self._cursor_pos[1])))
 
     def documentPos(self):
         top_pos = self._view_model.documentPosAtTop()
@@ -128,6 +128,6 @@ class EditArea(gui.VWidget):
         self._cursor_pos = new_pos
         #new_doc_pos = self.cursorToDocumentPos(new_pos)
         #self._status_bar.setPosition(new_doc_pos)
-        gui.VCursor.setPos( self.mapToGlobal(core.VPoint(new_pos[0], new_pos[1])))
+        gui.VCursor.setPos( self.mapToGlobal((new_pos[0], new_pos[1])))
         self.cursorPositionChanged.emit(self.documentPos())
 

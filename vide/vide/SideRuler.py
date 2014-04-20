@@ -24,7 +24,7 @@ class SideRuler(gui.VWidget):
             bg_color = gui.VGlobalColor.blue
 
             if self._end is not None and current > self._end:
-                painter.drawText( core.VPoint(0, i), "~".ljust(num_digits)+" "+border,
+                painter.drawText( (0, i), "~".ljust(num_digits)+" "+border,
                                 fg_color=gui.VGlobalColor.blue,
                 )
                 continue
@@ -34,7 +34,7 @@ class SideRuler(gui.VWidget):
                 badge_mark = badge.mark()
                 bg_color = badge.bgColor()
 
-            painter.drawText( core.VPoint(0, i), str(current).rjust(num_digits) + badge_mark + border,
+            painter.drawText( (0, i), str(current).rjust(num_digits) + badge_mark + border,
                             fg_color=gui.VGlobalColor.yellow, bg_color=bg_color)
 
         self.logger.info("Done painting sideruler")
@@ -50,7 +50,7 @@ class SideRuler(gui.VWidget):
         self.update()
 
     def minimumSize(self):
-        return core.VSize(self._lineNumberWidth(), 1)
+        return (self._lineNumberWidth(), 1)
 
     def _lineNumberWidth(self):
 

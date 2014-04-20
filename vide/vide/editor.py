@@ -31,15 +31,15 @@ class Editor(gui.VWidget):
 
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
-        self._status_bar.move( core.VPoint(0, self.height()-2) )
-        self._status_bar.resize( core.VSize(self.width(), 1) )
+        self._status_bar.move( (0, self.height()-2) )
+        self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setFilename(self._document_model.filename())
         self._status_bar_controller = StatusBarController(self._status_bar, self._view_model)
 
     def _createCommandBar(self):
         self._command_bar = CommandBar(self)
-        self._command_bar.move( core.VPoint(0, self.height()-1) )
-        self._command_bar.resize( core.VSize(self.width(), 1) )
+        self._command_bar.move( (0, self.height()-1) )
+        self._command_bar.resize( (self.width(), 1) )
         self._command_bar.setMode(flags.COMMAND_MODE)
         self._view_model.modeChanged.connect(self._command_bar.setMode)
         self._command_bar.returnPressed.connect(self.executeCommand)
@@ -47,14 +47,14 @@ class Editor(gui.VWidget):
 
     def _createSideRuler(self):
         self._side_ruler = SideRuler(self)
-        self._side_ruler.move( core.VPoint(0, 0) )
-        self._side_ruler.resize( core.VSize(4, self.height()-2) )
+        self._side_ruler.move( (0, 0) )
+        self._side_ruler.resize( (4, self.height()-2) )
         self._side_ruler_controller = SideRulerController(self._side_ruler, self._view_model)
 
     def _createEditArea(self):
         self._edit_area = EditArea(self._document_model, self._view_model, parent = self)
-        self._edit_area.move( core.VPoint(4, 0) )
-        self._edit_area.resize( core.VSize(self.width()-4, self.height()-2) )
+        self._edit_area.move( (4, 0) )
+        self._edit_area.resize((self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
         self._edit_area.cursorPositionChanged.connect(self.updateDocumentCursorInfo)
 
@@ -63,7 +63,7 @@ class Editor(gui.VWidget):
 
     def _createInfoHoverBox(self):
         self._info_hover_box = InfoHoverBox(parent=self)
-        self._info_hover_box.resize(core.VSize(0,0))
+        self._info_hover_box.resize((0,0))
         self._info_hover_box.hide()
 
     def viewModelChanged(self):
@@ -74,7 +74,7 @@ class Editor(gui.VWidget):
         logging.info("Executing command "+command_text)
 
         if command_text == 'q':
-            gui.QApplication.qApp.exit()
+            gui.VApplication.vApp.exit()
         elif command_text == "w":
             self.doSave()
         elif command_text == "l":
@@ -110,7 +110,7 @@ class Editor(gui.VWidget):
         badge = self._side_ruler.badge(document_pos.row)
         if badge is not None:
             self._info_hover_box.setText(badge.description())
-            self._info_hover_box.move(core.VPoint(0, gui.VCursor.pos().y()+1))
+            self._info_hover_box.move((0, gui.VCursor.pos().y()+1))
             self._info_hover_box.show()
         else:
             self._info_hover_box.hide()

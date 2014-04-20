@@ -1,4 +1,5 @@
 from .. import core
+from ..consts import Index
 from .. import FocusPolicy
 from ..core import events as coreevents
 from .VApplication import VApplication
@@ -19,7 +20,7 @@ class VWidget(core.VObject):
         super().__init__(parent)
 
         if self.parent() is None:
-            self._geometry = core.VRect(top_left = core.VPoint(0,0), size = VApplication.vApp.screen().size())
+            self._geometry = (0,0) + VApplication.vApp.screen().size()
         else:
             self._geometry = self.parent().contentsRect()
 
@@ -41,37 +42,43 @@ class VWidget(core.VObject):
         return (self is VApplication.vApp.focusWidget())
 
     def move(self, pos):
-        if not isinstance(pos, core.VPoint):
+        if not isinstance(pos, tuple):
             raise TypeError("Invalid pos argument")
         VApplication.vApp.postEvent(self, VMoveEvent())
-        self.setGeometry(core.VRect(top_left=pos, size=self.size()))
+        self.setGeometry(pos+self.size())
 
     def resize(self, size):
-        if not isinstance(size, core.VSize):
+        if not isinstance(size, tuple):
             raise TypeError("Invalid size argument")
 
-        self.setGeometry(core.VRect(top_left=self.pos(), size=size))
+        self.setGeometry(self.pos()+size)
 
     def pos(self):
-        return self.geometry().topLeft()
+        geometry = self.geometry()
+        return ( geometry[Index.RECT_X],
+                 geometry[Index.RECT_Y]
+                 )
+
 
     def size(self):
-        return self.geometry().size()
+        return ( self.geometry()[Index.RECT_WIDTH],
+                 self.geometry()[Index.RECT_HEIGHT]
+                 )
 
     def rect(self):
-        return core.VRect(top_left=core.VPoint(0,0), size=self.size())
+        return (0,0)+self.size()
 
     def absoluteRect(self):
-        return core.VRect(self.mapToGlobal(core.VPoint(0,0)), self.size())
+        return self.mapToGlobal((0,0))+self.size()
 
     def geometry(self):
         return self._geometry
 
     def width(self):
-        return self.geometry().width()
+        return self.geometry()[Index.RECT_WIDTH]
 
     def height(self):
-        return self.geometry().height()
+        return self.geometry()[Index.RECT_HEIGHT]
 
     def show(self):
         self.setVisible(True)
@@ -103,7 +110,7 @@ class VWidget(core.VObject):
         return self._visible_explicit if self._visible_explicit is not None else self._visible_implicit
 
     def minimumSize(self):
-        return core.VSize(0,0)
+        return (0,0)
 
     def addLayout(self, layout):
         self._layout = layout
@@ -113,27 +120,29 @@ class VWidget(core.VObject):
         self.logger.info("VWidget.setGeometry %s" % str(rect))
 
         min_size = self.minimumSize()
-        self._geometry = core.VRect(top_left=rect.topLeft(),
-                                    size=core.VSize(max(min_size.width(), rect.width()),
-                                          max(min_size.height(), rect.height()) )
-                                )
+        self._geometry = (rect[Index.RECT_X],
+                          rect[Index.RECT_Y],
+                          max(min_size[Index.SIZE_WIDTH], rect[Index.RECT_WIDTH]),
+                          max(min_size[Index.SIZE_HEIGHT], rect[Index.RECT_HEIGHT])
+                         )
         self.update()
 
     def mapToGlobal(self, pos):
+        top_left = self.pos()
         if self.parent() is None:
-            return pos+self.pos()
+            return (pos[Index.X]+top_left[Index.X], pos[Index.Y]+top_left[Index.Y])
 
-        parent_corner = self.parent().mapToGlobal(core.VPoint(0,0))
-        return parent_corner + self.pos() + pos
+        parent_corner = self.parent().mapToGlobal((0,0))
+        return ( parent_corner[Index.X] + top_left[Index.X] + pos[Index.X],
+                 parent_corner[Index.Y] + top_left[Index.Y] + pos[Index.Y]
+                 )
 
     def screenArea(self):
-        abs_pos_topleft = self.mapToGlobal(core.VPoint(0,0))
+        abs_pos_topleft = self.mapToGlobal((0,0))
 
         return VScreenArea( VApplication.vApp.screen(),
-                            core.VRect(top_left = abs_pos_topleft,
-                                       size = self.size()
-                                       )
-                             )
+                            abs_pos_topleft + self.size()
+                          )
 
     def event(self, event):
         self.logger.info("Event %s. Receiver %s" % (str(event), str(self)))
@@ -148,7 +157,7 @@ class VWidget(core.VObject):
                 for w in widget.depthFirstRightTree():
                     self.logger.info("Widget %s in rightTree" % str(w))
                     self.logger.info("%s, %s", w.absoluteRect(), widget.absoluteRect())
-                    if w.absoluteRect().intersects(widget.absoluteRect()):
+                    if core.intersects(w.absoluteRect(),widget.absoluteRect()):
                         self.logger.info("Intersected")
                         repaint_queue.append(w)
                 self.logger.info("repaint queue: %s" % str(repaint_queue))
@@ -207,8 +216,9 @@ class VWidget(core.VObject):
 
         fg, bg = self.colors(color_group)
 
-        for i in range(0, size.height()):
-            painter.drawText( core.VPoint(0, i), ' '*size.width(), fg, bg)
+        string = ' '*size[Index.SIZE_WIDTH]
+        for i in range(0, size[Index.SIZE_HEIGHT]):
+            painter.drawText( (0, i), string, fg, bg)
 
     def focusInEvent(self, event):
         self.logger.info("FocusIn event")
@@ -251,7 +261,6 @@ class VWidget(core.VObject):
         self.palette().setColor(VPalette.ColorGroup.Active, VPalette.ColorRole.Window, bg)
 
     def colors(self, color_group = VPalette.ColorGroup.Active):
-
         fg = self.palette().color(color_group, VPalette.ColorRole.WindowText)
         bg = self.palette().color(color_group, VPalette.ColorRole.Window)
 
@@ -271,13 +280,12 @@ class VWidget(core.VObject):
         VApplication.vApp.postEvent(self,VPaintEvent())
 
     def contentsRect(self):
-        return core.VRect(top_left = core.VPoint(self.contentsMargins()[0],
-                                                 self.contentsMargins()[1]
-                                                ),
-                          size = core.VSize( self.width()-self.contentsMargins()[0]-self.contentsMargins()[2],
-                                             self.height()-self.contentsMargins()[1]-self.contentsMargins()[3]
-                                            )
-                        )
+        margins = self.contentsMargins()
+        return (margins[Index.MARGIN_LEFT],
+                margins[Index.MARGIN_TOP],
+                self.width()-margins[Index.MARGIN_LEFT]-margins[Index.MARGIN_RIGHT],
+                self.height()-margins[Index.MARGIN_TOP]-margins[Index.MARGIN_BOTTOM]
+                )
 
     def contentsMargins(self):
         return (0,0,0,0)

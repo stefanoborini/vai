@@ -1,5 +1,7 @@
+
 from . import VColor
 from .. import core
+from ..consts import Index
 import itertools
 import curses
 import select
@@ -24,7 +26,7 @@ class VScreen(object):
         self._curses_lock = threading.Lock()
         self._color_lookup_cache = {}
 
-        self._cursor_pos = core.VPoint(0,0)
+        self._cursor_pos = (0,0)
         self._initColorPairs()
 
     def deinit(self):
@@ -36,25 +38,25 @@ class VScreen(object):
     def refresh(self):
         with self._curses_lock:
             self._curses_screen.noutrefresh()
-            curses.setsyx(self._cursor_pos.y(), self._cursor_pos.x())
+            curses.setsyx(self._cursor_pos[Index.Y], self._cursor_pos[Index.X])
             curses.doupdate()
 
     def rect(self):
-        return VRect(self.topLeft(), self.size())
+        return self.topLeft() + self.size()
 
     def size(self):
         with self._curses_lock:
-            y, x = self._curses_screen.getmaxyx()
-        return core.VSize(x,y)
+            h, w = self._curses_screen.getmaxyx()
+        return (w,h)
 
     def topLeft(self):
-        return core.VPoint(0,0)
+        return (0,0)
 
     def width(self):
-        return self.size().width()
+        return self.size()[Index.SIZE_WIDTH]
 
     def height(self):
-        return self.size().height()
+        return self.size()[Index.SIZE_HEIGHT]
 
     def getKeyCode(self):
         # Prevent to hold the GIL
@@ -165,7 +167,7 @@ class VScreen(object):
 
     def outOfBounds(self, pos):
         x, y = pos
-        return (x >= self.size().width() or y >= self.size().height() or x < 0 or y < 0)
+        return (x >= self.width() or y >= self.height() or x < 0 or y < 0)
 
 class VScreenColor(object):
     def __init__(self, color_idx, attr, equiv_rgb):
@@ -219,8 +221,6 @@ class VGlobalScreenColor(object):
     def allColors(cls):
         return [c for c in list(cls.__dict__.values()) if isinstance(c, VScreenColor)]
 
-
-
 class VScreenArea(object):
     def __init__(self, screen, rect):
         self._screen = screen
@@ -247,7 +247,8 @@ class VScreenArea(object):
             logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = out_string[:w-rel_x]
 
-        self._screen.write( core.VPoint(rel_x, rel_y)+self.topLeft(),
+        top_left_x, top_left_y = self.topLeft()
+        self._screen.write( (rel_x+top_left_x, rel_y+top_left_y),
                              out_string,
                              fg_color,
                              bg_color)
@@ -256,27 +257,27 @@ class VScreenArea(object):
         return self._rect
 
     def size(self):
-        return self._rect.size()
+        return (self._rect[Index.RECT_WIDTH], self._rect[Index.RECT_HEIGHT])
 
     def topLeft(self):
-        return self._rect.topLeft()
+        return (self._rect[Index.RECT_X], self._rect[Index.RECT_Y])
 
     def width(self):
-        return self._rect.width()
+        return self._rect[Index.RECT_WIDTH]
 
     def height(self):
-        return self._rect.height()
+        return self._rect[Index.RECT_HEIGHT]
 
     def screen(self):
         return self._screen
 
     def erase(self):
         for y in range(self.height()):
-            self.write( core.VPoint(0, y), ' '*self.width())
+            self.write( (0, y), ' '*self.width())
 
     def outOfBounds(self, pos):
         x, y = pos
-        return (x >= self.size()[0] or y >= self.size()[1] or x < 0 or y < 0)
+        return (x >= self.size()[Index.SIZE_WIDTH] or y >= self.size()[Index.SIZE_HEIGHT] or x < 0 or y < 0)
 
 class DummyVScreen(object):
     def __init__(self, w, h):
