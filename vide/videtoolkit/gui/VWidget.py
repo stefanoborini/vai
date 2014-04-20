@@ -87,25 +87,28 @@ class VWidget(core.VObject):
 
     def setVisible(self, visible):
         self.logger.info("Setting explicit visibility for %s : %s" % (str(self), str(visible)))
+        visible_before = self.isVisible()
         self._visible_explicit = visible
+
+        if visible and not visible_before:
+            VApplication.vApp.postEvent(self,events.VShowEvent())
+        elif not visible and visible_before:
+            VApplication.vApp.postEvent(self,events.VHideEvent())
+
         for w in self.children():
             w.setVisibleImplicit(visible)
-
-        if visible:
-            VApplication.vApp.postEvent(self,events.VShowEvent())
-        else:
-            VApplication.vApp.postEvent(self,events.VHideEvent())
 
     def setVisibleImplicit(self, visible):
         self.logger.info("Setting implicit visibility for %s : %s" % (str(self), str(visible)))
         self._visible_implicit = visible
-        for w in self.children():
-            w.setVisibleImplicit(visible)
 
         if visible:
             VApplication.vApp.postEvent(self,events.VShowEvent())
         else:
             VApplication.vApp.postEvent(self,events.VHideEvent())
+
+        for w in self.children():
+            w.setVisibleImplicit(visible)
 
     def isVisible(self):
         return self._visible_explicit if self._visible_explicit is not None else self._visible_implicit
@@ -191,22 +194,18 @@ class VWidget(core.VObject):
                     self.focusOutEvent(event)
 
         elif isinstance(event, events.VHideEvent):
-            if not self.isVisible():
-                return True
-
             self.hideEvent(event)
 
             for w in self.depthFirstFullTree():
                 self.logger.info("Widget %s in tree" % str(w))
                 if not w.isVisible():
                     continue
+                self.logger.info("Repainting widget %s" % str(w))
                 #self.logger.info("%s, %s", w.absoluteRect(), self.absoluteRect())
                 #if w.absoluteRect().intersects(self.absoluteRect()):
                     #self.logger.info("Intersected")
                 w.paintEvent(events.VPaintEvent())
         elif isinstance(event, events.VShowEvent):
-            if self.isVisible():
-                return True
 
             self.showEvent(event)
 

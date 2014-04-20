@@ -1,4 +1,4 @@
-from videtoolkit import gui, core, utils
+from videtoolkit import gui, core, consts, utils
 
 from .SideRuler import SideRuler
 from .SideRulerController import SideRulerController
@@ -110,7 +110,7 @@ class Editor(gui.VWidget):
         badge = self._side_ruler.badge(document_pos.row)
         if badge is not None:
             self._info_hover_box.setText(badge.description())
-            self._info_hover_box.move((0, gui.VCursor.pos().y()+1))
+            self._info_hover_box.move((0, gui.VCursor.pos()[consts.Index.Y]+1))
             self._info_hover_box.show()
         else:
             self._info_hover_box.hide()

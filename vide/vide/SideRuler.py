@@ -62,7 +62,7 @@ class SideRuler(gui.VWidget):
 
 
     def addBadge(self, line, badge):
-        logging.error("added badge %s %s" % (line, badge))
+        self.logger.info("Added badge %s %s" % (line, badge))
         self._badges[line] = badge
         self.update()
 
