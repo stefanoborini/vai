@@ -21,7 +21,7 @@ class CommandBar(gui.VWidget):
         self._updateText()
 
     def setMode(self, mode):
-        logging.info("CommandBar: setting mode "+str(mode))
+        self.logger.info("CommandBar: setting mode "+str(mode))
         self._mode = mode
         self._updateText()
 

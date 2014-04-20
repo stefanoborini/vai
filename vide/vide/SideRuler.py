@@ -3,7 +3,6 @@ import math
 import logging
 
 class SideRuler(gui.VWidget):
-    debug = logging.INFO
     def __init__(self, parent):
         super(SideRuler, self).__init__(parent)
         self._start = 1

@@ -76,13 +76,13 @@ class VScreen(object):
         out_string = string
 
         if y < 0 or y >= h or x >= w:
-            logging.info("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            logging.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             return
 
         out_string = out_string[:w-x]
 
         if x < 0:
-            logging.info("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            logging.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = string[-x:]
 
         if len(out_string) == 0:
@@ -90,7 +90,7 @@ class VScreen(object):
 
         attr = self.getColorAttributes(fg_color, bg_color)
         if (x+len(out_string) > w):
-            logging.info("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            logging.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = out_string[:w-x]
 
         if (x+len(out_string) == w):
@@ -126,7 +126,7 @@ class VScreen(object):
 
     def setCursorPos(self, pos):
         if self.outOfBounds(pos):
-            logging.info("out of bound in Screen.setCursorPos: %s" % str(pos))
+            logging.error("out of bound in Screen.setCursorPos: %s" % str(pos))
             return
 
         self._cursor_pos = pos
@@ -231,12 +231,12 @@ class VScreenArea(object):
         w, h = self.size()
 
         if rel_y < 0 or rel_y >= h or rel_x >= w:
-            logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             return
 
         out_string = string
         if rel_x < 0:
-            logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = string[-rel_x:]
             rel_x = 0
 
@@ -244,7 +244,7 @@ class VScreenArea(object):
             return
 
         if (rel_x+len(out_string) > w):
-            logging.info("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = out_string[:w-rel_x]
 
         self._screen.write( core.VPoint(rel_x, rel_y)+self.topLeft(),

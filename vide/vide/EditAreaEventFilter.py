@@ -10,7 +10,7 @@ class EditAreaEventFilter(core.VObject):
         self._command_bar = command_bar
 
     def eventFilter(self, event):
-        logging.info("Event filter!")
+        self.logger.info("Event filter!")
         if isinstance(event, gui.VKeyEvent) and event.key() == videtoolkit.Key.Key_Colon:
             self._view_model.setEditorMode(flags.COMMAND_INPUT_MODE)
             self._command_bar.setFocus()

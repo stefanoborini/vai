@@ -12,7 +12,6 @@ import logging
 
 
 class VWidget(core.VObject):
-    debug = logging.INFO
     def __init__(self, parent=None):
         if parent is None:
             parent = VApplication.vApp.rootWidget()
@@ -81,7 +80,7 @@ class VWidget(core.VObject):
         self.setVisible(False)
 
     def setVisible(self, visible):
-        logging.info("Setting explicit visibility for %s : %s" % (str(self), str(visible)))
+        self.logger.info("Setting explicit visibility for %s : %s" % (str(self), str(visible)))
         self._visible_explicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)
@@ -91,7 +90,7 @@ class VWidget(core.VObject):
             VApplication.vApp.postEvent(self,VHideEvent())
 
     def setVisibleImplicit(self, visible):
-        logging.info("Setting implicit visibility for %s : %s" % (str(self), str(visible)))
+        self.logger.info("Setting implicit visibility for %s : %s" % (str(self), str(visible)))
         self._visible_implicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)

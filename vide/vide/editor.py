@@ -16,7 +16,6 @@ from . import flags
 import logging
 
 class Editor(gui.VWidget):
-    debug = logging.INFO
     def __init__(self, document_model, parent=None):
         super().__init__(parent=parent)
         self._document_model = document_model
