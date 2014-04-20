@@ -5,10 +5,9 @@ import logging
 class VObject(object):
     def __new__(cls, *args, **kwargs):
         instance = object.__new__(cls)
-        logger = logging.getLogger(cls.__name__)
-        instance.logger = logger
+        instance.logger = logging.getLogger(cls.__name__)
         if hasattr(cls, "debug"):
-            level = getattr(cls, "debug")
+            level = cls.debug
             instance.logger.setLevel(level)
             instance.logger.log(level, "Debugging enabled for "+str(cls.__name__))
         else:

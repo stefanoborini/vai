@@ -3,7 +3,7 @@ from videtoolkit import gui
 
 class TestVApplication(unittest.TestCase):
     def testInit(self):
-        screen = gui.DummyVScreen(40,40)
+        screen = gui.DummyVScreen((40,40))
         app = gui.VApplication([], screen=screen)
 
         self.assertTrue(gui.VApplication.vApp is app)
@@ -13,7 +13,7 @@ class TestVApplication(unittest.TestCase):
 
 class TestVWidget(unittest.TestCase):
     def setUp(self):
-        self.screen = gui.DummyVScreen(40,40)
+        self.screen = gui.DummyVScreen((40,40))
         self.app = gui.VApplication([], screen=self.screen)
 
     def tearDown(self):
@@ -26,7 +26,7 @@ class TestVWidget(unittest.TestCase):
 
 class TestVPalette(unittest.TestCase):
     def setUp(self):
-        self.screen = gui.DummyVScreen(40,40)
+        self.screen = gui.DummyVScreen((40,40))
         self.app = gui.VApplication([], screen=self.screen)
 
     def tearDown(self):
@@ -39,7 +39,7 @@ class TestVPalette(unittest.TestCase):
 
 class TestVLabel(unittest.TestCase):
     def setUp(self):
-        self.screen = gui.DummyVScreen(40,40)
+        self.screen = gui.DummyVScreen((40,40))
         self.app = gui.VApplication([], screen=self.screen)
 
     def tearDown(self):

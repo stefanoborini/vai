@@ -28,6 +28,12 @@ class VScreen(object):
 
         self._cursor_pos = (0,0)
         self._initColorPairs()
+        self.logger = logging.getLogger(self.__class__.__name__)
+        if hasattr(self, "debug"):
+            self.logger.setLevel(self.debug)
+            self.logger.log(level, "Debugging enabled for "+str(self.__class__.__name__))
+        else:
+            self.logger.setLevel(logging.CRITICAL+1)
 
     def deinit(self):
         curses.nocbreak()
@@ -78,13 +84,13 @@ class VScreen(object):
         out_string = string
 
         if y < 0 or y >= h or x >= w:
-            logging.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            self.logger.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             return
 
         out_string = out_string[:w-x]
 
         if x < 0:
-            logging.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            self.logger.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = string[-x:]
 
         if len(out_string) == 0:
@@ -92,7 +98,7 @@ class VScreen(object):
 
         attr = self.getColorAttributes(fg_color, bg_color)
         if (x+len(out_string) > w):
-            logging.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            self.logger.error("Out of bound in VScreen.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = out_string[:w-x]
 
         if (x+len(out_string) == w):
@@ -128,7 +134,7 @@ class VScreen(object):
 
     def setCursorPos(self, pos):
         if self.outOfBounds(pos):
-            logging.error("out of bound in Screen.setCursorPos: %s" % str(pos))
+            self.logger.error("out of bound in Screen.setCursorPos: %s" % str(pos))
             return
 
         self._cursor_pos = pos
@@ -225,18 +231,24 @@ class VScreenArea(object):
     def __init__(self, screen, rect):
         self._screen = screen
         self._rect = rect
+        self.logger = logging.getLogger(self.__class__.__name__)
+        if hasattr(self, "debug"):
+            self.logger.setLevel(self.debug)
+            self.logger.log(level, "Debugging enabled for "+str(cls.__name__))
+        else:
+            self.logger.setLevel(logging.CRITICAL+1)
 
     def write(self, pos, string, fg_color=None, bg_color=None):
         rel_x, rel_y = pos
         w, h = self.size()
 
         if rel_y < 0 or rel_y >= h or rel_x >= w:
-            logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            self.logger.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             return
 
         out_string = string
         if rel_x < 0:
-            logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            self.logger.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = string[-rel_x:]
             rel_x = 0
 
@@ -244,7 +256,7 @@ class VScreenArea(object):
             return
 
         if (rel_x+len(out_string) > w):
-            logging.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
+            self.logger.error("Out of bound in VScreenArea.write: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(string), string))
             out_string = out_string[:w-rel_x]
 
         top_left_x, top_left_y = self.topLeft()
@@ -280,9 +292,9 @@ class VScreenArea(object):
         return (x >= self.size()[Index.SIZE_WIDTH] or y >= self.size()[Index.SIZE_HEIGHT] or x < 0 or y < 0)
 
 class DummyVScreen(object):
-    def __init__(self, w, h):
+    def __init__(self, size):
         self._cursor_pos = (0,0)
-        self._size = (w, h)
+        self._size = size
         self._text = ""
 
         self._render_output = []

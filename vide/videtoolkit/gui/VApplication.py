@@ -40,7 +40,8 @@ class KeyEventThread(threading.Thread):
                     self._key_event_queue.put(event)
                     self._event_available_flag.set()
                 else:
-                    logging.info("Unknown key code "+str(c))
+                    if hasattr(self, "debug"):
+                        logging.info("Unknown key code "+str(c))
         except Exception as e:
             self.exception = e
             self.exception_occurred_event.set()
@@ -68,9 +69,10 @@ class VApplication(core.VCoreApplication):
         self._delete_later_queue = []
 
     def exec_(self):
-        self._key_event_thread.start()
         self._root_widget.show()
-        self.postEvent(self._root_widget, events.VPaintEvent())
+        self.processEvents()
+        self._screen.refresh()
+        self._key_event_thread.start()
         while True:
             if self._key_event_thread.exception_occurred_event.is_set():
                 raise self._key_event_thread.exception

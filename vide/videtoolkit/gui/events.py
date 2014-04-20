@@ -38,7 +38,15 @@ class VHideEvent(VEvent):
     def __init__(self):
         super().__init__(VEvent.EventType.Hide)
 
+class VShowEvent(VEvent):
+    def __init__(self):
+        super().__init__(VEvent.EventType.Show)
+
 class VMoveEvent(VEvent):
     def __init__(self):
         super().__init__(VEvent.EventType.Move)
+
+class VResizeEvent(VEvent):
+    def __init__(self):
+        super().__init__(VEvent.EventType.Resize)
 

@@ -8,7 +8,7 @@ from .VPainter import VPainter
 from .VScreen import VScreenArea
 
 
-from .events import VPaintEvent, VFocusEvent, VHideEvent, VMoveEvent
+from . import events
 import logging
 
 
@@ -44,7 +44,6 @@ class VWidget(core.VObject):
     def move(self, pos):
         if not isinstance(pos, tuple):
             raise TypeError("Invalid pos argument")
-        VApplication.vApp.postEvent(self, VMoveEvent())
         self.setGeometry(pos+self.size())
 
     def resize(self, size):
@@ -91,20 +90,22 @@ class VWidget(core.VObject):
         self._visible_explicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)
+
         if visible:
-            self.update()
+            VApplication.vApp.postEvent(self,events.VShowEvent())
         else:
-            VApplication.vApp.postEvent(self,VHideEvent())
+            VApplication.vApp.postEvent(self,events.VHideEvent())
 
     def setVisibleImplicit(self, visible):
         self.logger.info("Setting implicit visibility for %s : %s" % (str(self), str(visible)))
         self._visible_implicit = visible
         for w in self.children():
             w.setVisibleImplicit(visible)
+
         if visible:
-            self.update()
+            VApplication.vApp.postEvent(self,events.VShowEvent())
         else:
-            VApplication.vApp.postEvent(self,VHideEvent())
+            VApplication.vApp.postEvent(self,events.VHideEvent())
 
     def isVisible(self):
         return self._visible_explicit if self._visible_explicit is not None else self._visible_implicit
@@ -119,13 +120,27 @@ class VWidget(core.VObject):
     def setGeometry(self, rect):
         self.logger.info("VWidget.setGeometry %s" % str(rect))
 
+        old_geometry = self._geometry
+
         min_size = self.minimumSize()
         self._geometry = (rect[Index.RECT_X],
                           rect[Index.RECT_Y],
                           max(min_size[Index.SIZE_WIDTH], rect[Index.RECT_WIDTH]),
                           max(min_size[Index.SIZE_HEIGHT], rect[Index.RECT_HEIGHT])
                          )
-        self.update()
+
+        if not self.isVisible():
+            return
+
+        if  (old_geometry[Index.RECT_X], old_geometry[Index.RECT_Y])  \
+            != (self._geometry[Index.RECT_X], self._geometry[Index.RECT_Y]):
+
+            VApplication.vApp.postEvent(self, events.VMoveEvent())
+
+        if (old_geometry[Index.RECT_WIDTH], old_geometry[Index.RECT_WIDTH]) \
+            != (self._geometry[Index.RECT_HEIGHT], self._geometry[Index.RECT_HEIGHT]):
+
+            VApplication.vApp.postEvent(self, events.VResizeEvent())
 
     def mapToGlobal(self, pos):
         top_left = self.pos()
@@ -146,7 +161,11 @@ class VWidget(core.VObject):
 
     def event(self, event):
         self.logger.info("Event %s. Receiver %s" % (str(event), str(self)))
-        if isinstance(event, VPaintEvent):
+
+        if isinstance(event, events.VPaintEvent):
+            if not self.isVisible():
+                return True
+
             repaint_queue = [self]
             while len(repaint_queue) > 0:
                 widget = repaint_queue.pop(0)
@@ -163,14 +182,18 @@ class VWidget(core.VObject):
                 self.logger.info("repaint queue: %s" % str(repaint_queue))
 
 
-            return True
-        elif isinstance(event, VFocusEvent):
-            if event.eventType() == coreevents.VEvent.EventType.FocusIn:
-                self.focusInEvent(event)
-            elif event.eventType() == coreevents.VEvent.EventType.FocusOut:
-                self.focusOutEvent(event)
-            return True
-        elif isinstance(event, VHideEvent):
+        elif isinstance(event, events.VFocusEvent):
+            if self.isVisible():
+                if event.eventType() == coreevents.VEvent.EventType.FocusIn:
+                    self.focusInEvent(event)
+            else:
+                if event.eventType() == coreevents.VEvent.EventType.FocusOut:
+                    self.focusOutEvent(event)
+
+        elif isinstance(event, events.VHideEvent):
+            if not self.isVisible():
+                return True
+
             self.hideEvent(event)
 
             for w in self.depthFirstFullTree():
@@ -180,25 +203,44 @@ class VWidget(core.VObject):
                 #self.logger.info("%s, %s", w.absoluteRect(), self.absoluteRect())
                 #if w.absoluteRect().intersects(self.absoluteRect()):
                     #self.logger.info("Intersected")
-                w.paintEvent(VPaintEvent())
-        elif isinstance(event, VMoveEvent):
+                w.paintEvent(events.VPaintEvent())
+        elif isinstance(event, events.VShowEvent):
+            if self.isVisible():
+                return True
+
+            self.showEvent(event)
+
+            for w in self.depthFirstFullTree():
+                self.logger.info("Widget %s in tree" % str(w))
+                if not w.isVisible():
+                    continue
+                w.paintEvent(events.VPaintEvent())
+        elif isinstance(event, events.VMoveEvent):
+            if not self.isVisible():
+                return True
+
             self.moveEvent(event)
 
             for w in self.depthFirstFullTree():
                 self.logger.info("Widget %s in tree" % str(w))
                 if not w.isVisible():
                     continue
-                #self.logger.info("%s, %s", w.absoluteRect(), self.absoluteRect())
-                #if w.absoluteRect().intersects(self.absoluteRect()):
-                    #self.logger.info("Intersected")
-                w.paintEvent(VPaintEvent())
+                w.paintEvent(events.VPaintEvent())
+        elif isinstance(event, events.VResizeEvent):
+            if not self.isVisible():
+                return True
 
+            self.resizeEvent(event)
 
-
+            for w in self.depthFirstFullTree():
+                self.logger.info("Widget %s in tree" % str(w))
+                if not w.isVisible():
+                    continue
+                w.paintEvent(events.VPaintEvent())
         else:
             return super().event(event)
 
-        return False
+        return True
 
     def paintEvent(self, event):
         painter = VPainter(self)
@@ -231,6 +273,12 @@ class VWidget(core.VObject):
 
     def moveEvent(self, event):
         self.logger.info("Move event")
+
+    def showEvent(self, event):
+        self.logger.info("Show event")
+
+    def resizeEvent(self, event):
+        self.logger.info("Resize event")
 
     def setFocusPolicy(self, policy):
         self._focus_policy = policy
@@ -277,7 +325,7 @@ class VWidget(core.VObject):
         return self.colors(color_group)
 
     def update(self):
-        VApplication.vApp.postEvent(self,VPaintEvent())
+        VApplication.vApp.postEvent(self,events.VPaintEvent())
 
     def contentsRect(self):
         margins = self.contentsMargins()
