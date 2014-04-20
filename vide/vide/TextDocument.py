@@ -1,4 +1,6 @@
+import time
 from videtoolkit import gui, core, utils
+import contextlib
 
 EOL='\n'
 
@@ -97,10 +99,19 @@ class TextDocument(core.VObject):
         if line_number < 1 or line_number > len(self._contents):
             raise Exception("Out of bound request in getLine")
 
+    def save(self):
+        self.saveAs(self.filename())
+
     def saveAs(self, filename):
         self._filename = filename
 
-        with open(self._filename,'w') as f:
-            f.write("".join(self._contents))
+        self._dumpContentsToFile(self._filename)
 
+    def saveBackup(self):
+        self._dumpContentsToFile(self._filename+".bak")
+
+    def _dumpContentsToFile(self, filename):
+        with contextlib.closing(open(filename,'w')) as f:
+            f.write("".join(self._contents))
+        time.sleep(5)
 

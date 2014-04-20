@@ -14,6 +14,7 @@ from .Linter import Linter
 from . import commands
 from . import flags
 import logging
+import time
 
 class Editor(gui.VWidget):
     def __init__(self, document_model, parent=None):
@@ -28,6 +29,8 @@ class Editor(gui.VWidget):
         self._createEditArea()
         self._createInfoHoverBox()
         self._edit_area.setFocus()
+
+        self._initBackupTimer()
 
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
@@ -66,6 +69,13 @@ class Editor(gui.VWidget):
         self._info_hover_box.resize((0,0))
         self._info_hover_box.hide()
 
+    def _initBackupTimer(self):
+        self._backup_timer = core.VTimer()
+        self._backup_timer.setInterval(10*1000)
+        self._backup_timer.setSingleShot(False)
+        self._backup_timer.timeout.connect(self.doBackup)
+        self._backup_timer.start()
+
     def viewModelChanged(self):
         self.update()
 
@@ -99,7 +109,17 @@ class Editor(gui.VWidget):
 
     def doSave(self):
         logging.info("Saving file")
-        self._document_model.saveAs("output")
+        self._status_bar.setTemporaryMessage("Saving...")
+        gui.VApplication.vApp.processEvents()
+        self._document_model.save()
+        self._status_bar.setTemporaryMessage("Saved", 2000)
+
+    def doBackup(self):
+        logging.info("Saving backup file")
+        self._status_bar.setTemporaryMessage("Saving backup...")
+        gui.VApplication.vApp.processEvents()
+        self._document_model.saveBackup()
+        self._status_bar.setTemporaryMessage("Backup saved", 2000)
 
     def show(self):
         super().show()
