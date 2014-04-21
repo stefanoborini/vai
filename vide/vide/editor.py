@@ -38,7 +38,7 @@ class Editor(gui.VWidget):
         self._status_bar.move( (0, self.height()-2) )
         self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setFilename(self._document_model.filename())
-        self._status_bar_controller = StatusBarController(self._status_bar, self._view_model)
+        self._status_bar_controller = StatusBarController(self._status_bar, self._document_model, self._view_model)
 
     def _createCommandBar(self):
         self._command_bar = CommandBar(self)

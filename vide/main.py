@@ -2,6 +2,7 @@
 from videtoolkit import core, gui
 from vide import editor
 from vide.TextDocument import TextDocument
+
 import time
 import sys
 
