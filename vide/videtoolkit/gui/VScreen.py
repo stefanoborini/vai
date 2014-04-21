@@ -74,6 +74,7 @@ class VScreen(object):
                 next_c = self._curses_screen.getch()
                 if next_c == -1:
                     pass
+                # FIXME later: handle multikeys
 
         return c
 
