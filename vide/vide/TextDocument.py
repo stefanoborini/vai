@@ -112,6 +112,7 @@ class TextDocument(core.VObject):
 
     def _dumpContentsToFile(self, filename):
         with contextlib.closing(open(filename,'w')) as f:
-            f.write("".join(self._contents))
-        time.sleep(5)
+            f.write(self.text())
 
+    def text(self):
+        return "".join(self._contents)

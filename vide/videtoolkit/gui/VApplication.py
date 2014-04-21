@@ -70,8 +70,7 @@ class VApplication(core.VCoreApplication):
 
     def exec_(self):
         self._root_widget.show()
-        self.processEvents()
-        self._screen.refresh()
+        self.processEvents(True)
         self._key_event_thread.start()
         while True:
             if self._key_event_thread.exception_occurred_event.is_set():
@@ -80,15 +79,15 @@ class VApplication(core.VCoreApplication):
             self._event_available_flag.wait()
             self._event_available_flag.clear()
             logging.info("Event available")
-            self.processEvents()
-            self._screen.refresh()
+            self.processEvents(True)
 
-    def processEvents(self):
-        self.logger.info("---- processing events -------")
+    def processEvents(self, native=False):
+        self.logger.info("++++---- %s processing events ---+++++" % ("Native" if native else "Forced"))
         self._processKeyEvents()
         self._processRemainingEvents()
         self._deleteScheduled()
-        self.logger.info("---- Done processing events -------")
+        self.logger.info("===================================")
+        self._screen.refresh()
 
     def _hideScheduled(self):
         self.logger.info("Widget scheduled for deletion: %s" % str(self._delete_later_queue))

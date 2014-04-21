@@ -28,15 +28,15 @@ class EditorController(core.VObject):
                 self._view_model.setEditorMode(flags.COMMAND_MODE)
             elif event.key() == videtoolkit.Key.Key_Backspace:
                 self._view.moveCursor(flags.LEFT)
-                self._document_model.deleteAt(self._view.cursorToDocumentPos(),1)
+                self._document_model.deleteAt(self._view.documentCursorPos(),1)
             elif event.key() == videtoolkit.Key.Key_Return:
-                self._document_model.breakAt(self._view.cursorToDocumentPos())
+                self._document_model.breakAt(self._view.documentCursorPos())
                 self._view.moveCursor(flags.DOWN)
                 self._view.moveCursor(flags.HOME)
             else:
                 text = event.text()
                 if len(text) != 0:
-                    self._document_model.insertAt(self._view.cursorToDocumentPos(), event.text())
+                    self._document_model.insertAt(self._view.documentCursorPos(), event.text())
                     self._view.moveCursor(flags.RIGHT)
 
         if self._view_model.editorMode() == flags.COMMAND_MODE:
@@ -45,16 +45,16 @@ class EditorController(core.VObject):
                     self._view.moveCursor(flags.HOME)
                 self._view_model.setEditorMode(flags.INSERT_MODE)
             if event.key() == videtoolkit.Key.Key_X and event.modifiers() == 0:
-                self._document_model.deleteAt(self._view.cursorToDocumentPos(),1)
+                self._document_model.deleteAt(self._view.documentCursorPos(),1)
             elif event.key() == videtoolkit.Key.Key_O and event.modifiers() == 0:
                 self._view_model.setEditorMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._document_model, self._view.cursorToDocumentPos().row+1)
+                command = commands.CreateLineCommand(self._document_model, self._view.documentCursorPos().row+1)
                 self._command_history.append(command)
                 command.execute()
                 self._view.moveCursor(flags.DOWN)
             elif event.key() == videtoolkit.Key.Key_O and event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
                 self._view_model.setEditorMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._document_model, self._view.cursorToDocumentPos().row)
+                command = commands.CreateLineCommand(self._document_model, self._view.documentCursorPos().row)
                 self._command_history.append(command)
                 command.execute()
             elif event.key() == videtoolkit.Key.Key_A and event.modifiers() == 0:

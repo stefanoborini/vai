@@ -12,7 +12,7 @@ class EditArea(gui.VWidget):
 
         self._document_model = document_model
         self._view_model = view_model
-        self._cursor_pos = CursorPos(0,0)
+        self._visual_cursor_pos = CursorPos(0,0)
         self.setFocusPolicy(videtoolkit.FocusPolicy.StrongFocus)
 
         self.scrollDown = core.VSignal(self)
@@ -31,7 +31,7 @@ class EditArea(gui.VWidget):
             if document_line < self._document_model.numLines():
                 painter.drawText( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))
 
-        gui.VCursor.setPos( self.mapToGlobal((self._cursor_pos[0], self._cursor_pos[1])))
+        gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
     def scrollDownSlot(self):
         top_pos = self._view_model.documentPosAtTop()
@@ -45,19 +45,16 @@ class EditArea(gui.VWidget):
         self._view_model.setDocumentPosAtTop(new_pos)
         self.update()
 
-    def cursorPos(self):
-        return self._cursor_pos
-
     def keyEvent(self, event):
         self._controller.handleKeyEvent(event)
         self.update()
 
     def focusInEvent(self, event):
-        gui.VCursor.setPos(self.mapToGlobal((self._cursor_pos[0], self._cursor_pos[1])))
+        gui.VCursor.setPos(self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
-    def documentPos(self):
+    def documentCursorPos(self):
         top_pos = self._view_model.documentPosAtTop()
-        doc_pos = DocumentPos(top_pos.row+self.cursorPos().y, top_pos.column+self.cursorPos().x)
+        doc_pos = DocumentPos(top_pos.row+self._visual_cursor_pos.y, top_pos.column+self._visual_cursor_pos.x)
         if doc_pos.row > self._document_model.numLines():
             return None
 
@@ -82,8 +79,8 @@ class EditArea(gui.VWidget):
         self.moveCursor(direction)
 
     def moveCursor(self, direction):
-        cursor_pos = self.cursorPos()
-        current_doc_pos = self.documentPos()
+        cursor_pos = self._visual_cursor_pos
+        current_doc_pos = self.documentCursorPos()
         current_surrounding_lines_length = {}
         for offset in [-1, 0, 1]:
             line_num=current_doc_pos.row+offset
@@ -125,9 +122,7 @@ class EditArea(gui.VWidget):
         elif direction == flags.END:
             new_pos = CursorPos(min(current_surrounding_lines_length[0], self.width()-1), cursor_pos.y)
 
-        self._cursor_pos = new_pos
-        #new_doc_pos = self.cursorToDocumentPos(new_pos)
-        #self._status_bar.setPosition(new_doc_pos)
+        self._visual_cursor_pos = new_pos
         gui.VCursor.setPos( self.mapToGlobal((new_pos[0], new_pos[1])))
-        self.cursorPositionChanged.emit(self.documentPos())
+        self.cursorPositionChanged.emit(self.documentCursorPos())
 

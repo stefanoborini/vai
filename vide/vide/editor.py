@@ -10,18 +10,19 @@ from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
 from .ViewModel import ViewModel
 from .LineBadge import LineBadge
-from .Linter import Linter
+from . import Linter
 from . import commands
 from . import flags
 import logging
 import time
+import tempfile
 
 class Editor(gui.VWidget):
     def __init__(self, document_model, parent=None):
         super().__init__(parent=parent)
         self._document_model = document_model
         self._view_model = ViewModel()
-        self._linter = Linter()
+        self._linter = Linter.PyFlakesLinter()
 
         self._createStatusBar()
         self._createCommandBar()
@@ -71,7 +72,7 @@ class Editor(gui.VWidget):
 
     def _initBackupTimer(self):
         self._backup_timer = core.VTimer()
-        self._backup_timer.setInterval(10*1000)
+        self._backup_timer.setInterval(60*1000)
         self._backup_timer.setSingleShot(False)
         self._backup_timer.timeout.connect(self.doBackup)
         self._backup_timer.start()
@@ -88,17 +89,21 @@ class Editor(gui.VWidget):
         elif command_text == "w":
             self.doSave()
         elif command_text == "l":
-            info = self._linter.lint(self._document_model)
+            tmpfile = tempfile.NamedTemporaryFile(delete=False)
+            self._document_model.saveAs(tmpfile.name)
+
+            info = self._linter.lint(filename=self._document_model.filename(), original_filename=self._document_model.filename(), code=self._document_model.text())
             for i in info:
-                if i[1] == 'E':
-                    self._side_ruler.addBadge(i[2],LineBadge(mark="E", description=i[6], bg_color=gui.VGlobalColor.red))
-                elif i[1] == 'W':
-                    self._side_ruler.addBadge(i[2],LineBadge(mark="W", description=i[6],bg_color=gui.VGlobalColor.brown))
+                if i.level == Linter.LinterResult.Level.ERROR:
+                    self._side_ruler.addBadge(i.line,LineBadge(mark="E", description=i.message, bg_color=gui.VGlobalColor.red))
+                elif i.level == Linter.LinterResult.Level.WARNING:
+                    self._side_ruler.addBadge(i.line,LineBadge(mark="W", description=i.message,bg_color=gui.VGlobalColor.brown))
                 else:
-                    self._side_ruler.addBadge(i[2],LineBadge(mark="*", description=i[6],bg_color=gui.VGlobalColor.cyan))
+                    self._side_ruler.addBadge(i.line,LineBadge(mark="*", description=i.message,bg_color=gui.VGlobalColor.cyan))
 
 
         self._command_bar.clear()
+        self._view_model.setEditorMode(flags.COMMAND_MODE)
         self._edit_area.setFocus()
 
     def abortCommand(self):
