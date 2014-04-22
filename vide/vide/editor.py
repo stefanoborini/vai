@@ -88,7 +88,7 @@ class Editor(gui.VWidget):
             gui.VApplication.vApp.exit()
         elif command_text == 'q':
             if self._document_model.isModified():
-                self._status_bar.setTemporaryMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.")
+                self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 2000)
             else:
                 gui.VApplication.vApp.exit()
         elif command_text == "w":
@@ -122,10 +122,10 @@ class Editor(gui.VWidget):
 
     def doSave(self):
         logging.info("Saving file")
-        self._status_bar.setTemporaryMessage("Saving...")
+        self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
         self._document_model.save()
-        self._status_bar.setTemporaryMessage("Saved", 2000)
+        self._status_bar.setMessage("Saved", 2000)
 
     def doBackup(self):
         logging.info("Saving backup file")
