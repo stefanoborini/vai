@@ -126,6 +126,9 @@ class TextDocument(core.VObject):
         if line_number < 1 or line_number > len(self._contents):
             raise Exception("Out of bound request in getLine")
 
+    def isModified(self):
+        return self._modified
+
     def save(self):
         self.saveAs(self.filename())
 

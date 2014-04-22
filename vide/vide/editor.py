@@ -84,10 +84,18 @@ class Editor(gui.VWidget):
         command_text = self._command_bar.commandText().strip()
         logging.info("Executing command "+command_text)
 
-        if command_text == 'q':
+        if command_text == 'q!':
             gui.VApplication.vApp.exit()
+        elif command_text == 'q':
+            if self._document_model.isModified():
+                self._status_bar.setTemporaryMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.")
+            else:
+                gui.VApplication.vApp.exit()
         elif command_text == "w":
             self.doSave()
+        elif command_text == "wq":
+            self.doSave()
+            gui.VApplication.vApp.exit()
         elif command_text == "l":
             tmpfile = tempfile.NamedTemporaryFile(delete=False)
             self._document_model.saveAs(tmpfile.name)
