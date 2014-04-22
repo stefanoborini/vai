@@ -9,7 +9,7 @@ DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up,
                      videtoolkit.Key.Key_Left,
                      videtoolkit.Key.Key_Right ]
 
-class EditorController(core.VObject):
+class EditAreaController(core.VObject):
     def __init__(self, document_model, view_model, view):
         self._document_model = document_model
         self._view_model = view_model

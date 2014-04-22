@@ -1,6 +1,6 @@
 import videtoolkit
 from videtoolkit import gui, core
-from .EditorController import EditorController
+from .EditAreaController import EditAreaController
 from .positions import CursorPos, DocumentPos
 from . import flags
 
@@ -8,7 +8,7 @@ class EditArea(gui.VWidget):
     def __init__(self, document_model, view_model, parent):
         super(EditArea, self).__init__(parent)
 
-        self._controller = EditorController(document_model, view_model, self)
+        self._controller = EditAreaController(document_model, view_model, self)
 
         self._document_model = document_model
         self._view_model = view_model
