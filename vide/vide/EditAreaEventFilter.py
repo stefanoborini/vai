@@ -6,6 +6,7 @@ import logging
 
 class EditAreaEventFilter(core.VObject):
     def __init__(self, view_model, command_bar):
+        super().__init__()
         self._view_model = view_model
         self._command_bar = command_bar
 

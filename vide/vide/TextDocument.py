@@ -56,65 +56,55 @@ class TextDocument(core.VObject):
             self._contents[line_number-1] = self._contents[line_number-1]+EOL
 
         self._contents.insert(line_number, EOL)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def createLine(self, line_number):
         self._contents.insert(line_number-1, EOL)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
+
+    def insertLine(self, line_number, text):
+        if text[-1] != EOL:
+            text += EOL
+        self._contents.insert(line_number-1, text)
+        self._setModified(True)
 
     def insertAt(self, document_pos, string):
         self._contents[document_pos.row-1] = self._contents[document_pos.row-1][:document_pos.column-1] + \
                                         string + \
                                         self._contents[document_pos.row-1][document_pos.column-1:]
         self.lineChanged.emit(document_pos, string, None)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def deleteAt(self, document_pos, length):
         removed = self._contents[document_pos.row-1][document_pos.column-1:document_pos.column+length-1]
         self._contents[document_pos.row-1] = self._contents[document_pos.row-1][:document_pos.column-1] \
                                              + self._contents[document_pos.row-1][document_pos.column+length-1:]
         self.lineChanged.emit(document_pos, None, removed)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def replaceAt(self, line_number, column, length, replace):
         removed = self._contents[line_number-1][column-1:column+length-1]
         self._contents[line_number-1] = self._contents[line_number-1][:column-1] + replace + self._contents[line_number-1][column+length-1:]
         self.lineChanged.emit(line_number, column, replace, removed)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def breakAt(self, document_pos):
         self._contents.insert(document_pos.row, self._contents[document_pos.row-1][document_pos.column-1:])
         self._contents[document_pos.row-1] = self._contents[document_pos.row-1][:document_pos.column-1]+'\n'
 
         self.lineChanged.emit(document_pos, None, None)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def joinAt(self, line_number):
         self._contents[line_number-1] = self._contents[line_number-1][:-1] + self._contents[line_number]
         self._contents.pop(line_number)
         self.lineChanged.emit(line_number, 0, None, None)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def deleteLine(self, line_number):
         self._contents.pop(line_number-1)
         self.lineDeleted.emit(line_number)
-        if not self._modified:
-            self._modified = True
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(True)
 
     def filename(self):
         return self._filename
@@ -135,16 +125,19 @@ class TextDocument(core.VObject):
     def saveAs(self, filename):
         self._filename = filename
         self._dumpContentsToFile(self._filename)
-        if self._modified:
-            self._modified = False
-            self.modifiedChanged.emit(self._modified)
+        self._setModified(False)
 
     def saveBackup(self):
         self._dumpContentsToFile(self._filename+".bak")
+
+    def text(self):
+        return "".join(self._contents)
 
     def _dumpContentsToFile(self, filename):
         with contextlib.closing(open(filename,'w')) as f:
             f.write(self.text())
 
-    def text(self):
-        return "".join(self._contents)
+    def _setModified(self, modified):
+        if self._modified != modified:
+            self._modified = modified
+            self.modifiedChanged.emit(self._modified)

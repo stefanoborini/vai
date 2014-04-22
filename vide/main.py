@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 from videtoolkit import core, gui
 from vide import editor
 from vide.TextDocument import TextDocument
