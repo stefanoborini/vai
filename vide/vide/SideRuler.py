@@ -3,9 +3,8 @@ import math
 import logging
 
 class SideRuler(gui.VWidget):
-    debug=logging.INFO
     def __init__(self, parent):
-        super(SideRuler, self).__init__(parent)
+        super().__init__(parent)
         self._start = 1
         self._end = None
         self._skip_intervals = []

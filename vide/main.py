@@ -2,24 +2,21 @@
 
 from videtoolkit import core, gui
 from vide import editor
-from vide.TextDocument import TextDocument
-
-import time
 import sys
 
-def usage():
-    print("Usage: %s filename" % sys.argv[0])
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("filename", nargs="?", help="The filename to open")
+args = parser.parse_args()
 
 try:
-    if len(sys.argv) < 2:
-        usage()
-        sys.exit(0)
-
     app = gui.VApplication(sys.argv)
 
-    model = TextDocument(sys.argv[1])
-    widget = editor.Editor(model)
-    widget.show()
+    editor = editor.Editor()
+    if args.filename:
+        editor.openFile(args.filename)
+
+    editor.show()
     app.exec_()
 except Exception as e:
     import traceback

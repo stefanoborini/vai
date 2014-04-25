@@ -5,13 +5,14 @@ from .positions import CursorPos, DocumentPos
 from . import flags
 
 class EditArea(gui.VWidget):
-    def __init__(self, document_model, view_model, parent):
-        super(EditArea, self).__init__(parent)
+    def __init__(self, parent):
+        super().__init__(parent)
 
-        self._controller = EditAreaController(document_model, view_model, self)
+        self._controller = EditAreaController(self)
 
-        self._document_model = document_model
-        self._view_model = view_model
+        self._document_model = None
+        self._view_model = None
+        self._editor_model = None
         self._visual_cursor_pos = CursorPos(0,0)
         self.setFocusPolicy(videtoolkit.FocusPolicy.StrongFocus)
 
@@ -22,37 +23,59 @@ class EditArea(gui.VWidget):
 
         self.cursorPositionChanged = core.VSignal(self)
 
+    def setModels(self, document_model, view_model, editor_model):
+        self._document_model = document_model
+        self._view_model = view_model
+        self._editor_model = editor_model
+        self._controller.setModels(document_model, view_model, editor_model)
+        self.update()
+
+    def _hasModels(self):
+        return self._document_model and self._view_model and self._editor_model
+
     def paintEvent(self, event):
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.erase()
-        for i in range(0, h):
-            document_line = self._view_model.documentPosAtTop().row + i
-            if document_line < self._document_model.numLines():
-                painter.drawText( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))
+        if self._hasModels():
+            for i in range(0, h):
+                document_line = self._view_model.documentPosAtTop().row + i
+                if document_line < self._document_model.numLines():
+                    painter.drawText( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))
 
         gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
     def scrollDownSlot(self):
+        if not self._hasModels():
+            return
         top_pos = self._view_model.documentPosAtTop()
         new_pos = DocumentPos(top_pos.row+1, top_pos.column)
         self._view_model.setDocumentPosAtTop(new_pos)
         self.update()
 
     def scrollUpSlot(self):
+        if not self._hasModels():
+            return
         top_pos = self._view_model.documentPosAtTop()
         new_pos = DocumentPos(top_pos.row-1, top_pos.column)
         self._view_model.setDocumentPosAtTop(new_pos)
         self.update()
 
     def keyEvent(self, event):
+        if not self._hasModels():
+            return
         self._controller.handleKeyEvent(event)
         self.update()
 
     def focusInEvent(self, event):
+        if not self._hasModels():
+            return
         gui.VCursor.setPos(self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
     def documentCursorPos(self):
+        if not self._hasModels():
+            return None
+
         top_pos = self._view_model.documentPosAtTop()
         doc_pos = DocumentPos(top_pos.row+self._visual_cursor_pos.y, top_pos.column+self._visual_cursor_pos.x)
         if doc_pos.row > self._document_model.numLines():
@@ -65,6 +88,9 @@ class EditArea(gui.VWidget):
         return doc_pos
 
     def handleDirectionalKey(self, event):
+        if not self._hasModels():
+            return
+
         if self._document_model.isEmpty():
             return
 
@@ -79,6 +105,8 @@ class EditArea(gui.VWidget):
         self.moveCursor(direction)
 
     def moveCursor(self, direction):
+        if not self._hasModels():
+            return
         cursor_pos = self._visual_cursor_pos
         current_doc_pos = self.documentCursorPos()
         current_surrounding_lines_length = {}
@@ -89,7 +117,7 @@ class EditArea(gui.VWidget):
             else:
                 current_surrounding_lines_length[offset] = None
 
-        mode_offset = 0 if self._view_model.editorMode() == flags.INSERT_MODE else -1
+        mode_offset = 0 #if self._view_model.editorMode() == flags.INSERT_MODE else -1
 
         if direction == flags.UP:
             if current_surrounding_lines_length[-1] is None:

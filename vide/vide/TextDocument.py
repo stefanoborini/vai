@@ -31,6 +31,7 @@ class TextDocument(core.VObject):
         self.lineDeleted = core.VSignal(self)
         self.lineCreated = core.VSignal(self)
         self.modifiedChanged = core.VSignal(self)
+        self.filenameChanged = core.VSignal(self)
 
     def isEmpty(self):
         return len(self._contents) == 0
@@ -126,6 +127,7 @@ class TextDocument(core.VObject):
         self._filename = filename
         self._dumpContentsToFile(self._filename)
         self._setModified(False)
+        self.filenameChanged.emit(self.filename())
 
     def saveBackup(self):
         self._dumpContentsToFile(self._filename+".bak")

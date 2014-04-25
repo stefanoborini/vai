@@ -10,6 +10,9 @@ class VSignal(object):
             slot = target
         self._slots.append(slot)
 
+    def disconnect(self, target):
+        self._slots.remove(target)
+
     def emit(self, *args, **kwargs):
         for slot in self._slots:
             slot(*args, **kwargs)
