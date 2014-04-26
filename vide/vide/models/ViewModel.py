@@ -1,6 +1,6 @@
 from videtoolkit import core
-from . import flags
-from .positions import DocumentPos
+from .. import flags
+from ..positions import DocumentPos
 
 class ViewModel(core.VObject):
     def __init__(self):

@@ -1,5 +1,5 @@
 from videtoolkit import core
-from . import flags
+from .. import flags
 
 class EditorModel(core.VObject):
     def __init__(self):

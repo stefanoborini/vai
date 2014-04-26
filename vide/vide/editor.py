@@ -8,14 +8,14 @@ from .CommandBar import CommandBar
 from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
-from .ViewModel import ViewModel
 from .LineBadge import LineBadge
-from .Buffer import Buffer
-from .TextDocument import TextDocument
-from .EditorModel import EditorModel
 from . import Linter
 from . import commands
 from . import flags
+from .models.ViewModel import ViewModel
+from .models.Buffer import Buffer
+from .models.TextDocument import TextDocument
+from .models.EditorModel import EditorModel
 import logging
 import time
 import tempfile
