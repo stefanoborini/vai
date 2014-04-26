@@ -150,7 +150,7 @@ class Editor(gui.VWidget):
 
     def doBackup(self):
         logging.info("Saving backup file")
-        self._status_bar.setTemporaryMessage("Saving backup...")
+        #self._status_bar.setMessage("Saving backup...")
         #gui.VApplication.vApp.processEvents()
 
         #self._current_document.saveBackup()

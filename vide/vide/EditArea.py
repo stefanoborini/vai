@@ -4,6 +4,19 @@ from .EditAreaController import EditAreaController
 from .positions import CursorPos, DocumentPos
 from . import flags
 
+from pygments.formatter import Formatter
+import pygments
+import pygments.lexers
+from pygments import token
+
+TOKEN_TO_COLORS = {
+    token.Keyword: (gui.VGlobalColor.yellow, None),
+    token.Keyword.Namespace: (gui.VGlobalColor.magenta, None),
+    token.Comment: (gui.VGlobalColor.cyan, None),
+    token.Name.Function: (gui.VGlobalColor.cyan, None),
+    token.Name.Class: (gui.VGlobalColor.cyan, None),
+}
+
 class EditArea(gui.VWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -41,7 +54,13 @@ class EditArea(gui.VWidget):
             for i in range(0, h):
                 document_line = self._view_model.documentPosAtTop().row + i
                 if document_line < self._document_model.numLines():
-                    painter.drawText( (0, i), self._document_model.getLine(document_line).replace('\n', ' '))
+                    line = self._document_model.getLine(document_line)
+                    tokens = pygments.lex(line, pygments.lexers.PythonLexer())
+                    col = 0
+                    for tok, text in tokens:
+                        fg_color, bg_color = TOKEN_TO_COLORS.get(tok, (None, None))
+                        painter.drawText( (col, i), text.replace('\n', ' '), fg_color, bg_color)
+                        col += len(text)
 
         gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
