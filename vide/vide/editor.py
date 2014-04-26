@@ -5,6 +5,7 @@ from .SideRulerController import SideRulerController
 from .StatusBar import StatusBar
 from .StatusBarController import StatusBarController
 from .CommandBar import CommandBar
+from .CommandBarController import CommandBarController
 from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
@@ -54,6 +55,7 @@ class Editor(gui.VWidget):
         self._command_bar = CommandBar(self)
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
+        self._command_bar_controller = CommandBarController(self._command_bar, self._editor_model)
         self._command_bar.returnPressed.connect(self.executeCommand)
         self._command_bar.escapePressed.connect(self.abortCommand)
 
