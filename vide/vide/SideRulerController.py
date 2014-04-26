@@ -9,6 +9,7 @@ class SideRulerController(object):
 
         self._view_model = view_model
         self._view_model.documentPosChanged.connect(self.updateRange)
+        self.updateRange()
 
     def updateRange(self):
         if self._view_model:
