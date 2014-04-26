@@ -10,12 +10,10 @@ DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up,
                      videtoolkit.Key.Key_Right ]
 
 class EditAreaController(core.VObject):
-    def __init__(self, view):
-        self._document_model = None
-        self._view_model = None
+    def __init__(self, edit_area):
+        self._buffer = None
         self._editor_model = None
-        self._view = view
-        self._command_history = []
+        self._edit_area = edit_area
 
     def handleKeyEvent(self, event):
         if not self._hasModels():
@@ -23,7 +21,7 @@ class EditAreaController(core.VObject):
 
         if event.key() in DIRECTIONAL_KEYS:
             logging.info("Directional key")
-            self._view.handleDirectionalKey(event)
+            self._edit_area.handleDirectionalKey(event)
             event.accept()
             return
 
@@ -42,46 +40,46 @@ class EditAreaController(core.VObject):
             self._editor_model.setMode(flags.COMMAND_MODE)
 
         elif event.key() == videtoolkit.Key.Key_Backspace:
-            self._view.moveCursor(flags.LEFT)
-            self._document_model.deleteAt(self._view.documentCursorPos(),1)
+            self._edit_area.moveCursor(flags.LEFT)
+            self._buffer.documentModel().deleteAt(self._edit_area.documentCursorPos(),1)
 
         elif event.key() == videtoolkit.Key.Key_Return:
-            self._document_model.breakAt(self._view.documentCursorPos())
-            self._view.moveCursor(flags.DOWN)
-            self._view.moveCursor(flags.HOME)
+            self._buffer.documentModel().breakAt(self._edit_area.documentCursorPos())
+            self._edit_area.moveCursor(flags.DOWN)
+            self._edit_area.moveCursor(flags.HOME)
 
         else:
             text = event.text()
             if len(text) != 0:
-                self._document_model.insertAt(self._view.documentCursorPos(), event.text())
-                self._view.moveCursor(flags.RIGHT)
+                self._buffer.documentModel().insertAt(self._edit_area.documentCursorPos(), event.text())
+                self._edit_area.moveCursor(flags.RIGHT)
 
         event.accept()
 
     def _handleEventCommandMode(self, event):
         if event.key() == videtoolkit.Key.Key_I:
             if event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
-                self._view.moveCursor(flags.HOME)
+                self._edit_area.moveCursor(flags.HOME)
             self._editor_model.setMode(flags.INSERT_MODE)
             event.accept()
 
         elif event.key() == videtoolkit.Key.Key_X and event.modifiers() == 0:
-            self._document_model.deleteAt(self._view.documentCursorPos(),1)
+            self._buffer.documentModel().deleteAt(self._edit_area.documentCursorPos(),1)
             event.accept()
 
         elif event.key() == videtoolkit.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.setMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._document_model, self._view.documentCursorPos().row+1)
-                self._command_history.append(command)
+                command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row+1)
+                self._buffer.commandHistor().append(command)
                 command.execute()
-                self._view.moveCursor(flags.DOWN)
+                self._edit_area.moveCursor(flags.DOWN)
                 event.accept()
 
             elif event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
                 self._editor_model.setMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._document_model, self._view.documentCursorPos().row)
-                self._command_history.append(command)
+                command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row)
+                self._buffer.commandHistory().append(command)
                 command.execute()
                 event.accept()
             else:
@@ -89,23 +87,22 @@ class EditAreaController(core.VObject):
 
         elif event.key() == videtoolkit.Key.Key_A and event.modifiers() == 0:
             self._editor_model.setMode(flags.INSERT_MODE)
-            self._view.moveCursor(flags.LEFT)
+            self._edit_area.moveCursor(flags.LEFT)
             event.accept()
 
         elif event.key() == videtoolkit.Key.Key_A and event.modifiers() &  videtoolkit.KeyModifier.ShiftModifier:
             self._editor_model.setMode(flags.INSERT_MODE)
-            self._view.moveCursor(flags.END)
+            self._edit_area.moveCursor(flags.END)
             event.accept()
 
         elif event.key() == videtoolkit.Key.Key_U:
-            if len(self._command_history):
-                command = self._command_history.pop()
+            if len(self._buffer.commandHistory()):
+                command = self._buffer.commandHistory().pop()
                 command.undo()
             event.accept()
 
         elif event.key() == videtoolkit.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
-
             event.accept()
 
     def _handleEventDeleteMode(self, event):
@@ -114,16 +111,15 @@ class EditAreaController(core.VObject):
             event.accept()
         elif event.key() == videtoolkit.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
-            command = commands.DeleteLineCommand(self._document_model, self._view.documentCursorPos().row)
-            self._command_history.append(command)
+            command = commands.DeleteLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row)
+            self._buffer.commandHistory().append(command)
             command.execute()
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
 
-    def setModels(self, document_model, view_model, editor_model):
-        self._document_model = document_model
-        self._view_model = view_model
+    def setModels(self, buffer, editor_model):
+        self._buffer = buffer
         self._editor_model = editor_model
 
     def _hasModels(self):
-        return self._document_model and self._view_model and self._editor_model
+        return self._buffer and self._editor_model

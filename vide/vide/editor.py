@@ -15,6 +15,7 @@ from . import commands
 from . import flags
 from .models.ViewModel import ViewModel
 from .models.Buffer import Buffer
+from .models.BufferList import BufferList
 from .models.TextDocument import TextDocument
 from .models.EditorModel import EditorModel
 import logging
@@ -24,12 +25,6 @@ import tempfile
 class Editor(gui.VWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self._buffers = []
-        self._buffers.append(Buffer(TextDocument(),
-                                    ViewModel()
-                                   )
-                            )
-        self._current_buffer = self._buffers[0]
         self._editor_model = EditorModel()
         self._linter = Linter.PyFlakesLinter()
 
@@ -43,6 +38,10 @@ class Editor(gui.VWidget):
 
         self._editor_model.setMode(flags.COMMAND_MODE)
         self._edit_area.setFocus()
+
+        self._buffers = BufferList()
+        self._buffers.currentBufferChanged.connect(self._bufferChanged)
+        self._buffers.addAndSelect(Buffer(TextDocument(), ViewModel()))
 
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
@@ -110,14 +109,11 @@ class Editor(gui.VWidget):
             buffer = Buffer(TextDocument(command_text[2:]),
                                         ViewModel()
                                         )
-            self._buffers.append(buffer)
-            self.selectBuffer(buffer)
+            self._buffers.addAndSelect(buffer)
         elif command_text.startswith("bp"):
-            index = (self._buffers.index(self.currentBuffer()) - 1) % len(self._buffers)
-            self.selectBuffer(self._buffers[index])
+            self._buffers.selectPrev()
         elif command_text.startswith("bn"):
-            index = (self._buffers.index(self.currentBuffer()) + 1) % len(self._buffers)
-            self.selectBuffer(self._buffers[index])
+            self._buffers.selectNext()
 
 
         self._command_bar.clear()
@@ -148,8 +144,8 @@ class Editor(gui.VWidget):
         logging.info("Saving file")
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
-        self.currentBuffer().documentModel().save()
-        self._status_bar.setMessage("Saved %s" % self.currentBuffer.documentModel().filename(), 2000)
+        self._buffers.currentBuffer().documentModel().save()
+        self._status_bar.setMessage("Saved %s" % self._buffers.currentBuffer().documentModel().filename(), 2000)
 
     def doBackup(self):
         logging.info("Saving backup file")
@@ -174,22 +170,20 @@ class Editor(gui.VWidget):
             self._info_hover_box.hide()
 
     def openFile(self, filename):
-        if self._current_buffer.isEmpty() and not self._current_buffer.isModified():
-            self._buffers.remove(self._current_buffer)
-        self._buffers.append(Buffer(TextDocument(filename),
-                                    ViewModel()
-                                   )
-                            )
-        self.selectBuffer(self._buffers[-1])
+        current_buffer = self._buffers.current()
+        try:
+            new_buffer = Buffer(TextDocument(filename), ViewModel())
+        except:
+            self._status_bar.setMessage("Error: could not open file", 2000)
+            return
 
-    def currentBuffer(self):
-        return self._current_buffer
+        if current_buffer.isEmpty() and not current_buffer.isModified():
+            self._buffers.replaceAndSelect(current_buffer, new_buffer)
+        else:
+            self._buffers.addAndSelect(new_buffer)
 
-    def selectBuffer(self, buffer):
-        self._current_buffer = buffer
-        self._status_bar_controller.setModels(self._current_buffer.documentModel(), self._current_buffer.viewModel())
-        self._side_ruler_controller.setModel(self._current_buffer.viewModel())
-        self._edit_area.setModels(self._current_buffer.documentModel(),
-                                  self._current_buffer.viewModel(),
-                                  self._editor_model)
+    def _bufferChanged(self, buffer):
+        self._status_bar_controller.setModels(buffer.documentModel(), buffer.viewModel())
+        self._side_ruler_controller.setModel(buffer.viewModel())
+        self._edit_area.setModels(buffer, self._editor_model)
 

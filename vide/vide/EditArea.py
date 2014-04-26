@@ -23,8 +23,7 @@ class EditArea(gui.VWidget):
 
         self._controller = EditAreaController(self)
 
-        self._document_model = None
-        self._view_model = None
+        self._buffer = None
         self._editor_model = None
         self._visual_cursor_pos = CursorPos(0,0)
         self.setFocusPolicy(videtoolkit.FocusPolicy.StrongFocus)
@@ -36,15 +35,14 @@ class EditArea(gui.VWidget):
 
         self.cursorPositionChanged = core.VSignal(self)
 
-    def setModels(self, document_model, view_model, editor_model):
-        self._document_model = document_model
-        self._view_model = view_model
+    def setModels(self, buffer, editor_model):
+        self._buffer = buffer
         self._editor_model = editor_model
-        self._controller.setModels(document_model, view_model, editor_model)
+        self._controller.setModels(buffer, editor_model)
         self.update()
 
     def _hasModels(self):
-        return self._document_model and self._view_model and self._editor_model
+        return self._buffer and self._editor_model
 
     def paintEvent(self, event):
         w, h = self.size()
@@ -52,9 +50,9 @@ class EditArea(gui.VWidget):
         painter.erase()
         if self._hasModels():
             for i in range(0, h):
-                document_line = self._view_model.documentPosAtTop().row + i
-                if document_line < self._document_model.numLines():
-                    line = self._document_model.getLine(document_line)
+                document_line = self._buffer.viewModel().documentPosAtTop().row + i
+                if document_line < self._buffer.documentModel().numLines():
+                    line = self._buffer.documentModel().getLine(document_line)
                     tokens = pygments.lex(line, pygments.lexers.PythonLexer())
                     col = 0
                     for tok, text in tokens:
@@ -67,17 +65,17 @@ class EditArea(gui.VWidget):
     def scrollDownSlot(self):
         if not self._hasModels():
             return
-        top_pos = self._view_model.documentPosAtTop()
+        top_pos = self._buffer.viewModel().documentPosAtTop()
         new_pos = DocumentPos(top_pos.row+1, top_pos.column)
-        self._view_model.setDocumentPosAtTop(new_pos)
+        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
         self.update()
 
     def scrollUpSlot(self):
         if not self._hasModels():
             return
-        top_pos = self._view_model.documentPosAtTop()
+        top_pos = self._buffer.viewModel().documentPosAtTop()
         new_pos = DocumentPos(top_pos.row-1, top_pos.column)
-        self._view_model.setDocumentPosAtTop(new_pos)
+        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
         self.update()
 
     def keyEvent(self, event):
@@ -95,12 +93,12 @@ class EditArea(gui.VWidget):
         if not self._hasModels():
             return None
 
-        top_pos = self._view_model.documentPosAtTop()
+        top_pos = self._buffer.viewModel().documentPosAtTop()
         doc_pos = DocumentPos(top_pos.row+self._visual_cursor_pos.y, top_pos.column+self._visual_cursor_pos.x)
-        if doc_pos.row > self._document_model.numLines():
+        if doc_pos.row > self._buffer.documentModel().numLines():
             return None
 
-        line_length = self._document_model.lineLength(doc_pos.row)
+        line_length = self._buffer.documentModel().lineLength(doc_pos.row)
         if doc_pos.column > line_length+1:
             return None
 
@@ -110,7 +108,7 @@ class EditArea(gui.VWidget):
         if not self._hasModels():
             return
 
-        if self._document_model.isEmpty():
+        if self._buffer.documentModel().isEmpty():
             return
 
         key = event.key()
@@ -131,8 +129,8 @@ class EditArea(gui.VWidget):
         current_surrounding_lines_length = {}
         for offset in [-1, 0, 1]:
             line_num=current_doc_pos.row+offset
-            if self._document_model.hasLine(line_num):
-                current_surrounding_lines_length[offset] = self._document_model.lineLength(line_num)
+            if self._buffer.documentModel().hasLine(line_num):
+                current_surrounding_lines_length[offset] = self._buffer.documentModel().lineLength(line_num)
             else:
                 current_surrounding_lines_length[offset] = None
 

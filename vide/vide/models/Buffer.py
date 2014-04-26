@@ -2,6 +2,7 @@ class Buffer:
     def __init__(self, document_model, view_model):
         self._document_model = document_model
         self._view_model = view_model
+        self._command_history = []
 
     def isEmpty(self):
         return self._document_model.isEmpty()
@@ -14,4 +15,7 @@ class Buffer:
 
     def viewModel(self):
         return self._view_model
+
+    def commandHistory(self):
+        return self._command_history
 
