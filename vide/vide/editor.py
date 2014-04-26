@@ -95,7 +95,7 @@ class Editor(gui.VWidget):
             gui.VApplication.vApp.exit()
         elif command_text == 'q':
             if any([b.isModified() for b in self.buffers()]):
-                self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 2000)
+                self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 3000)
             else:
                 gui.VApplication.vApp.exit()
         elif command_text == "w":
@@ -145,7 +145,7 @@ class Editor(gui.VWidget):
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
         self._buffers.currentBuffer().documentModel().save()
-        self._status_bar.setMessage("Saved %s" % self._buffers.currentBuffer().documentModel().filename(), 2000)
+        self._status_bar.setMessage("Saved %s" % self._buffers.currentBuffer().documentModel().filename(), 3000)
 
     def doBackup(self):
         logging.info("Saving backup file")
@@ -153,7 +153,7 @@ class Editor(gui.VWidget):
         #gui.VApplication.vApp.processEvents()
 
         #self._current_document.saveBackup()
-        #self._status_bar.setTemporaryMessage("Backup saved", 2000)
+        #self._status_bar.setTemporaryMessage("Backup saved", 3000)
 
     def show(self):
         super().show()
@@ -173,8 +173,8 @@ class Editor(gui.VWidget):
         current_buffer = self._buffers.current()
         try:
             new_buffer = Buffer(TextDocument(filename), ViewModel())
-        except:
-            self._status_bar.setMessage("Error: could not open file", 2000)
+        except Exception as e:
+            self._status_bar.setMessage("Error: could not open file. %s" % str(e), 3000)
             return
 
         if current_buffer.isEmpty() and not current_buffer.isModified():
