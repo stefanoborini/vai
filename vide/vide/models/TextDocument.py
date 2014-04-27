@@ -3,6 +3,9 @@ from videtoolkit import gui, core, utils
 import contextlib
 
 EOL='\n'
+LINE_META_INDEX = 0
+CHAR_META_INDEX = 1
+LINE_INDEX = 2
 
 class TextDocument(core.VObject):
     """
@@ -19,18 +22,17 @@ class TextDocument(core.VObject):
             self._contents = []
             with contextlib.closing(open(filename,'r')) as f:
                 for line in f:
-                    self._contents.append([{}, line, [None]*len(line)])
+                    self._contents.append([{}, {}, line])
 
             if len(self._contents) == 0:
-                self._contents.append([{}, EOL, [None]])
+                self._contents.append([{}, {}, EOL])
 
             # Always add an EOL character at the very end if not already there.
             # It appears to be a common convention in the unix world.
-            if len(self._contents) > 0 and self._contents[-1][1][-1] != EOL:
-                self._contents[-1][1] = self._contents[-1][1] + EOL
-                self._contents[-1][2].append(None)
+            if len(self._contents) > 0 and not self._contents[-1][LINE_INDEX].endswith(EOL):
+                self._contents[-1][LINE_INDEX] = self._contents[-1][LINE_INDEX] + EOL
         else:
-            self._contents = [ [{}, EOL, [None]] ]
+            self._contents = [ [{}, {}, EOL] ]
             self._filename = 'noname.txt'
 
         self._modified = False
@@ -38,25 +40,62 @@ class TextDocument(core.VObject):
         self.lineChanged = core.VSignal(self)
         self.lineDeleted = core.VSignal(self)
         self.lineCreated = core.VSignal(self)
+        self.contentChanged = core.VSignal(self)
         self.modifiedChanged = core.VSignal(self)
         self.filenameChanged = core.VSignal(self)
+        self.lineMetaInfoChanged = core.VSignal(self)
+        self.charMetaInfoChanged = core.VSignal(self)
+        self.transactionFinished = core.VSignal(self)
+
+    def enableSignals(self, enabled):
+        for signal in [ self.lineChanged,
+                        self.lineDeleted,
+                        self.lineCreated,
+                        self.modifiedChanged,
+                        self.filenameChanged,
+                        self.lineMetaInfoChanged,
+                        self.charMetaInfoChanged,
+                        self.transactionFinished,
+                        self.contentChanged
+                        ]:
+            signal.setEnabled(enabled)
 
     def isEmpty(self):
-        return len(self._contents) == 1 and len(self._contents[0][1]) == 0
+        return len(self._contents) == 1 \
+                and len(self._contents[0][LINE_INDEX]) == 1 \
+                and self._contents[0][LINE_INDEX][0] == EOL
 
     def getLine(self, line_number):
         self._checkLineNumber(line_number)
-        return self._contents[line_number-1][1]
+        return self._contents[line_number-1][LINE_INDEX]
 
-    def addLineMeta(self, line_number, key, value):
-        self._contents[line_number-1][0][key] = value
+    def setLineMeta(self, line_number, key, value):
+        self._contents[line_number-1][LINE_META_INDEX][key] = value
+        self.lineMetaInfoChanged.emit(line_number, key, value)
 
     def lineMeta(self, line_number):
-        return self._contents[line_number-1][1]
+        return self._contents[line_number-1][LINE_META_INDEX]
+
+    def charMeta(self, line_number):
+        return self._contents[line_number-1][CHAR_META_INDEX]
+
+    def setCharMeta(self, line_number, key, values):
+        if len(values) != len(self._contents[line_number-1][LINE_INDEX]):
+            raise Exception("Invalid length")
+
+        self._contents[line_number-1][CHAR_META_INDEX][key] = values
+        self.charMetaInfoChanged.emit(line_number, key, values)
+
+    def beginTransaction(self):
+        self.enableSignals(False)
+
+    def endTransaction(self):
+        self.enableSignals(True)
+        self.transactionFinished.emit()
 
     def hasLine(self, line_number):
         try:
-            _checkLineNumber(line_number)
+            self._checkLineNumber(line_number)
         except:
             return False
         return True
@@ -67,39 +106,50 @@ class TextDocument(core.VObject):
     def createLineAfter(self, line_number):
         self._checkLineNumber(line_number)
         # Add an EOL if not already there
-        if self._contents[line_number-1][1][-1] != EOL:
-            self._contents[line_number-1][1] = self._contents[line_number-1][1]+EOL
+        if not self._contents[line_number-1][LINE_INDEX].endswith(EOL):
+            self._contents[line_number-1][LINE_INDEX] = self._contents[line_number-1][LINE_INDEX]+EOL
 
-        self._contents.insert(line_number, [{}, EOL, [None]])
+        self._contents.insert(line_number, [{}, {}, EOL])
         self._setModified(True)
 
     def createLine(self, line_number):
-        self._contents.insert(line_number-1, [{}, EOL, [None]])
+        self._contents.insert(line_number-1, [{}, {}, EOL])
         self._setModified(True)
 
     def insertLine(self, line_number, text):
-        if text[-1] != EOL:
+        if not text.endswith(EOL):
             text += EOL
-        self._contents.insert(line_number-1, [{}, text, [None]*len(text)])
+        self._contents.insert(line_number-1, [{}, {}, text])
         self._setModified(True)
 
     def insertAt(self, document_pos, string):
-        self._contents[document_pos.row-1][1] = self._contents[document_pos.row-1][1][:document_pos.column-1] + \
-                                        string + \
-                                        self._contents[document_pos.row-1][1][document_pos.column-1:]
-        self._contents[document_pos.row-1][2] = self._contents[document_pos.row-1][2][:document_pos.column-1] + \
-                                        [None]*len(string) + \
-                                        self._contents[document_pos.row-1][2][document_pos.column-1:]
+        text = self._contents[document_pos.row-1][LINE_INDEX]
+        self._contents[document_pos.row-1][LINE_INDEX] = text[:document_pos.column-1] + \
+                                                         string + \
+                                                         text[document_pos.column-1:]
+
+        char_meta = self._contents[document_pos.row-1][CHAR_META_INDEX]
+        for key, values in char_meta.items():
+            char_meta[key] = values[:document_pos.column-1] + \
+                             [None] * len(string) + \
+                             values[document_pos.column-1:]
+
         self.lineChanged.emit(document_pos, string, None)
+        self.contentChanged.emit()
         self._setModified(True)
 
     def deleteAt(self, document_pos, length):
-        removed = self._contents[document_pos.row-1][1][document_pos.column-1:document_pos.column+length-1]
-        self._contents[document_pos.row-1][1] = self._contents[document_pos.row-1][1][:document_pos.column-1] \
-                                                + self._contents[document_pos.row-1][1][document_pos.column+length-1:]
-        self._contents[document_pos.row-1][2] = self._contents[document_pos.row-1][2][:document_pos.column-1] \
-                                                + self._contents[document_pos.row-1][2][document_pos.column+length-1:]
+        removed = self._contents[document_pos.row-1][LINE_INDEX][document_pos.column-1:document_pos.column+length-1]
+
+        text = self._contents[document_pos.row-1][LINE_INDEX]
+        self._contents[document_pos.row-1][LINE_INDEX] = text[:document_pos.column-1] + text[document_pos.column+length-1:]
+
+        char_meta = self._contents[document_pos.row-1][CHAR_META_INDEX]
+        for key, values in char_meta.items():
+           char_meta[key] = values[:document_pos.column-1] + values[document_pos.column+length-1:]
+
         self.lineChanged.emit(document_pos, None, removed)
+        self.contentChanged.emit()
         self._setModified(True)
 
 #    def replaceAt(self, line_number, column, length, replace):
@@ -109,14 +159,19 @@ class TextDocument(core.VObject):
 #        self._setModified(True)
 
     def breakAt(self, document_pos):
-        self._contents.insert(document_pos.row, [{},
-                                                 self._contents[document_pos.row-1][1][document_pos.column-1:],
-                                                 self._contents[document_pos.row-1][2][document_pos.column-1:]
+        self._contents.insert(document_pos.row, [dict(self._contents[document_pos.row-1][LINE_META_INDEX]),
+                                                 self._contents[document_pos.row-1][CHAR_META_INDEX][document_pos.column-1:],
+                                                 self._contents[document_pos.row-1][LINE_INDEX][document_pos.column-1:]
                                                 ])
-        self._contents[document_pos.row-1][1] = self._contents[document_pos.row-1][1][:document_pos.column-1]+'\n'
-        self._contents[document_pos.row-1][2] = self._contents[document_pos.row-1][2][:document_pos.column-1]+[None]
+
+        char_meta = self._contents[document_pos.row-1][CHAR_META_INDEX]
+        for key, values in char_meta.items():
+           char_meta[key] = values[:document_pos.column-1] + [None]
+
+        self._contents[document_pos.row-1][LINE_INDEX] = self._contents[document_pos.row-1][LINE_INDEX][:document_pos.column-1]+'\n'
 
         self.lineChanged.emit(document_pos, None, None)
+        self.contentChanged.emit()
         self._setModified(True)
 
 #    def joinAt(self, line_number):
@@ -128,6 +183,7 @@ class TextDocument(core.VObject):
     def deleteLine(self, line_number):
         self._contents.pop(line_number-1)
         self.lineDeleted.emit(line_number)
+        self.contentChanged.emit()
         self._setModified(True)
 
     def filename(self):
@@ -156,7 +212,7 @@ class TextDocument(core.VObject):
         self._dumpContentsToFile(self._filename+".bak")
 
     def text(self):
-        return "".join([x[1] for x in self._contents])
+        return "".join([x[LINE_INDEX] for x in self._contents])
 
     def _dumpContentsToFile(self, filename):
         with contextlib.closing(open(filename,'w')) as f:

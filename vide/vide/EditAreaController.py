@@ -71,7 +71,7 @@ class EditAreaController(core.VObject):
             if event.modifiers() == 0:
                 self._editor_model.setMode(flags.INSERT_MODE)
                 command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row+1)
-                self._buffer.commandHistor().append(command)
+                self._buffer.commandHistory().append(command)
                 command.execute()
                 self._edit_area.moveCursor(flags.DOWN)
                 event.accept()

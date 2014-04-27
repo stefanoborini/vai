@@ -3,6 +3,7 @@
 from videtoolkit import core, gui
 from vide import editor
 import sys
+import pdb
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -19,6 +20,7 @@ try:
     editor.show()
     app.exec_()
 except Exception as e:
-    import traceback
-    open("crashreport.out", "w").write(traceback.format_exc())
+    #import traceback
+    #open("crashreport.out", "w").write(traceback.format_exc())
+    pdb.post_mortem()
 

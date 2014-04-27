@@ -3,10 +3,9 @@ from videtoolkit import gui, core
 from .EditAreaController import EditAreaController
 from .positions import CursorPos, DocumentPos
 from . import flags
+import logging
 
 from pygments.formatter import Formatter
-import pygments
-import pygments.lexers
 from pygments import token
 
 TOKEN_TO_COLORS = {
@@ -18,6 +17,7 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
+    debug=logging.INFO
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -53,12 +53,10 @@ class EditArea(gui.VWidget):
                 document_line = self._buffer.viewModel().documentPosAtTop().row + i
                 if document_line < self._buffer.documentModel().numLines():
                     line = self._buffer.documentModel().getLine(document_line)
-                    tokens = pygments.lex(line, pygments.lexers.PythonLexer())
-                    col = 0
-                    for tok, text in tokens:
-                        fg_color, bg_color = TOKEN_TO_COLORS.get(tok, (None, None))
-                        painter.drawText( (col, i), text.replace('\n', ' '), fg_color, bg_color)
-                        col += len(text)
+                    painter.drawText( (0, i), line.replace('\n', ' '))
+                    char_meta = self._buffer.documentModel().charMeta(document_line)
+                    colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])]
+                    painter.setColors( (0,i), colors)
 
         gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 

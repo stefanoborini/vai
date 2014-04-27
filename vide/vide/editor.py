@@ -10,6 +10,7 @@ from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
 from .LineBadge import LineBadge
+from .Lexer import Lexer
 from . import Linter
 from . import commands
 from . import flags
@@ -27,6 +28,7 @@ class Editor(gui.VWidget):
         super().__init__(parent=parent)
         self._editor_model = EditorModel()
         self._linter = Linter.PyFlakesLinter()
+        self._lexer = Lexer()
 
         self._createStatusBar()
         self._createCommandBar()
@@ -94,7 +96,7 @@ class Editor(gui.VWidget):
         if command_text == 'q!':
             gui.VApplication.vApp.exit()
         elif command_text == 'q':
-            if any([b.isModified() for b in self.buffers()]):
+            if any([b.isModified() for b in self._buffers]):
                 self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 3000)
             else:
                 gui.VApplication.vApp.exit()
@@ -186,4 +188,5 @@ class Editor(gui.VWidget):
         self._status_bar_controller.setModels(buffer.documentModel(), buffer.viewModel())
         self._side_ruler_controller.setModel(buffer.viewModel())
         self._edit_area.setModels(buffer, self._editor_model)
+        self._lexer.setModel(buffer.documentModel())
 

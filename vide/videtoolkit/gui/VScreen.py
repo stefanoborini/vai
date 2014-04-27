@@ -110,6 +110,35 @@ class VScreen(object):
             with self._curses_lock:
                 self._curses_screen.addstr(y, x, out_string, attr)
 
+    def setColors(self, pos, colors):
+        x,y = pos
+        w,h = self.size()
+
+        out_colors = colors
+
+        if y < 0 or y >= h or x >= w:
+            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            return
+
+        out_colors = out_colors[:w-x]
+
+        if x < 0:
+            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            out_colors = colors[-x:]
+
+        if len(out_colors) == 0:
+            return
+
+        if (x+len(out_colors) > w):
+            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            out_colors = out_colors[:w-x]
+
+        for num, colors in enumerate(out_colors):
+            fg_color, bg_color = colors
+            attr = self.getColorAttributes(fg_color, bg_color)
+            with self._curses_lock:
+                self._curses_screen.chgat(y, x+num, 1, attr)
+
     def numColors(self):
         return min(curses.COLORS, 8)
 
@@ -117,8 +146,8 @@ class VScreen(object):
         fg_screen = None if fg is None else self._findClosestColor(fg)
         bg_screen = None if bg is None else self._findClosestColor(bg)
 
-        fg_index = -1 if fg_screen is None else fg_screen.colorIdx()
-        bg_index = -1 if bg_screen is None else bg_screen.colorIdx()
+        fg_index = 0 if fg_screen is None else fg_screen.colorIdx()
+        bg_index = 0 if bg_screen is None else bg_screen.colorIdx()
 
         try:
             pair_index = self._color_pairs.index( (fg_index, bg_index) )
@@ -128,7 +157,7 @@ class VScreen(object):
         with self._curses_lock:
             attr = curses.color_pair(pair_index)
 
-        if fg_screen.attr():
+        if fg_screen and fg_screen.attr():
             attr |= fg_screen.attr()
 
         return attr
@@ -265,6 +294,30 @@ class VScreenArea(object):
                              out_string,
                              fg_color,
                              bg_color)
+
+    def setColors(self, pos, colors):
+        rel_x, rel_y = pos
+        w, h = self.size()
+
+        if rel_y < 0 or rel_y >= h or rel_x >= w:
+            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            return
+
+        out_colors = colors
+        if rel_x < 0:
+            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            out_colors = colors[-rel_x:]
+            rel_x = 0
+
+        if len(out_colors) == 0:
+            return
+
+        if (rel_x+len(out_colors) > w):
+            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            out_colors = out_colors[:w-rel_x]
+
+        top_left_x, top_left_y = self.topLeft()
+        self._screen.setColors( (rel_x+top_left_x, rel_y+top_left_y), out_colors)
 
     def rect(self):
         return self._rect
