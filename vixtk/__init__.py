@@ -1,9 +1,12 @@
+import os
+
 import logging
-logging.basicConfig(filename='videtoolkit.log')
+logging.basicConfig(filename='vixtk.log')
 
 class FocusPolicy(object):
     NoFocus = 0
     StrongFocus = 11
+
 class Key(object):
     Key_Escape    = 0x01000000
     Key_Tab       = 0x01000001
@@ -161,7 +164,7 @@ class KeyModifier(object):
 
     Mask            = 0x3F000000
 
-def nativeToVideKeyCode(native_key_code):
+def nativeToVixKeyCode(native_key_code):
     key_mapper = {
       1                    : Key.Key_A | KeyModifier.ControlModifier,
       2                    : Key.Key_B | KeyModifier.ControlModifier,
@@ -294,11 +297,11 @@ def nativeToVideKeyCode(native_key_code):
 
     return key_mapper.get(native_key_code)
 
-def isKeyCodePrintable(vide_key_code):
-    return ((vide_key_code & Key.NonPrintableMask) == 0)
+def isKeyCodePrintable(key_code):
+    return ((key_code & Key.NonPrintableMask) == 0)
 
-def videKeyCodeToText(vide_key_code):
-    if not isKeyCodePrintable(vide_key_code):
+def vixKeyCodeToText(key_code):
+    if not isKeyCodePrintable(key_code):
         return ''
 
     key_map = {
@@ -400,6 +403,6 @@ def videKeyCodeToText(vide_key_code):
         Key.Key_Z | KeyModifier.ShiftModifier : 'Z',
     }
 
-    return key_map.get(vide_key_code, '')
+    return key_map.get(key_code, '')
 
 

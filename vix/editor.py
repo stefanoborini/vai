@@ -1,4 +1,4 @@
-from videtoolkit import gui, core, consts, utils
+from vixtk import gui, core, consts, utils
 
 from .SideRuler import SideRuler
 from .SideRulerController import SideRulerController

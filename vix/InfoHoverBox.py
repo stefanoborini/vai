@@ -1,4 +1,4 @@
-from videtoolkit import gui, core
+from vixtk import gui, core
 
 class InfoHoverBox(gui.VLabel):
     def paintEvent(self, event):

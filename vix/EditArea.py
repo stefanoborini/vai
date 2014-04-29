@@ -1,5 +1,5 @@
-import videtoolkit
-from videtoolkit import gui, core
+import vixtk
+from vixtk import gui, core
 from .EditAreaController import EditAreaController
 from .positions import CursorPos, DocumentPos
 from . import flags
@@ -26,7 +26,7 @@ class EditArea(gui.VWidget):
         self._buffer = None
         self._editor_model = None
         self._visual_cursor_pos = CursorPos(0,0)
-        self.setFocusPolicy(videtoolkit.FocusPolicy.StrongFocus)
+        self.setFocusPolicy(vixtk.FocusPolicy.StrongFocus)
 
         self.scrollDown = core.VSignal(self)
         self.scrollDown.connect(self.scrollDownSlot)
@@ -111,10 +111,10 @@ class EditArea(gui.VWidget):
 
         key = event.key()
 
-        direction = { videtoolkit.Key.Key_Up: flags.UP,
-                      videtoolkit.Key.Key_Down: flags.DOWN,
-                      videtoolkit.Key.Key_Left: flags.LEFT,
-                      videtoolkit.Key.Key_Right: flags.RIGHT
+        direction = { vixtk.Key.Key_Up: flags.UP,
+                      vixtk.Key.Key_Down: flags.DOWN,
+                      vixtk.Key.Key_Left: flags.LEFT,
+                      vixtk.Key.Key_Right: flags.RIGHT
                     }[key]
 
         self.moveCursor(direction)
