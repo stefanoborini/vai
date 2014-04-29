@@ -7,6 +7,9 @@ class BufferList(core.VObject):
 
         self.currentBufferChanged = core.VSignal(self)
 
+    def buffers(self):
+        return self._buffer_list
+
     def add(self, buffer):
         self._buffer_list.append(buffer)
 

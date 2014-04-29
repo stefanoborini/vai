@@ -96,7 +96,7 @@ class Editor(gui.VWidget):
         if command_text == 'q!':
             gui.VApplication.vApp.exit()
         elif command_text == 'q':
-            if any([b.isModified() for b in self._buffers]):
+            if any([b.isModified() for b in self._buffers.buffers()]):
                 self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 3000)
             else:
                 gui.VApplication.vApp.exit()

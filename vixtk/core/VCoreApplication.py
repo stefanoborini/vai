@@ -13,7 +13,6 @@ class VCoreApplication(VObject):
             raise Exception("Only one application is allowed")
 
         VCoreApplication.vApp = self
-        atexit.register(self.exit)
 
     def addTimer(self, timer):
         self.logger.debug("addTimer")
@@ -21,5 +20,4 @@ class VCoreApplication(VObject):
 
     def exit(self):
         self.logger.debug("exit")
-        VCoreApplication.vApp = None
 
