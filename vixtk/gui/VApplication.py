@@ -66,12 +66,13 @@ class VApplication(core.VCoreApplication):
         self._key_event_queue = queue.Queue()
         self._key_event_thread = KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
         self._delete_later_queue = []
+        self._exit_flag = False
 
     def exec_(self):
         self._root_widget.show()
         self.processEvents(True)
         self._key_event_thread.start()
-        while True:
+        while self._exit_flag != True:
             if self._key_event_thread.exception_occurred_event.is_set():
                 raise self._key_event_thread.exception
             logging.info("Waiting for events")
@@ -79,6 +80,8 @@ class VApplication(core.VCoreApplication):
             self._event_available_flag.clear()
             logging.info("Event available")
             self.processEvents(True)
+
+        self._exitCleanup()
 
     def processEvents(self, native=False):
         self.logger.info("++++---- %s processing events ---+++++" % ("Native" if native else "Forced"))
@@ -170,7 +173,10 @@ class VApplication(core.VCoreApplication):
         self._event_available_flag.set()
 
     def exit(self):
+        self._exit_flag = True
         super().exit()
+
+    def _exitCleanup(self):
         self._key_event_thread.stop_event.set()
         self._screen.deinit()
 
