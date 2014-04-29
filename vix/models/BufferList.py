@@ -1,4 +1,4 @@
-from videtoolkit import core
+from vixtk import core
 
 class BufferList(core.VObject):
     def __init__(self):

@@ -2,16 +2,16 @@ import os
 from setuptools import setup
 
 setup(
-    name = "vide",
+    name = "vix",
     version = "1.0",
-    author = "Stefano BoriniCarter",
-    author_email = "stefano.borini@ferrara.linux.it",
-    description = ("VIDE a Vim IDE"),
+    author = "Stefano Borini",
+    author_email = "stefano.borini@gmail.com",
+    description = ("VIX is a console-based IDE similar to VIM"),
     license = "BSD",
     keywords = "editor",
     url = "",
-    packages=['vide', 'tests'],
-    long_description="Whatever",
+    packages=['vix', 'tests'],
+    long_description="VIX is a console-based IDE similar to VIM",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",

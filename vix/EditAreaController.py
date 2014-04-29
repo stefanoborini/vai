@@ -1,13 +1,13 @@
-import videtoolkit
-from videtoolkit import core
+import vixtk
+from vixtk import core
 from . import flags
 from . import commands
 import logging
 
-DIRECTIONAL_KEYS = [ videtoolkit.Key.Key_Up,
-                     videtoolkit.Key.Key_Down,
-                     videtoolkit.Key.Key_Left,
-                     videtoolkit.Key.Key_Right ]
+DIRECTIONAL_KEYS = [ vixtk.Key.Key_Up,
+                     vixtk.Key.Key_Down,
+                     vixtk.Key.Key_Left,
+                     vixtk.Key.Key_Right ]
 
 class EditAreaController(core.VObject):
     def __init__(self, edit_area):
@@ -36,14 +36,14 @@ class EditAreaController(core.VObject):
 
 
     def _handleEventInsertMode(self, event):
-        if event.key() == videtoolkit.Key.Key_Escape:
+        if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
 
-        elif event.key() == videtoolkit.Key.Key_Backspace:
+        elif event.key() == vixtk.Key.Key_Backspace:
             self._edit_area.moveCursor(flags.LEFT)
             self._buffer.documentModel().deleteAt(self._edit_area.documentCursorPos(),1)
 
-        elif event.key() == videtoolkit.Key.Key_Return:
+        elif event.key() == vixtk.Key.Key_Return:
             self._buffer.documentModel().breakAt(self._edit_area.documentCursorPos())
             self._edit_area.moveCursor(flags.DOWN)
             self._edit_area.moveCursor(flags.HOME)
@@ -57,17 +57,17 @@ class EditAreaController(core.VObject):
         event.accept()
 
     def _handleEventCommandMode(self, event):
-        if event.key() == videtoolkit.Key.Key_I:
-            if event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
+        if event.key() == vixtk.Key.Key_I:
+            if event.modifiers() & vixtk.KeyModifier.ShiftModifier:
                 self._edit_area.moveCursor(flags.HOME)
             self._editor_model.setMode(flags.INSERT_MODE)
             event.accept()
 
-        elif event.key() == videtoolkit.Key.Key_X and event.modifiers() == 0:
+        elif event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
             self._buffer.documentModel().deleteAt(self._edit_area.documentCursorPos(),1)
             event.accept()
 
-        elif event.key() == videtoolkit.Key.Key_O:
+        elif event.key() == vixtk.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.setMode(flags.INSERT_MODE)
                 command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row+1)
@@ -76,7 +76,7 @@ class EditAreaController(core.VObject):
                 self._edit_area.moveCursor(flags.DOWN)
                 event.accept()
 
-            elif event.modifiers() & videtoolkit.KeyModifier.ShiftModifier:
+            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
                 self._editor_model.setMode(flags.INSERT_MODE)
                 command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row)
                 self._buffer.commandHistory().append(command)
@@ -85,31 +85,31 @@ class EditAreaController(core.VObject):
             else:
                 return
 
-        elif event.key() == videtoolkit.Key.Key_A and event.modifiers() == 0:
+        elif event.key() == vixtk.Key.Key_A and event.modifiers() == 0:
             self._editor_model.setMode(flags.INSERT_MODE)
             self._edit_area.moveCursor(flags.LEFT)
             event.accept()
 
-        elif event.key() == videtoolkit.Key.Key_A and event.modifiers() &  videtoolkit.KeyModifier.ShiftModifier:
+        elif event.key() == vixtk.Key.Key_A and event.modifiers() &  vixtk.KeyModifier.ShiftModifier:
             self._editor_model.setMode(flags.INSERT_MODE)
             self._edit_area.moveCursor(flags.END)
             event.accept()
 
-        elif event.key() == videtoolkit.Key.Key_U:
+        elif event.key() == vixtk.Key.Key_U:
             if len(self._buffer.commandHistory()):
                 command = self._buffer.commandHistory().pop()
                 command.undo()
             event.accept()
 
-        elif event.key() == videtoolkit.Key.Key_D:
+        elif event.key() == vixtk.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
             event.accept()
 
     def _handleEventDeleteMode(self, event):
-        if event.key() == videtoolkit.Key.Key_Escape:
+        if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
-        elif event.key() == videtoolkit.Key.Key_D:
+        elif event.key() == vixtk.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
             command = commands.DeleteLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row)
             self._buffer.commandHistory().append(command)

@@ -1,4 +1,4 @@
-from videtoolkit import gui, core, utils
+from vixtk import gui, core, utils
 import math
 import logging
 

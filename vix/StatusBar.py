@@ -1,4 +1,4 @@
-from videtoolkit import gui, core, utils
+from vixtk import gui, core, utils
 
 class StatusBar(gui.VLabel):
     def __init__(self, parent):

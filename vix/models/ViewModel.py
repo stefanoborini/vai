@@ -1,4 +1,4 @@
-from videtoolkit import core
+from vixtk import core
 from .. import flags
 from ..positions import DocumentPos
 

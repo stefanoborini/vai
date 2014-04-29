@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from videtoolkit import core, gui
-from vide import editor
+from vixtk import core, gui
+from vix import editor
 import sys
 import pdb
 

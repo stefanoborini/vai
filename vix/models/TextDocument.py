@@ -1,5 +1,5 @@
 import time
-from videtoolkit import gui, core, utils
+from vixtk import gui, core, utils
 import contextlib
 
 EOL='\n'

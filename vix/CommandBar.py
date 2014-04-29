@@ -1,5 +1,5 @@
-from videtoolkit import gui, core, utils
-import videtoolkit
+from vixtk import gui, core, utils
+import vixtk
 from . import flags
 import logging
 
@@ -58,10 +58,10 @@ class CommandBar(gui.VWidget):
 
     def eventFilter(self, event):
         if isinstance(event, gui.VKeyEvent):
-            if event.key() == videtoolkit.Key.Key_Escape:
+            if event.key() == vixtk.Key.Key_Escape:
                 self.escapePressed.emit()
                 return True
-            elif event.key() == videtoolkit.Key.Key_Backspace and len(self.commandText()) == 0:
+            elif event.key() == vixtk.Key.Key_Backspace and len(self.commandText()) == 0:
                 self.escapePressed.emit()
                 return True
         return False
