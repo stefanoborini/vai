@@ -5,9 +5,11 @@ class CreateLineCommand(object):
 
     def execute(self):
         self._model.createLine(self._line_number)
+        self._model.setLineMeta(self._line_number, "change", "added")
 
     def undo(self):
         self._model.deleteLine(self._line_number)
+        self._model.setLineMeta(self._line_number, "change", None)
 
 
 class DeleteLineCommand(object):
