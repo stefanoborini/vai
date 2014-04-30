@@ -17,7 +17,6 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
-    debug=logging.INFO
     def __init__(self, parent):
         super().__init__(parent)
 

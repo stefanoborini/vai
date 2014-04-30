@@ -31,8 +31,8 @@ class SideRuler(gui.VWidget):
 
             badge = self._badges.get(current)
             if badge is not None:
-                badge_mark = badge.mark()
-                bg_color = badge.bgColor()
+                badge_mark = badge.marker
+                bg_color = badge.bg_color
 
             painter.drawText( (0, i), str(current).rjust(num_digits) + badge_mark + border,
                             fg_color=gui.VGlobalColor.yellow, bg_color=bg_color)
@@ -65,6 +65,12 @@ class SideRuler(gui.VWidget):
         self.logger.info("Added badge %s %s" % (line, badge))
         self._badges[line] = badge
         self.update()
+
+    def removeBadge(self, line):
+        self.logger.info("Removed badge %s" % line)
+        if line in self._badges:
+            del self._badges[line]
+            self.update()
 
     def badge(self, line):
         return self._badges.get(line)

@@ -165,7 +165,7 @@ class Editor(gui.VWidget):
         self._status_bar.setPosition(document_pos)
         badge = self._side_ruler.badge(document_pos.row)
         if badge is not None:
-            self._info_hover_box.setText(badge.description())
+            self._info_hover_box.setText(badge.description)
             self._info_hover_box.move((0, gui.VCursor.pos()[consts.Index.Y]+1))
             self._info_hover_box.show()
         else:
@@ -186,7 +186,7 @@ class Editor(gui.VWidget):
 
     def _bufferChanged(self, buffer):
         self._status_bar_controller.setModels(buffer.documentModel(), buffer.viewModel())
-        self._side_ruler_controller.setModel(buffer.viewModel())
+        self._side_ruler_controller.setModel(buffer.documentModel(),buffer.viewModel())
         self._edit_area.setModels(buffer, self._editor_model)
         self._lexer.setModel(buffer.documentModel())
 

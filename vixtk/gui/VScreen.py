@@ -25,6 +25,7 @@ class VScreen(object):
         self._curses_screen.notimeout(True)
         self._curses_lock = threading.Lock()
         self._color_lookup_cache = {}
+        self._attr_lookup_cache = {}
 
         self._cursor_pos = (0,0)
         self._initColorPairs()
@@ -146,6 +147,9 @@ class VScreen(object):
         fg_screen = None if fg is None else self._findClosestColor(fg)
         bg_screen = None if bg is None else self._findClosestColor(bg)
 
+        if (fg_screen, bg_screen) in self._attr_lookup_cache:
+            return self._attr_lookup_cache[(fg_screen, bg_screen)]
+
         fg_index = 0 if fg_screen is None else fg_screen.colorIdx()
         bg_index = 0 if bg_screen is None else bg_screen.colorIdx()
 
@@ -160,6 +164,7 @@ class VScreen(object):
         if fg_screen and fg_screen.attr():
             attr |= fg_screen.attr()
 
+        self._attr_lookup_cache[(fg_screen, bg_screen)] = attr
         return attr
 
     def setCursorPos(self, pos):
