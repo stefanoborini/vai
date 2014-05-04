@@ -19,3 +19,8 @@ class Buffer:
     def commandHistory(self):
         return self._command_history
 
+    def addCommandHistory(self, command):
+        self._command_history.append(command)
+
+    def popCommandHistory(self):
+        return self._command_history.pop()
