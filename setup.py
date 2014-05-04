@@ -40,7 +40,7 @@ setup(
         'Intended Audience :: Developers',
     ],
     test_suite = 'nose.collector',
-    install_requires = ['pygments', "pylint"],
+    install_requires = ['pygments', "pylint", 'pyflakes'],
     #package_data={
     #    'sample': ['package_data.dat'],
     #},
