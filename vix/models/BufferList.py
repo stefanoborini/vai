@@ -12,17 +12,21 @@ class BufferList(core.VObject):
 
     def add(self, buffer):
         self._buffer_list.append(buffer)
+        return buffer
 
     def select(self, buffer):
         if buffer not in self._buffer_list:
             raise Exception("Buffer not in BufferList")
 
-        self._current_buffer = buffer
-        self.currentBufferChanged.emit(buffer)
+        if buffer != self._current_buffer:
+            self._current_buffer = buffer
+            self.currentBufferChanged.emit(buffer)
+
+        return self._current_buffer
 
     def addAndSelect(self, buffer):
         self.add(buffer)
-        self.select(buffer)
+        return self.select(buffer)
 
     def replaceAndSelect(self, old_buffer, new_buffer):
         if old_buffer not in self._buffer_list:
@@ -31,18 +35,22 @@ class BufferList(core.VObject):
         index = self._bufferIndex(old_buffer)
         self._buffer_list.remove(old_buffer)
         self._buffer_list.insert(index, new_buffer)
-        self.select(new_buffer)
+        return self.select(new_buffer)
 
     def current(self):
         return self._current_buffer
 
     def selectNext(self):
+        if self.current() is None:
+            return
         index = (self._bufferIndex(self.current()) + 1) % len(self._buffer_list)
-        self.select(self._buffer_list[index])
+        return self.select(self._buffer_list[index])
 
     def selectPrev(self):
+        if self.current() is None:
+            return
         index = (self._bufferIndex(self.current()) - 1) % len(self._buffer_list)
-        self.select(self._buffer_list[index])
+        return self.select(self._buffer_list[index])
 
     def _bufferIndex(self, buffer):
         return self._buffer_list.index(buffer)
