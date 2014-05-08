@@ -2,7 +2,7 @@
 __version__ = "1.0"
 
 from vixtk import core, gui
-from . import editor
+from . import Editor
 import sys
 import pdb
 import io
@@ -18,7 +18,7 @@ def main():
     try:
         app = gui.VApplication(sys.argv)
 
-        e = editor.Editor()
+        e = Editor.Editor()
         if args.filename:
             e.openFile(args.filename)
 
