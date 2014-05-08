@@ -11,6 +11,7 @@ class EditorModel(core.VObject):
         return self._mode
 
     def setMode(self, mode):
-        self._mode = mode
-        self.modeChanged.emit(self._mode)
+        if self._mode != mode:
+            self._mode = mode
+            self.modeChanged.emit(self._mode)
 
