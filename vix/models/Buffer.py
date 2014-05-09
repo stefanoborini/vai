@@ -1,7 +1,9 @@
+from .TextDocumentCursor import TextDocumentCursor
+
 class Buffer:
     def __init__(self, document, view_model):
         self._document = document
-        self._document_cursor = None
+        self._document_cursor = TextDocumentCursor(self._document)
         self._view_model = view_model
         self._command_history = []
 

@@ -3,6 +3,7 @@ from vixtk import core
 class TextDocumentCursor(core.VObject):
     def __init__(self, text_document):
         self._text_document = text_document
+        self._text_document.registerCursor(self)
         self._pos = (1,1)
         self._optimistic_column = 1
 
@@ -20,12 +21,12 @@ class TextDocumentCursor(core.VObject):
         self._optimistic_column = self._pos[1]
         return True
 
-    def toLineNext():
+    def toLineNext(self):
         if self._pos[0] >= self._text_document.numLines():
             return False
         self._pos = (self._pos[0]+1,
                                     min(
-                                        self._text_document.lineLength(self._pos[0]),
+                                        self._text_document.lineLength(self._pos[0]+1),
                                         max(self._pos[1],
                                             self._optimistic_column
                                            )
@@ -33,13 +34,13 @@ class TextDocumentCursor(core.VObject):
                     )
         return True
 
-    def toLinePrev():
+    def toLinePrev(self):
         if self._pos[0] == 1:
             return False
 
         self._pos = (self._pos[0]-1,
                                     min(
-                                        self._text_document.lineLength(self._pos[0]),
+                                        self._text_document.lineLength(self._pos[0]-1),
                                         max(self._pos[1],
                                             self._optimistic_column
                                            )
@@ -47,7 +48,7 @@ class TextDocumentCursor(core.VObject):
                     )
         return True
 
-    def toCharNext():
+    def toCharNext(self):
         if self._pos[1] == self._text_document.lineLength(self._pos[0]):
             return False
 
@@ -55,7 +56,7 @@ class TextDocumentCursor(core.VObject):
         self._optimistic_column = self._pos[1]
         return True
 
-    def toCharPrev():
+    def toCharPrev(self):
         if self._pos[1] == 1:
             return False
 
@@ -63,22 +64,22 @@ class TextDocumentCursor(core.VObject):
         self._optimistic_column = self._pos[1]
         return True
 
-    def toLineBeginning():
+    def toLineBeginning(self):
         self._pos = (self._pos[0], 1)
         self._optimistic_column = self._pos[1]
         return True
 
-    def toLineEnd():
+    def toLineEnd(self):
         self._pos = (self._pos[0], self._text_document.lineLength(self._pos[0]))
         self._optimistic_column = self._pos[1]
         return True
 
-    def toFirstLine():
+    def toFirstLine(self):
         self._pos = (1,1)
         self._optimistic_column = self._pos[1]
         return True
 
-    def toLastLine():
+    def toLastLine(self):
         self._pos = (self._text_document.numLines(), 1)
         self._optimistic_column = self._pos[1]
         return True

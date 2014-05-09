@@ -41,17 +41,17 @@ class EditAreaController(core.VObject):
 
         elif event.key() == vixtk.Key.Key_Backspace:
             self._edit_area.moveCursor(flags.LEFT)
-            self._buffer.documentModel().deleteAt(self._edit_area.documentCursorPos(),1)
+            self._buffer.document().deleteAt(self._edit_area.documentCursorPos(),1)
 
         elif event.key() == vixtk.Key.Key_Return:
-            self._buffer.documentModel().breakAt(self._edit_area.documentCursorPos())
+            self._buffer.document().breakAt(self._edit_area.documentCursorPos())
             self._edit_area.moveCursor(flags.DOWN)
             self._edit_area.moveCursor(flags.HOME)
 
         else:
             text = event.text()
             if len(text) != 0:
-                self._buffer.documentModel().insertAt(self._edit_area.documentCursorPos(), event.text())
+                self._buffer.document().insertAt(self._edit_area.documentCursorPos(), event.text())
                 self._edit_area.moveCursor(flags.RIGHT)
 
         event.accept()
@@ -64,13 +64,13 @@ class EditAreaController(core.VObject):
             event.accept()
 
         elif event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
-            self._buffer.documentModel().deleteAt(self._edit_area.documentCursorPos(),1)
+            self._buffer.document().deleteAt(self._edit_area.documentCursorPos(),1)
             event.accept()
 
         elif event.key() == vixtk.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.setMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row+1)
+                command = commands.CreateLineCommand(self._buffer.document(), self._edit_area.documentCursorPos().row+1)
                 self._buffer.commandHistory().append(command)
                 command.execute()
                 self._edit_area.moveCursor(flags.DOWN)
@@ -78,7 +78,7 @@ class EditAreaController(core.VObject):
 
             elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
                 self._editor_model.setMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row)
+                command = commands.CreateLineCommand(self._buffer.document(), self._edit_area.documentCursorPos().row)
                 self._buffer.commandHistory().append(command)
                 command.execute()
                 event.accept()
@@ -111,7 +111,7 @@ class EditAreaController(core.VObject):
             event.accept()
         elif event.key() == vixtk.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
-            command = commands.DeleteLineCommand(self._buffer.documentModel(), self._edit_area.documentCursorPos().row)
+            command = commands.DeleteLineCommand(self._buffer.document(), self._buffer.documentCursor().pos()[0])
             self._buffer.commandHistory().append(command)
             command.execute()
             self._editor_model.setMode(flags.COMMAND_MODE)
