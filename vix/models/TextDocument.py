@@ -36,6 +36,7 @@ class TextDocument(core.VObject):
             self._filename = 'noname.txt'
 
         self._modified = False
+        self._cursors = []
 
         self.lineChanged = core.VSignal(self)
         self.lineDeleted = core.VSignal(self)
@@ -46,6 +47,7 @@ class TextDocument(core.VObject):
         self.lineMetaInfoChanged = core.VSignal(self)
         self.charMetaInfoChanged = core.VSignal(self)
         self.transactionFinished = core.VSignal(self)
+
 
     def enableSignals(self, enabled):
         for signal in [ self.lineChanged,
@@ -218,3 +220,6 @@ class TextDocument(core.VObject):
         if self._modified != modified:
             self._modified = modified
             self.modifiedChanged.emit(self._modified)
+
+    def registerCursor(self, cursor):
+        self._cursors.append(cursor)
