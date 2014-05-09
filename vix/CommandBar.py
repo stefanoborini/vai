@@ -1,11 +1,10 @@
-from vixtk import gui, core, utils
+from vixtk import gui, core
 import vixtk
 from . import flags
-import logging
 
 class CommandBar(gui.VWidget):
     def __init__(self, parent=None):
-        super(CommandBar,self).__init__(parent=parent)
+        super().__init__(parent=parent)
         self.returnPressed = core.VSignal(self)
         self.escapePressed = core.VSignal(self)
 
@@ -49,6 +48,10 @@ class CommandBar(gui.VWidget):
             text = "-- VISUAL LINE --"
         elif self._mode == flags.VISUAL_MODE:
             text = "-- VISUAL --"
+        elif self._mode == flags.SEARCH_FORWARD_MODE:
+            text = "/"
+        elif self._mode == flags.SEARCH_BACKWARD_MODE:
+            text = "?"
         else:
             text = ""
 
