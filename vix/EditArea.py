@@ -50,10 +50,10 @@ class EditArea(gui.VWidget):
         if self._hasModels():
             for i in range(0, h):
                 document_line = self._buffer.viewModel().documentPosAtTop().row + i
-                if document_line < self._buffer.documentModel().numLines():
-                    line = self._buffer.documentModel().getLine(document_line)
+                if document_line < self._buffer.document().numLines():
+                    line = self._buffer.document().getLine(document_line)
                     painter.drawText( (0, i), line.replace('\n', ' '))
-                    char_meta = self._buffer.documentModel().charMeta(document_line)
+                    char_meta = self._buffer.document().charMeta(document_line)
                     colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])]
                     painter.setColors( (0,i), colors)
 
@@ -92,10 +92,10 @@ class EditArea(gui.VWidget):
 
         top_pos = self._buffer.viewModel().documentPosAtTop()
         doc_pos = DocumentPos(top_pos.row+self._visual_cursor_pos.y, top_pos.column+self._visual_cursor_pos.x)
-        if doc_pos.row > self._buffer.documentModel().numLines():
+        if doc_pos.row > self._buffer.document().numLines():
             return None
 
-        line_length = self._buffer.documentModel().lineLength(doc_pos.row)
+        line_length = self._buffer.document().lineLength(doc_pos.row)
         if doc_pos.column > line_length+1:
             return None
 
@@ -105,7 +105,7 @@ class EditArea(gui.VWidget):
         if not self._hasModels():
             return
 
-        if self._buffer.documentModel().isEmpty():
+        if self._buffer.document().isEmpty():
             return
 
         key = event.key()
@@ -126,8 +126,8 @@ class EditArea(gui.VWidget):
         current_surrounding_lines_length = {}
         for offset in [-1, 0, 1]:
             line_num=current_doc_pos.row+offset
-            if self._buffer.documentModel().hasLine(line_num):
-                current_surrounding_lines_length[offset] = self._buffer.documentModel().lineLength(line_num)
+            if self._buffer.document().hasLine(line_num):
+                current_surrounding_lines_length[offset] = self._buffer.document().lineLength(line_num)
             else:
                 current_surrounding_lines_length[offset] = None
 

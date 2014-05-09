@@ -25,8 +25,8 @@ class StatusBar(gui.VLabel):
         self._filename = filename
         self._updateText()
 
-    def setPosition(self, document_pos):
-        self._position = str(document_pos.row)+","+str(document_pos.column)
+    def setPosition(self, pos):
+        self._position = str(pos[0])+","+str(pos[1])
         self._updateText()
 
     def setFileChangedFlag(self, changed):
