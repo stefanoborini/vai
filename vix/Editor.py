@@ -146,8 +146,8 @@ class Editor(gui.VWidget):
         logging.info("Saving file")
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
-        self._buffers.currentBuffer().documentModel().save()
-        self._status_bar.setMessage("Saved %s" % self._buffers.currentBuffer().documentModel().filename(), 3000)
+        self._buffers.currentBuffer().document().save()
+        self._status_bar.setMessage("Saved %s" % self._buffers.currentBuffer().document().filename(), 3000)
 
     def doBackup(self):
         logging.info("Saving backup file")
@@ -185,8 +185,8 @@ class Editor(gui.VWidget):
             self._buffers.addAndSelect(new_buffer)
 
     def _bufferChanged(self, buffer):
-        self._status_bar_controller.setModels(buffer.documentModel(), buffer.viewModel())
-        self._side_ruler_controller.setModel(buffer.documentModel(),buffer.viewModel())
+        self._status_bar_controller.setModels(buffer.document(), buffer.viewModel())
+        self._side_ruler_controller.setModel(buffer.document(),buffer.viewModel())
         self._edit_area.setModels(buffer, self._editor_model)
-        self._lexer.setModel(buffer.documentModel())
+        self._lexer.setModel(buffer.document())
 

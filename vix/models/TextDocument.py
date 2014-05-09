@@ -194,7 +194,7 @@ class TextDocument(core.VObject):
 
     def _checkLineNumber(self, line_number):
         if line_number < 1 or line_number > len(self._contents):
-            raise Exception("Out of bound request in getLine")
+            raise IndexError("Out of bound. line_number = %d, len = %d" % (line_number, len(self._contents)))
 
     def isModified(self):
         return self._modified
@@ -204,19 +204,15 @@ class TextDocument(core.VObject):
 
     def saveAs(self, filename):
         self._filename = filename
-        self._dumpContentsToFile(self._filename)
+
+        with contextlib.closing(open(filename,'w')) as f:
+            f.write(self.text())
+
         self._setModified(False)
         self.filenameChanged.emit(self.filename())
 
-    def saveBackup(self):
-        self._dumpContentsToFile(self._filename+".bak")
-
     def text(self):
         return "".join([x[LINE_INDEX] for x in self._contents])
-
-    def _dumpContentsToFile(self, filename):
-        with contextlib.closing(open(filename,'w')) as f:
-            f.write(self.text())
 
     def _setModified(self, modified):
         if self._modified != modified:
