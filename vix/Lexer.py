@@ -22,7 +22,7 @@ class Lexer:
             meta.extend([ttype]*len(string))
 
             if string.endswith('\n'):
-                self._document_model.setCharMeta(current_line_num, "lextoken", meta)
+                self._document_model.updateCharMeta(current_line_num, {"lextoken": meta})
                 current_line_num += 1
                 meta = []
 
