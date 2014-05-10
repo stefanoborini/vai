@@ -87,9 +87,13 @@ class TextDocumentCursor(core.VObject):
     def lineLength(self):
         return self._text_document.lineLength(self._pos[0])
 
-    def setLineMeta(self, key, value): pass
-    def lineMeta(self): pass
-    def setCharMeta(self, line_number, key, values): pass
+    def updateLineMeta(self, meta_dict):
+        self._text_document.updateLineMeta(self._pos[0], meta_dict)
+
+    def lineMeta(self):
+        return self._text_document.lineMeta(self._pos[0])
+
+    def updateCharMeta(self, line_number, meta_dict): pass
     def charMeta(self): pass
 
     def newLineAfter(self):

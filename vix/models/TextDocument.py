@@ -74,22 +74,23 @@ class TextDocument(core.VObject):
         self._checkLineNumber(line_number)
         return self._contents[line_number-1][LINE_INDEX]
 
-    def setLineMeta(self, line_number, key, value):
-        self._contents[line_number-1][LINE_META_INDEX][key] = value
-        self.lineMetaInfoChanged.emit(line_number, key, value)
+    def updateLineMeta(self, line_number, meta_dict):
+        self._contents[line_number-1][LINE_META_INDEX].update(meta_dict)
+        self.lineMetaInfoChanged.emit(line_number, meta_dict)
 
     def lineMeta(self, line_number):
         return self._contents[line_number-1][LINE_META_INDEX]
 
+    def updateCharMeta(self, line_number, meta_dict):
+        for values in meta_dict.values():
+            if len(values) != len(self._contents[line_number-1][LINE_INDEX]):
+                raise Exception("Invalid length")
+
+        self._contents[line_number-1][CHAR_META_INDEX].update(meta_dict)
+        self.charMetaInfoChanged.emit(line_number, meta_dict)
+
     def charMeta(self, line_number):
         return self._contents[line_number-1][CHAR_META_INDEX]
-
-    def setCharMeta(self, line_number, key, values):
-        if len(values) != len(self._contents[line_number-1][LINE_INDEX]):
-            raise Exception("Invalid length")
-
-        self._contents[line_number-1][CHAR_META_INDEX][key] = values
-        self.charMetaInfoChanged.emit(line_number, key, values)
 
     def beginTransaction(self):
         self.enableSignals(False)
