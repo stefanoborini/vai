@@ -34,37 +34,29 @@ class EditAreaController(core.VObject):
         elif self._editor_model.mode() == flags.DELETE_MODE:
             self._handleEventDeleteMode(event)
 
-
     def _handleEventInsertMode(self, event):
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
-
         elif event.key() == vixtk.Key.Key_Backspace:
-            self._edit_area.moveCursor(flags.LEFT)
-            self._buffer.document().deleteAt(self._edit_area.documentCursorPos(),1)
-
+            self._buffer.documentCursor().deleteChar()
         elif event.key() == vixtk.Key.Key_Return:
-            self._buffer.document().breakAt(self._edit_area.documentCursorPos())
-            self._edit_area.moveCursor(flags.DOWN)
-            self._edit_area.moveCursor(flags.HOME)
-
+            self._buffer.documentCursor().breakLine()
         else:
             text = event.text()
             if len(text) != 0:
-                self._buffer.document().insertAt(self._edit_area.documentCursorPos(), event.text())
-                self._edit_area.moveCursor(flags.RIGHT)
+                self._buffer.documentCursor().insert(event.text())
 
         event.accept()
 
     def _handleEventCommandMode(self, event):
         if event.key() == vixtk.Key.Key_I:
             if event.modifiers() & vixtk.KeyModifier.ShiftModifier:
-                self._edit_area.moveCursor(flags.HOME)
+                self._buffer.documentCursor().toLineBeginning()
             self._editor_model.setMode(flags.INSERT_MODE)
             event.accept()
 
         elif event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
-            self._buffer.document().deleteAt(self._edit_area.documentCursorPos(),1)
+            self._buffer.documentCursor().deleteAfter()
             event.accept()
 
         elif event.key() == vixtk.Key.Key_O:
@@ -106,6 +98,7 @@ class EditAreaController(core.VObject):
             event.accept()
 
     def _handleEventDeleteMode(self, event):
+        """
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
@@ -116,7 +109,7 @@ class EditAreaController(core.VObject):
             command.execute()
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
-
+        """
     def setModels(self, buffer, editor_model):
         self._buffer = buffer
         self._editor_model = editor_model

@@ -8,3 +8,6 @@ def strformat(strings_at, length):
     res = res[:length]
     res += " "* (length - len(res))
     return res
+
+def clamp(value, minvalue, maxvalue):
+    return sorted([minvalue, value, maxvalue])[1]

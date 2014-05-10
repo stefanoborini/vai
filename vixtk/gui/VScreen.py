@@ -106,9 +106,11 @@ class VScreen(object):
             with self._curses_lock:
                 self._curses_screen.addstr(y, x, out_string[1:], attr)
                 self._curses_screen.insstr(y, x, out_string[0], attr)
+                self._curses_screen.noutrefresh()
         else:
             with self._curses_lock:
                 self._curses_screen.addstr(y, x, out_string, attr)
+                self._curses_screen.noutrefresh()
 
     def setColors(self, pos, colors):
         x,y = pos
