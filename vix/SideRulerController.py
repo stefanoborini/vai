@@ -26,7 +26,7 @@ class SideRulerController:
     def updateRange(self):
         if self._view_model:
             top_pos = self._view_model.documentPosAtTop()
-            self._side_ruler.setStart(top_pos.row)
+            self._side_ruler.setStart(top_pos[0])
 
     def updateBadges(self, *args):
         if self._document_model:

@@ -108,11 +108,11 @@ class TextDocumentCursor(core.VObject):
         self._text_document.insert(self._pos, char)
         self.toCharNext()
 
-    def delete(self):
+    def deleteChar(self):
         if self.toCharPrev():
             self._text_document.delete(self._pos, 1)
 
-    def deleteAfter(self):
+    def deleteCharAfter(self):
         current_column = self._pos[1]
         if current_column == self._text_document.lineLength(self._pos[0]):
             if self.toCharPrev():

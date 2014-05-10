@@ -17,6 +17,7 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
+    debug = logging.INFO
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -24,13 +25,13 @@ class EditArea(gui.VWidget):
 
         self._buffer = None
         self._editor_model = None
-        self._visual_cursor_pos = CursorPos(0,0)
+        self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vixtk.FocusPolicy.StrongFocus)
 
-        self.scrollDown = core.VSignal(self)
-        self.scrollDown.connect(self.scrollDownSlot)
-        self.scrollUp = core.VSignal(self)
-        self.scrollUp.connect(self.scrollUpSlot)
+        #self.scrollDown = core.VSignal(self)
+        #self.scrollDown.connect(self.scrollDownSlot)
+        #self.scrollUp = core.VSignal(self)
+        #self.scrollUp.connect(self.scrollUpSlot)
 
         self.cursorPositionChanged = core.VSignal(self)
 
@@ -51,8 +52,8 @@ class EditArea(gui.VWidget):
         document_cursor_pos = self._buffer.documentCursor().pos()
         if self._hasModels():
             for i in range(0, h):
-                document_line = pos_at_top.row + i
-                if document_line < self._buffer.document().numLines():
+                document_line = pos_at_top[0] + i
+                if document_line <= self._buffer.document().numLines():
                     line = self._buffer.document().getLine(document_line)
                     painter.drawText( (0, i), line.replace('\n', ' '))
                     char_meta = self._buffer.document().charMeta(document_line)
@@ -63,25 +64,30 @@ class EditArea(gui.VWidget):
         self._setVisualCursorPos( (document_cursor_pos[1]-pos_at_top[1], document_cursor_pos[0]-pos_at_top[0] ))
         #gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
-    def _setVisualCursorPos(self, pos):
-        pos_x = utils.clamp(pos[0], 0, self.width()-1)
-        pos_y = utils.clamp(pos[1], 0, self.height()-1)
+    def _setVisualCursorPos(self, cursor_pos):
+        pos_x = utils.clamp(cursor_pos[0], 0, self.width()-1)
+        pos_y = utils.clamp(cursor_pos[1], 0, self.height()-1)
         self._visual_cursor_pos = (pos_x, pos_y)
         gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
 
-    def scrollDownSlot(self):
+    def scrollDown(self):
         if not self._hasModels():
             return
         top_pos = self._buffer.viewModel().documentPosAtTop()
-        new_pos = DocumentPos(top_pos.row+1, top_pos.column)
+        if top_pos[0] + self.height() > self._buffer.document().numLines():
+            return
+        new_pos = (top_pos[0]+1, top_pos[1])
         self._buffer.viewModel().setDocumentPosAtTop(new_pos)
         self.update()
 
-    def scrollUpSlot(self):
+    def scrollUp(self):
         if not self._hasModels():
             return
         top_pos = self._buffer.viewModel().documentPosAtTop()
-        new_pos = DocumentPos(top_pos.row-1, top_pos.column)
+        if top_pos[0] == 1:
+            return
+
+        new_pos = (top_pos[0]-1, top_pos[1])
         self._buffer.viewModel().setDocumentPosAtTop(new_pos)
         self.update()
 
@@ -114,12 +120,19 @@ class EditArea(gui.VWidget):
         self.moveCursor(direction)
 
     def moveCursor(self, direction):
+        logging.error("Hello" + str(self._visual_cursor_pos))
         doc_cursor = self._buffer.documentCursor()
-        movement = { flags.UP: doc_cursor.toLinePrev,
-                     flags.DOWN: doc_cursor.toLineNext,
-                     flags.LEFT: doc_cursor.toCharPrev,
-                     flags.RIGHT: doc_cursor.toCharNext,
-                     flags.HOME: doc_cursor.toLineBeginning,
-                     flags.END: doc_cursor.toLineEnd,
-                     }[direction]
-        movement()
+        if direction == flags.UP:
+            if self._visual_cursor_pos[1] == 0:
+                self.scrollUp()
+            doc_cursor.toLinePrev()
+        elif direction == flags.DOWN:
+            if self._visual_cursor_pos[1] == self.height()-1:
+                self.scrollDown()
+            doc_cursor.toLineNext()
+        elif direction == flags.LEFT:
+            doc_cursor.toCharPrev()
+        elif direction == flags.RIGHT:
+            doc_cursor.toCharNext()
+#                     flags.HOME: doc_cursor.toLineBeginning,
+#                     flags.END: doc_cursor.toLineEnd,

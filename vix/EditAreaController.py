@@ -44,7 +44,7 @@ class EditAreaController(core.VObject):
         else:
             text = event.text()
             if len(text) != 0:
-                self._buffer.documentCursor().insert(event.text())
+                self._buffer.documentCursor().insertChar(event.text())
 
         event.accept()
 
