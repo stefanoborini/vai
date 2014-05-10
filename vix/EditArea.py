@@ -1,5 +1,5 @@
 import vixtk
-from vixtk import gui, core
+from vixtk import gui, core, utils
 from .EditAreaController import EditAreaController
 from .positions import CursorPos, DocumentPos
 from . import flags
@@ -59,8 +59,15 @@ class EditArea(gui.VWidget):
                     colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])]
                     painter.setColors( (0,i), colors)
 
-        gui.VCursor.setPos( self.mapToGlobal((document_cursor_pos[1] - pos_at_top.column, document_cursor_pos[0]-pos_at_top.row)))
+        document_cursor_pos = self._buffer.documentCursor().pos()
+        self._setVisualCursorPos( (document_cursor_pos[1]-pos_at_top[1], document_cursor_pos[0]-pos_at_top[0] ))
         #gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
+
+    def _setVisualCursorPos(self, pos):
+        pos_x = utils.clamp(pos[0], 0, self.width()-1)
+        pos_y = utils.clamp(pos[1], 0, self.height()-1)
+        self._visual_cursor_pos = (pos_x, pos_y)
+        gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
 
     def scrollDownSlot(self):
         if not self._hasModels():

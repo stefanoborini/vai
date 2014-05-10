@@ -105,7 +105,7 @@ class TextDocument(core.VObject):
     def lineLength(self, line_number):
         return len(self.getLine(line_number))
 
-    def createLineAfter(self, line_number):
+    def newLineAfter(self, line_number):
         self._checkLineNumber(line_number)
         # Add an EOL if not already there
         if not self._contents[line_number-1][LINE_INDEX].endswith(EOL):
@@ -114,7 +114,7 @@ class TextDocument(core.VObject):
         self._contents.insert(line_number, [{}, {}, EOL])
         self._setModified(True)
 
-    def createLine(self, line_number):
+    def newLine(self, line_number):
         self._contents.insert(line_number-1, [{}, {}, EOL])
         self._setModified(True)
 
@@ -124,53 +124,53 @@ class TextDocument(core.VObject):
         self._contents.insert(line_number-1, [{}, {}, text])
         self._setModified(True)
 
-    def insertAt(self, document_pos, string):
-        text = self._contents[document_pos.row-1][LINE_INDEX]
-        self._contents[document_pos.row-1][LINE_INDEX] = text[:document_pos.column-1] + \
+    def insert(self, document_pos, string):
+        text = self._contents[document_pos[0]-1][LINE_INDEX]
+        self._contents[document_pos[0]-1][LINE_INDEX] = text[:document_pos[1]-1] + \
                                                          string + \
-                                                         text[document_pos.column-1:]
+                                                         text[document_pos[1]-1:]
 
-        char_meta = self._contents[document_pos.row-1][CHAR_META_INDEX]
+        char_meta = self._contents[document_pos[0]-1][CHAR_META_INDEX]
         for key, values in char_meta.items():
-            char_meta[key] = values[:document_pos.column-1] + \
+            char_meta[key] = values[:document_pos[1]-1] + \
                              [None] * len(string) + \
-                             values[document_pos.column-1:]
+                             values[document_pos[1]-1:]
 
         self.lineChanged.emit(document_pos, string, None)
         self.contentChanged.emit()
         self._setModified(True)
 
-    def deleteAt(self, document_pos, length):
-        removed = self._contents[document_pos.row-1][LINE_INDEX][document_pos.column-1:document_pos.column+length-1]
+    def delete(self, document_pos, length):
+        removed = self._contents[document_pos[0]-1][LINE_INDEX][document_pos[1]-1:document_pos[1]+length-1]
 
-        text = self._contents[document_pos.row-1][LINE_INDEX]
-        self._contents[document_pos.row-1][LINE_INDEX] = text[:document_pos.column-1] + text[document_pos.column+length-1:]
+        text = self._contents[document_pos[0]-1][LINE_INDEX]
+        self._contents[document_pos[0]-1][LINE_INDEX] = text[:document_pos[1]-1] + text[document_pos[1]+length-1:]
 
-        char_meta = self._contents[document_pos.row-1][CHAR_META_INDEX]
+        char_meta = self._contents[document_pos[0]-1][CHAR_META_INDEX]
         for key, values in char_meta.items():
-           char_meta[key] = values[:document_pos.column-1] + values[document_pos.column+length-1:]
+           char_meta[key] = values[:document_pos[1]-1] + values[document_pos[1]+length-1:]
 
         self.lineChanged.emit(document_pos, None, removed)
         self.contentChanged.emit()
         self._setModified(True)
 
-#    def replaceAt(self, line_number, column, length, replace):
+#    def replace(self, line_number, column, length, replace):
 #        removed = self._contents[line_number-1][column-1:column+length-1]
 #        self._contents[line_number-1] = self._contents[line_number-1][:column-1] + replace + self._contents[line_number-1][column+length-1:]
 #        self.lineChanged.emit(line_number, column, replace, removed)
 #        self._setModified(True)
 
-    def breakAt(self, document_pos):
-        self._contents.insert(document_pos.row, [dict(self._contents[document_pos.row-1][LINE_META_INDEX]),
-                                                 self._contents[document_pos.row-1][CHAR_META_INDEX][document_pos.column-1:],
-                                                 self._contents[document_pos.row-1][LINE_INDEX][document_pos.column-1:]
+    def breakLine(self, document_pos):
+        self._contents.insert(document_pos[0], [dict(self._contents[document_pos[0]-1][LINE_META_INDEX]),
+                                                 self._contents[document_pos[0]-1][CHAR_META_INDEX][document_pos[1]-1:],
+                                                 self._contents[document_pos[0]-1][LINE_INDEX][document_pos[1]-1:]
                                                 ])
 
-        char_meta = self._contents[document_pos.row-1][CHAR_META_INDEX]
+        char_meta = self._contents[document_pos[0]-1][CHAR_META_INDEX]
         for key, values in char_meta.items():
-           char_meta[key] = values[:document_pos.column-1] + [None]
+           char_meta[key] = values[:document_pos[1]-1] + [None]
 
-        self._contents[document_pos.row-1][LINE_INDEX] = self._contents[document_pos.row-1][LINE_INDEX][:document_pos.column-1]+'\n'
+        self._contents[document_pos[0]-1][LINE_INDEX] = self._contents[document_pos[0]-1][LINE_INDEX][:document_pos[1]-1]+'\n'
 
         self.lineChanged.emit(document_pos, None, None)
         self.contentChanged.emit()

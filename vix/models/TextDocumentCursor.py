@@ -92,13 +92,38 @@ class TextDocumentCursor(core.VObject):
     def setCharMeta(self, line_number, key, values): pass
     def charMeta(self): pass
 
-    def newLineAfter(self): pass
-    def newLine(self): pass
-    def insertLine(self, string): pass
-    def deleteLine(self): pass
-    def insert(self, string): pass
-    def delete(self, length): pass
+    def newLineAfter(self):
+        self._text_document.createLineAfter(self._pos[0])
+
+    def newLine(self):
+        self._text_document.createLine(self._pos[0])
+
+    def deleteLine(self):
+        current_line = self._pos[0]
+        if current_line == self._text_document.numLines():
+            self.toLinePrev()
+        self._text_document.deleteLine(current_line)
+
+    def insertChar(self, char):
+        self._text_document.insert(self._pos, char)
+        self.toCharNext()
+
+    def delete(self):
+        if self.toCharPrev():
+            self._text_document.delete(self._pos, 1)
+
+    def deleteAfter(self):
+        current_column = self._pos[1]
+        if current_column == self._text_document.lineLength(self._pos[0]):
+            if self.toCharPrev():
+                self._text_document.delete( (self._pos[0], current_column), 1)
+        else:
+            self._text_document.delete( (self._pos[0], current_column), 1)
+
     def replace(self, length, replace): pass
-    def breakLine(self): pass
+
+    def breakLine(self):
+        self._text_document.breakLine(self._pos)
+
     def joinWithPrevLine(self): pass
     def joinWithNextLine(self): pass
