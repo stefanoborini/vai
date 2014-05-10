@@ -27,7 +27,6 @@ class Editor(gui.VWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self._editor_model = EditorModel()
-        self._linter = Linter.PyFlakesLinter()
         self._lexer = Lexer()
 
         self._createStatusBar()
@@ -102,16 +101,16 @@ class Editor(gui.VWidget):
                 gui.VApplication.vApp.exit()
         elif command_text == "w":
             self.doSave()
+            self.doLint()
         elif command_text == "wq":
             self.doSave()
             gui.VApplication.vApp.exit()
-        elif command_text == "l":
-            self.doLint()
         elif command_text.startswith("e "):
             buffer = Buffer(TextDocument(command_text[2:]),
                                         ViewModel()
                                         )
             self._buffers.addAndSelect(buffer)
+            self.doLint()
         elif command_text.startswith("bp"):
             self._buffers.selectPrev()
         elif command_text.startswith("bn"):
@@ -129,25 +128,41 @@ class Editor(gui.VWidget):
         self._edit_area.setFocus()
 
     def doLint(self):
-        pass
-            #tmpfile = tempfile.NamedTemporaryFile(delete=False)
-            #self.currentBuffer().documentModel().saveAs(tmpfile.name)
-#
-#            info = self._linter.lint(filename=self._current_document.filename(), original_filename=self._current_document.filename(), code=self._current_document.text())
-#            for i in info:
-#                if i.level == Linter.LinterResult.Level.ERROR:
-#                    self._side_ruler.addBadge(i.line,LineBadge(mark="E", description=i.message, bg_color=gui.VGlobalColor.red))
-#                elif i.level == Linter.LinterResult.Level.WARNING:
-#                    self._side_ruler.addBadge(i.line,LineBadge(mark="W", description=i.message,bg_color=gui.VGlobalColor.brown))
-#                else:
-#                    self._side_ruler.addBadge(i.line,LineBadge(mark="*", description=i.message,bg_color=gui.VGlobalColor.cyan))
+        document = self.buffers().current().document()
+
+        linter1 = Linter.PyFlakesLinter()
+        linter2 = Linter.PyLintLinter()
+        info = linter1.lint(document) + linter2.lint(document)
+
+        for i in info:
+            if i.level == Linter.LinterResult.Level.ERROR:
+                self._side_ruler.addBadge(i.line,LineBadge(marker="E",
+                                                           description=i.message,
+                                                           fg_color=gui.VGlobalColor.yellow,
+                                                           bg_color=gui.VGlobalColor.red)
+                                        )
+            elif i.level == Linter.LinterResult.Level.WARNING:
+                self._side_ruler.addBadge(i.line,LineBadge(marker="W",
+                                                           description=i.message,
+                                                           fg_color=gui.VGlobalColor.yellow,
+                                                           bg_color=gui.VGlobalColor.brown)
+                                        )
+            else:
+                self._side_ruler.addBadge(i.line,LineBadge(marker="*",
+                                                           description=i.message,
+                                                           fg_color=gui.VGlobalColor.yellow,
+                                                           bg_color=gui.VGlobalColor.cyan)
+                                        )
+
+    def buffers(self):
+        return self._buffers
 
     def doSave(self):
         logging.info("Saving file")
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
-        self._buffers.currentBuffer().document().save()
-        self._status_bar.setMessage("Saved %s" % self._buffers.currentBuffer().document().filename(), 3000)
+        self._buffers.current().document().save()
+        self._status_bar.setMessage("Saved %s" % self._buffers.current().document().filename(), 3000)
 
     def doBackup(self):
         logging.info("Saving backup file")
@@ -183,6 +198,8 @@ class Editor(gui.VWidget):
             self._buffers.replaceAndSelect(current_buffer, new_buffer)
         else:
             self._buffers.addAndSelect(new_buffer)
+
+        self.doLint()
 
     def _bufferChanged(self, buffer):
         self._status_bar_controller.setModels(buffer.document(), buffer.viewModel())

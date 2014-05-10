@@ -45,6 +45,7 @@ class EditArea(gui.VWidget):
         return self._buffer and self._editor_model
 
     def paintEvent(self, event):
+        self.logger.info("XXX paintEvent")
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.erase()

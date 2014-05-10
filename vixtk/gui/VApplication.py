@@ -50,6 +50,7 @@ class KeyEventThread(threading.Thread):
         pass
 
 class VApplication(core.VCoreApplication):
+    debug = logging.INFO
     def __init__(self, argv, screen=None):
         from . import VWidget
         super().__init__(argv)
@@ -144,6 +145,7 @@ class VApplication(core.VCoreApplication):
                     return
 
     def _processRemainingEvents(self):
+        previous_data = None
         while True:
             try:
                 receiver, event = self._event_queue.get_nowait()
@@ -152,9 +154,16 @@ class VApplication(core.VCoreApplication):
 
             if event is None:
                 break
+
+            if previous_data is not None:
+                prev_receiver, prev_event = previous_data
+                if event.eventType() == prev_event.eventType() and receiver == prev_receiver:
+                   continue
+
             self.logger.info("Data queue %d. Processing %s -> %s." % (self._event_queue.qsize(), str(event), str(receiver)))
 
             receiver.event(event)
+            previous_data = (receiver, event)
 
             #self._stop_flag.append(1)
         # Check if screen was re-sized (True or False)
