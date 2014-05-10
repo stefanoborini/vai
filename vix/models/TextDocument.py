@@ -1,6 +1,7 @@
 import time
 from vixtk import gui, core, utils
 import contextlib
+from .TextDocumentCursor import TextDocumentCursor
 
 EOL='\n'
 LINE_META_INDEX = 0
@@ -48,6 +49,8 @@ class TextDocument(core.VObject):
         self.charMetaInfoChanged = core.VSignal(self)
         self.transactionFinished = core.VSignal(self)
 
+    def createCursor(self):
+        return TextDocumentCursor(self)
 
     def enableSignals(self, enabled):
         for signal in [ self.lineChanged,
