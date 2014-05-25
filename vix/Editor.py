@@ -71,7 +71,6 @@ class Editor(gui.VWidget):
         self._edit_area.resize((self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
 
-        self._edit_area.cursorPositionChanged.connect(self.updateDocumentCursorInfo)
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar)
         self._edit_area_event_filter.setModel(self._editor_model)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
@@ -176,15 +175,16 @@ class Editor(gui.VWidget):
         super().show()
         self._edit_area.setFocus()
 
-    def updateDocumentCursorInfo(self, document_pos):
-        self._status_bar.setPosition(document_pos)
-        badge = self._side_ruler.badge(document_pos.row)
+    def showInfoHoverBoxIfNeeded(self, document_pos):
+        badge = self._side_ruler.badge(document_pos[0])
         if badge is not None:
-            self._info_hover_box.setText(badge.description)
-            self._info_hover_box.move((0, gui.VCursor.pos()[consts.Index.Y]+1))
-            self._info_hover_box.show()
+            self._status_bar.setMessage(badge.description, 3000)
+            #self._info_hover_box.resize((1,len(badge.description)))
+            #self._info_hover_box.move((0, self._edit_area.visualCursorPos()[1]+1))
+            #self._info_hover_box.show()
         else:
-            self._info_hover_box.hide()
+            self._status_bar.setMessage(None)
+            #self._info_hover_box.hide()
 
     def openFile(self, filename):
         current_buffer = self._buffers.current()
@@ -201,9 +201,12 @@ class Editor(gui.VWidget):
 
         self.doLint()
 
-    def _bufferChanged(self, buffer):
-        self._status_bar_controller.setModels(buffer.document(), buffer.viewModel())
-        self._side_ruler_controller.setModel(buffer.document(),buffer.viewModel())
-        self._edit_area.setModels(buffer, self._editor_model)
-        self._lexer.setModel(buffer.document())
+    def _bufferChanged(self, old_buffer, new_buffer):
+        self._status_bar_controller.setModels(new_buffer.document(), new_buffer.documentCursor(), new_buffer.viewModel())
+        self._side_ruler_controller.setModel(new_buffer.document(),new_buffer.viewModel())
+        self._edit_area.setModels(new_buffer, self._editor_model)
+        if old_buffer:
+            old_buffer.documentCursor().positionChanged.disconnect(self.showInfoHoverBoxIfNeeded)
+        new_buffer.documentCursor().positionChanged.connect(self.showInfoHoverBoxIfNeeded)
+        self._lexer.setModel(new_buffer.document())
 

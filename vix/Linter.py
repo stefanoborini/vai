@@ -86,7 +86,7 @@ class PyLintLinter:
                                     level=info[1],
                                     line=int(info[2]),
                                     column=int(info[3]),
-                                    message=info[6]
+                                    message=info[6].strip()
                                    )
                 result.append(info)
         return result

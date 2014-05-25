@@ -19,8 +19,9 @@ class BufferList(core.VObject):
             raise Exception("Buffer not in BufferList")
 
         if buffer != self._current_buffer:
+            old_buffer = self._current_buffer
             self._current_buffer = buffer
-            self.currentBufferChanged.emit(buffer)
+            self.currentBufferChanged.emit(old_buffer, self._current_buffer)
 
         return self._current_buffer
 

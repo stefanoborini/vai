@@ -13,11 +13,14 @@ class _TimerThread(threading.Thread):
         self._single_shot = single_shot
         self._callback = callback
         self.stop = threading.Event()
+
     def run(self):
         while True:
             time.sleep(self._timeout/1000.0)
+            if self.stop.is_set():
+                break
             self._callback()
-            if self._single_shot or self.stop.is_set():
+            if self._single_shot:
                 break
 
 class VTimer(VObject):
@@ -50,6 +53,9 @@ class VTimer(VObject):
         if self._thread:
             self._thread.stop.set()
         self._thread = None
+
+    def isRunning(self):
+        return self._thread is not None
 
     def timerEvent(self, event):
         if isinstance(event, events.VTimerEvent):

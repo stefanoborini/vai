@@ -34,6 +34,9 @@ class EditAreaController(core.VObject):
         elif self._editor_model.mode() == flags.DELETE_MODE:
             self._handleEventDeleteMode(event)
 
+        elif self._editor_model.mode() == flags.GO_MODE:
+            self._handleEventGoMode(event)
+
     def _handleEventInsertMode(self, event):
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
@@ -69,6 +72,10 @@ class EditAreaController(core.VObject):
 
         elif event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
             self._buffer.documentCursor().deleteCharAfter()
+            event.accept()
+
+        elif event.key() == vixtk.Key.Key_G and event.modifiers() == 0:
+            self._editor_model.setMode(flags.GO_MODE)
             event.accept()
 
         elif event.key() == vixtk.Key.Key_O:
@@ -109,6 +116,12 @@ class EditAreaController(core.VObject):
             self._editor_model.setMode(flags.DELETE_MODE)
             event.accept()
 
+        elif event.key() == vixtk.Key.Key_G and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            self._buffer.documentCursor().toLastLine()
+            self._buffer.viewModel().setDocumentPosAtTop((self._buffer.documentCursor().pos()[0]-self._edit_area.height()+1,1))
+            self._editor_model.setMode(flags.COMMAND_MODE)
+            event.accept()
+
     def _handleEventDeleteMode(self, event):
         """
         if event.key() == vixtk.Key.Key_Escape:
@@ -122,6 +135,17 @@ class EditAreaController(core.VObject):
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
         """
+
+    def _handleEventGoMode(self, event):
+        if event.key() == vixtk.Key.Key_Escape:
+            self._editor_model.setMode(flags.COMMAND_MODE)
+            event.accept()
+        elif event.key() == vixtk.Key.Key_G:
+            self._buffer.viewModel().setDocumentPosAtTop((1,1))
+            self._buffer.documentCursor().toFirstLine()
+            self._editor_model.setMode(flags.COMMAND_MODE)
+            event.accept()
+
     def setModels(self, buffer, editor_model):
         self._buffer = buffer
         self._editor_model = editor_model
