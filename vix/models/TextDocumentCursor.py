@@ -7,18 +7,22 @@ class TextDocumentCursor(core.VObject):
         self._pos = (1,1)
         self._optimistic_column = 1
 
+        self.positionChanged = core.VSignal(self)
+
     def currentLine(self):
         return self._text_document.getLine(self._pos[0])
 
     def pos(self):
         return self._pos
 
-    def moveTo(self, line, column):
+    def moveTo(self, pos):
+        line, column = pos
         if line < 1 or line > self._text_document.numLines() or column < 1:
             return False
 
         self._pos = (line, min(self._text_document.lineLength(line), column))
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def toLineNext(self):
@@ -32,6 +36,7 @@ class TextDocumentCursor(core.VObject):
                                            )
                                         )
                     )
+        self.positionChanged.emit(self._pos)
         return True
 
     def toLinePrev(self):
@@ -46,6 +51,7 @@ class TextDocumentCursor(core.VObject):
                                            )
                                         )
                     )
+        self.positionChanged.emit(self._pos)
         return True
 
     def toCharNext(self):
@@ -54,6 +60,7 @@ class TextDocumentCursor(core.VObject):
 
         self._pos = (self._pos[0], self._pos[1]+1)
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def toCharPrev(self):
@@ -62,26 +69,31 @@ class TextDocumentCursor(core.VObject):
 
         self._pos = (self._pos[0], self._pos[1]-1)
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def toLineBeginning(self):
         self._pos = (self._pos[0], 1)
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def toLineEnd(self):
         self._pos = (self._pos[0], self._text_document.lineLength(self._pos[0]))
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def toFirstLine(self):
         self._pos = (1,1)
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def toLastLine(self):
         self._pos = (self._text_document.numLines(), 1)
         self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
         return True
 
     def lineLength(self):

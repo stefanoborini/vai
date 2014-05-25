@@ -1,17 +1,24 @@
 class StatusBarController(object):
     def __init__(self, status_bar):
         self._status_bar = status_bar
-        self._document_model = None
+        self._document = None
+        self._document_cursor = None
         self._view_model = None
 
-    def setModels(self, document_model, view_model):
-        if self._document_model:
-            self._document_model.modifiedChanged.disconnect(self._status_bar.setFileChangedFlag)
-            self._document_model.filenameChanged.disconnect(self._status_bar.setFilename)
+    def setModels(self, document, document_cursor, view_model):
+        if self._document:
+            self._document.modifiedChanged.disconnect(self._status_bar.setFileChangedFlag)
+            self._document.filenameChanged.disconnect(self._status_bar.setFilename)
 
-        self._document_model = document_model
-        self._document_model.modifiedChanged.connect(self._status_bar.setFileChangedFlag)
-        self._document_model.filenameChanged.connect(self._status_bar.setFilename)
+        if self._document_cursor:
+            self._document_cursor.positionChanged.disconnect(self._status_bar.setPosition)
 
-        self._status_bar.setFilename(self._document_model.filename())
-        self._status_bar.setFileChangedFlag(self._document_model.isModified())
+        self._document = document
+        self._document.modifiedChanged.connect(self._status_bar.setFileChangedFlag)
+        self._document.filenameChanged.connect(self._status_bar.setFilename)
+
+        self._document_cursor = document_cursor
+        self._document_cursor.positionChanged.connect(self._status_bar.setPosition)
+
+        self._status_bar.setFilename(self._document.filename())
+        self._status_bar.setFileChangedFlag(self._document.isModified())
