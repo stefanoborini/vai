@@ -165,26 +165,67 @@ class TextDocument(core.VObject):
 #        self._setModified(True)
 
     def breakLine(self, document_pos):
-        self._contents.insert(document_pos[0], [dict(self._contents[document_pos[0]-1][LINE_META_INDEX]),
-                                                 self._contents[document_pos[0]-1][CHAR_META_INDEX][document_pos[1]-1:],
-                                                 self._contents[document_pos[0]-1][LINE_INDEX][document_pos[1]-1:]
+        current_line_contents = self._contents[document_pos[0]-1]
+
+        char_meta = current_line_contents[CHAR_META_INDEX]
+        newline_char_meta = {}
+        oldline_char_meta = {}
+        for key, values in char_meta.items():
+           oldline_char_meta[key] = values[:document_pos[1]-1] + [None]
+           newline_char_meta[key] = values[document_pos[1]-1:]
+
+        self._contents.insert(document_pos[0], [dict(current_line_contents[LINE_META_INDEX]),
+                                                 newline_char_meta,
+                                                 current_line_contents[LINE_INDEX][document_pos[1]-1:]
                                                 ])
 
-        char_meta = self._contents[document_pos[0]-1][CHAR_META_INDEX]
-        for key, values in char_meta.items():
-           char_meta[key] = values[:document_pos[1]-1] + [None]
-
-        self._contents[document_pos[0]-1][LINE_INDEX] = self._contents[document_pos[0]-1][LINE_INDEX][:document_pos[1]-1]+'\n'
+        self._contents[document_pos[0]-1] = [ dict(current_line_contents[LINE_META_INDEX]),
+                                                oldline_char_meta,
+                                                current_line_contents[LINE_INDEX][:document_pos[1]-1]+'\n'
+                                            ]
 
         self.lineChanged.emit(document_pos, None, None)
         self.contentChanged.emit()
         self._setModified(True)
 
-#    def joinAt(self, line_number):
-#        self._contents[line_number-1] = self._contents[line_number-1][:-1] + self._contents[line_number]
-#        self._contents.pop(line_number)
-#        self.lineChanged.emit(line_number, 0, None, None)
-#        self._setModified(True)
+    def joinWithNextLine(self, line_number):
+        if not self.hasLine(line_number+1):
+            return
+
+        if len(self._contents[line_number][LINE_INDEX].strip()) == 0:
+            self._contents.pop(line_number)
+            self.contentChanged.emit()
+            self._setModified(True)
+            return
+
+        current_line_contents = self._contents[line_number-1]
+        next_line_contents = self._contents[line_number]
+        current_line_char_meta = current_line_contents[CHAR_META_INDEX]
+        next_line_char_meta = next_line_contents[CHAR_META_INDEX]
+
+        new_char_meta = {}
+        all_keys = set(list(current_line_char_meta.keys()) + list(next_line_char_meta.keys()))
+        for key in all_keys:
+            current_line_values = current_line_char_meta.get(key)
+            next_line_values = next_line_char_meta.get(key)
+            if current_line_values is None:
+                current_line_values = [None] * len(current_line_contents[LINE_INDEX])
+            if next_line_values is None:
+                next_line_values = [None] * len(next_line_contents[LINE_INDEX].strip())
+
+            new_char_meta[key] = current_line_values + next_line_values
+
+        new_line_meta = next_line_contents[LINE_META_INDEX]
+        new_char_meta.update(current_line_contents[LINE_META_INDEX])
+
+        self._contents[line_number-1] = [
+                                          new_line_meta,
+                                          new_char_meta,
+                                          current_line_contents[LINE_INDEX][:-1]+" "+next_line_contents[LINE_INDEX].lstrip()
+                                        ]
+        self._contents.pop(line_number)
+        self.contentChanged.emit()
+        self._setModified(True)
 
     def deleteLine(self, line_number):
         self._contents.pop(line_number-1)

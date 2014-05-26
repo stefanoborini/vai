@@ -122,6 +122,10 @@ class EditAreaController(core.VObject):
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
 
+        elif event.key() == vixtk.Key.Key_J and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            self._buffer.documentCursor().joinWithNextLine()
+            event.accept()
+
     def _handleEventDeleteMode(self, event):
         """
         if event.key() == vixtk.Key.Key_Escape:
