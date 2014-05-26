@@ -140,6 +140,10 @@ class TextDocumentCursor(core.VObject):
 
     def breakLine(self):
         self._text_document.breakLine(self._pos)
+        self._pos = (self._pos[0]+1, 1)
+        self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
 
-    def joinWithPrevLine(self): pass
-    def joinWithNextLine(self): pass
+    def joinWithNextLine(self):
+        self._text_document.joinWithNextLine(self._pos[0])
+

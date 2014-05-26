@@ -1,6 +1,7 @@
 import pygments
 import pygments.lexers
 import logging
+
 class Lexer:
     def __init__(self):
         self._document_model = None
