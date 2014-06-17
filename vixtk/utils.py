@@ -1,3 +1,4 @@
+
 def strformat(strings_at, length):
     res = ""
     for pos, string in sorted(strings_at,key=lambda x: x[0]):
