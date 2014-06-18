@@ -5,7 +5,8 @@ from .VSize import VSize
 from .VCoreApplication import VCoreApplication
 from .VTimer import VTimer
 from .VSignal import VSignal
-from .events import VTimerEvent
+from .VEvent import VEvent
+from .VTimerEvent import VTimerEvent
 from ..consts import Index
 
 def intersects(t1, t2):
