@@ -1,4 +1,10 @@
+import itertools
+
 class VTextScreen(object):
+    """
+    Dummy Screen that renders information in an indexed buffer, instead of the actual terminal
+    screen.
+    """
     def __init__(self, size):
         self._cursor_pos = (0,0)
         self._size = size
@@ -28,7 +34,6 @@ class VTextScreen(object):
 
     def refresh(self):
         self._log.append("Refresh")
-        print(self)
 
     def size(self):
         return self._size
@@ -61,6 +66,7 @@ class VTextScreen(object):
                 self._render_output[pos.y()][pos.x()+pos_x] = string[pos_x]
             except:
                 pass
+
     def dump(self):
         ret = []
         ret.append(" "+"".join(list(itertools.islice(itertools.cycle(list(map(str, list(range(10))))), self._size[0]+1))))
