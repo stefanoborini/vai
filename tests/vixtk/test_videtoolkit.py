@@ -1,19 +1,19 @@
 import unittest
-import videtoolkit
+import vixtk
 
 class TestVideToolkit(unittest.TestCase):
-
     def testNativeToVideKeyCode(self):
-        self.assertEqual(videtoolkit.nativeToVideKeyCode(ord('a')), videtoolkit.Key.Key_A)
-        self.assertEqual(videtoolkit.nativeToVideKeyCode(ord('A')), videtoolkit.Key.Key_A | videtoolkit.KeyModifier.ShiftModifier)
+        self.assertEqual(vixtk.nativeToVideKeyCode(ord('a')), vixtk.Key.Key_A)
+        self.assertEqual(vixtk.nativeToVideKeyCode(ord('A')), vixtk.Key.Key_A | vixtk.KeyModifier.ShiftModifier)
 
     def testIsKeyCodePrintable(self):
-        self.assertTrue(videtoolkit.isKeyCodePrintable(videtoolkit.Key.Key_A))
-        self.assertTrue(videtoolkit.isKeyCodePrintable(videtoolkit.Key.Key_A|videtoolkit.KeyModifier.ShiftModifier))
-        self.assertFalse(videtoolkit.isKeyCodePrintable(videtoolkit.Key.Key_Escape))
+        self.assertTrue(vixtk.isKeyCodePrintable(vixtk.Key.Key_A))
+        self.assertTrue(vixtk.isKeyCodePrintable(vixtk.Key.Key_A|vixtk.KeyModifier.ShiftModifier))
+        self.assertFalse(vixtk.isKeyCodePrintable(vixtk.Key.Key_Escape))
 
     def testVideKeyCodeToText(self):
-        self.assertEqual(videtoolkit.videKeyCodeToText(videtoolkit.Key.Key_A), 'a')
-        self.assertEqual(videtoolkit.videKeyCodeToText(videtoolkit.Key.Key_Escape), '')
+        self.assertEqual(vixtk.videKeyCodeToText(vixtk.Key.Key_A), 'a')
+        self.assertEqual(vixtk.videKeyCodeToText(vixtk.Key.Key_Escape), '')
+
 if __name__ == '__main__':
     unittest.main()
