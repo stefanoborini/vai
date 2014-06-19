@@ -1,11 +1,10 @@
 import unittest
-from videtoolkit import gui
-from vide import editor
+from vixtk import gui, test
+from vix import Editor
 
 class TestEditor(unittest.TestCase):
-
     def setUp(self):
-        self.screen = gui.DummyVScreen()
+        self.screen = test.VTextScreen((30,30))
         self.app = gui.VApplication([], screen=self.screen)
 
     def tearDown(self):
@@ -14,8 +13,7 @@ class TestEditor(unittest.TestCase):
         del self.app
 
     def testEditor(self):
-
-        ed = editor.Editor(editor.EditorModel(), None)
+        ed = Editor.Editor(None)
         self.app.processEvents()
         self.screen.dump()
 
