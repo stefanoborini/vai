@@ -4,6 +4,8 @@
 Vix is an editor that wants to be more than that. Most important of all, 
 it wants to be a better vim.
 
+![Screenshot](http://i.imgur.com/Cpt8LSX.png)
+
 We love vim, but we want more. We want a terminal-based IDE that looks like vim,
 handles like vim, but has all those nice features of Eclipse and Sublime, is
 integrated with git, and is fully coded in python. 
