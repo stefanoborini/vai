@@ -1,5 +1,5 @@
 # Vix
-https://travis-ci.org/stefanoborini/vix.svg?branch=master
+![build status](https://travis-ci.org/stefanoborini/vix.svg?branch=master)
 
 Vix is an editor that wants to be more than that. Most important of all, 
 it wants to be a better vim.
