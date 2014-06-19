@@ -1,5 +1,5 @@
 import unittest
-from videtoolkit import core
+from vixtk import core
 
 class TestVObject(unittest.TestCase):
     def testInstantiation(self):

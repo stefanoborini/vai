@@ -1,5 +1,5 @@
 import unittest
-from videtoolkit import gui
+from vixtk import gui
 
 class TestVApplication(unittest.TestCase):
     def testInit(self):

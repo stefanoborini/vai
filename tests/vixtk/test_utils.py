@@ -1,5 +1,5 @@
 import unittest
-from videtoolkit import utils
+from vixtk import utils
 
 class TestUtils(unittest.TestCase):
 
