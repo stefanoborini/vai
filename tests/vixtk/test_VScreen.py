@@ -1,12 +1,12 @@
 import unittest
-from videtoolkit import gui, core
+from vixtk import gui, core, test
 
-from videtoolkit.gui.VScreen import DummyVScreen
-from videtoolkit.gui.VScreen import VScreenArea
+from vixtk.gui.VScreen import VScreenArea
 
 class TestVScreenArea(unittest.TestCase):
+    @unittest.skip
     def testWrite(self):
-        screen = DummyVScreen((30, 30))
+        screen = test.VTextScreen((30, 30))
         area = VScreenArea(screen, (5, 7, 10, 3))
 
         area.write((0,0),"0123456789012345")
@@ -20,8 +20,9 @@ class TestVScreenArea(unittest.TestCase):
         self.assertEqual(screen.stringAt(4,9,12), '.2345678901.')
         self.assertEqual(screen.stringAt(4,10,12),'............')
 
+    @unittest.skip
     def testClear(self):
-        screen = DummyVScreen((30, 30))
+        screen = test.VTextScreen((30, 30))
         area = VScreenArea(screen, (5, 7, 10, 3))
 
         area.erase()
