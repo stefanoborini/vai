@@ -1,3 +1,6 @@
+from vixtk import core
+import unittest
+
 class TestVSignal(unittest.TestCase):
     def testVSignal(self):
         arg = []
