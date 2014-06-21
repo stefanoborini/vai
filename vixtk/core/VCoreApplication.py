@@ -18,7 +18,7 @@ class VCoreApplication(VObject):
         if VCoreApplication.vApp is not None:
             raise Exception("Only one application is allowed")
 
-        VCoreApplication.vApp = weakref.proxy(self)
+        VCoreApplication.vApp = self
 
     def addTimer(self, timer):
         """
