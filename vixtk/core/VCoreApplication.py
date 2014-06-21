@@ -1,6 +1,7 @@
 import atexit
 from .VObject import VObject
 import logging
+import weakref
 
 class VCoreApplication(VObject):
     """
@@ -11,13 +12,13 @@ class VCoreApplication(VObject):
 
     def __init__(self, argv):
         self.logger.debug("__init__")
-        super(VCoreApplication, self).__init__()
+        super().__init__()
         self._timers = []
 
         if VCoreApplication.vApp is not None:
             raise Exception("Only one application is allowed")
 
-        VCoreApplication.vApp = self
+        VCoreApplication.vApp = weakref.proxy(self)
 
     def addTimer(self, timer):
         """
@@ -32,5 +33,4 @@ class VCoreApplication(VObject):
         Exits the application.
         """
         self.logger.debug("exit")
-        VCoreApplication.vApp = None
 

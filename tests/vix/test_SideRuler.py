@@ -1,8 +1,8 @@
 import unittest
-from vixtk import gui, test, core
-from vix import Editor
+from vixtk import test, gui, core
+from vix import SideRuler
 
-class TestEditor(unittest.TestCase):
+class SideRulerTest(unittest.TestCase):
     def setUp(self):
         self.screen = test.VTextScreen((30,30))
         self.app = gui.VApplication([], screen=self.screen)
@@ -13,10 +13,11 @@ class TestEditor(unittest.TestCase):
         core.VCoreApplication.vApp=None
         del self.app
 
-    def testEditor(self):
-        ed = Editor.Editor(None)
+    def testWhetever(self):
+        ruler = SideRuler.SideRuler(parent=None)
+        ruler.setGeometry((0,0,10,10))
         self.app.processEvents()
-        self.screen.dump()
+        print(str(self.screen))
 
 
 
