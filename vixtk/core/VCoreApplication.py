@@ -33,4 +33,4 @@ class VCoreApplication(VObject):
         Exits the application.
         """
         self.logger.debug("exit")
-
+        VCoreApplication.vApp = None
