@@ -183,11 +183,11 @@ class VApplication(core.VCoreApplication):
 
     def exit(self):
         self._exit_flag = True
-        super().exit()
 
     def _exitCleanup(self):
         self._key_event_thread.stop_event.set()
         self._screen.deinit()
+        super().exit()
 
     def addTopLevelWidget(self, widget):
         self._root_widget.addChild(widget)
