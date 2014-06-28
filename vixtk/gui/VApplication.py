@@ -186,7 +186,7 @@ class VApplication(core.VCoreApplication):
 
     def _exitCleanup(self):
         self._key_event_thread.stop_event.set()
-        self._screen.deinit()
+        self._screen.reset()
         super().exit()
 
     def addTopLevelWidget(self, widget):
@@ -235,3 +235,6 @@ class VApplication(core.VCoreApplication):
         except AttributeError:
             self._root_widget = None
             return self._root_widget
+
+    def resetScreen(self):
+        self._screen.reset()
