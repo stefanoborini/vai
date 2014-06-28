@@ -37,6 +37,7 @@ class TextDocument(core.VObject):
             self._filename = 'noname.txt'
 
         self._modified = False
+        self._last_modified = time.time()
         self._cursors = []
 
         self.lineChanged = core.VSignal(self)
@@ -64,6 +65,13 @@ class TextDocument(core.VObject):
                         self.contentChanged
                         ]:
             signal.setEnabled(enabled)
+
+    def lastModified(self):
+        """
+        Returns the epoch time in second of the last modification.
+        Changes in metainfo is not considered for modifications
+        """
+        return self._last_modified
 
     def isEmpty(self):
         return len(self._contents) == 1 \
@@ -262,6 +270,9 @@ class TextDocument(core.VObject):
         return "".join([x[LINE_INDEX] for x in self._contents])
 
     def _setModified(self, modified):
+        if modified:
+            self._last_modified = time.time()
+
         if self._modified != modified:
             self._modified = modified
             self.modifiedChanged.emit(self._modified)
