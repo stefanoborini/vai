@@ -11,8 +11,8 @@ from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
 from .LineBadge import LineBadge
 from .Lexer import Lexer
-from . import Linter
-from . import commands
+from .LinterResult import LinterResult
+from .PyFlakesLinter import PyFlakesLinter
 from . import flags
 from .models.ViewModel import ViewModel
 from .models.Buffer import Buffer
@@ -20,8 +20,6 @@ from .models.BufferList import BufferList
 from .models.TextDocument import TextDocument
 from .models.EditorModel import EditorModel
 import logging
-import time
-import tempfile
 
 class Editor(gui.VWidget):
     def __init__(self, parent=None):
@@ -129,18 +127,18 @@ class Editor(gui.VWidget):
     def doLint(self):
         document = self.buffers().current().document()
 
-        linter1 = Linter.PyFlakesLinter()
-        linter2 = Linter.PyLintLinter()
-        info = linter1.lint(document) + linter2.lint(document)
+        linter1 = PyFlakesLinter(document)
+        #linter2 = Linter.PyLintLinter()
+        info = linter1.runOnce() #+ linter2.lint(document)
 
         for i in info:
-            if i.level == Linter.LinterResult.Level.ERROR:
+            if i.level == LinterResult.Level.ERROR:
                 self._side_ruler.addBadge(i.line,LineBadge(marker="E",
                                                            description=i.message,
                                                            fg_color=gui.VGlobalColor.yellow,
                                                            bg_color=gui.VGlobalColor.red)
                                         )
-            elif i.level == Linter.LinterResult.Level.WARNING:
+            elif i.level == LinterResult.Level.WARNING:
                 self._side_ruler.addBadge(i.line,LineBadge(marker="W",
                                                            description=i.message,
                                                            fg_color=gui.VGlobalColor.yellow,
