@@ -35,7 +35,7 @@ class VScreen(object):
         else:
             self.logger.setLevel(logging.CRITICAL+1)
 
-    def deinit(self):
+    def reset(self):
         curses.nocbreak()
         self._curses_screen.keypad(0)
         curses.echo()
