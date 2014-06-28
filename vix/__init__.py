@@ -3,6 +3,7 @@ __version__ = "1.0"
 
 from vixtk import core, gui
 from . import Editor
+from . import BugReport
 import sys
 import io
 import argparse
@@ -12,6 +13,7 @@ def main():
     parser.add_argument("filename", nargs="?", help="The filename to open")
     parser.add_argument("--profile", help="Enable profiling at the end of the run.", action="store_true")
     parser.add_argument("--pdb", help="Enable debugging with pdb in case of crash.", action="store_true")
+    parser.add_argument("--noreport", help="Skip request for bug reporting.", action="store_true")
     parser.add_argument("--version", '-v', help="Print the version number.", action="version",
                                            version='vix {0}'.format(__version__))
     args = parser.parse_args()
@@ -49,6 +51,10 @@ def main():
         if args.pdb:
             import pdb
             pdb.post_mortem()
+
+        app.resetScreen()
+        if not args.noreport:
+            BugReport.report()
 
     return 0
 
