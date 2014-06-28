@@ -119,20 +119,20 @@ class VScreen(object):
         out_colors = colors
 
         if y < 0 or y >= h or x >= w:
-            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             return
 
         out_colors = out_colors[:w-x]
 
         if x < 0:
-            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             out_colors = colors[-x:]
 
         if len(out_colors) == 0:
             return
 
         if (x+len(out_colors) > w):
-            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             out_colors = out_colors[:w-x]
 
         for num, colors in enumerate(out_colors):
@@ -306,12 +306,12 @@ class VScreenArea(object):
         w, h = self.size()
 
         if rel_y < 0 or rel_y >= h or rel_x >= w:
-            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             return
 
         out_colors = colors
         if rel_x < 0:
-            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             out_colors = colors[-rel_x:]
             rel_x = 0
 
@@ -319,7 +319,7 @@ class VScreenArea(object):
             return
 
         if (rel_x+len(out_colors) > w):
-            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d '%s'" % (str(pos), str(self.size()), len(colors)))
+            self.logger.error("Out of bound in VScreenArea.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             out_colors = out_colors[:w-rel_x]
 
         top_left_x, top_left_y = self.topLeft()
