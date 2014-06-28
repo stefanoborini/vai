@@ -4,55 +4,13 @@ import io
 import logging
 import subprocess
 import os
-import pyflakes.api
 
-class LinterResult:
-    class Level:
-        INFO = 0
-        WARNING = 1
-        ERROR = 2
-    def __init__(self, filename, level, line, column, message):
-        self.filename = filename
-        self.level = level
-        self.line = line
-        self.column = column
-        self.message = message
+class PyLintLinter(AsyncDocumentProcessor):
+    def __init__(self, document, editor):
+        super().__init__(document)
+        self._editor = editor
 
-
-class Reporter:
-    def __init__(self):
-        self._errors = []
-
-    def unexpectedError(self, *args):
-        pass
-
-    def syntaxError(self, filename, msg, lineno, offset, text):
-        self._errors.append( LinterResult(filename = filename,
-                                          level = LinterResult.Level.ERROR,
-                                          line = lineno,
-                                          column = offset,
-                                          message = msg)
-                            )
-
-    def flake(self, msg):
-        self._errors.append( LinterResult(filename = msg.filename,
-                                          level = LinterResult.Level.WARNING,
-                                          line = msg.lineno,
-                                          column = msg.col,
-                                          message = str(msg))
-                            )
-
-    def errors(self):
-        return self._errors
-
-class PyFlakesLinter:
-    def lint(self, document):
-        reporter = Reporter()
-        pyflakes.api.check(document.text(), document.filename(), reporter=reporter)
-        return reporter.errors()
-
-class PyLintLinter:
-    def lint(self, document):
+    def run(self):
         env = os.environ
         env['LC_ALL']='en_US.UTF-8'
         env['LANG']='en_US.UTF-8'
@@ -90,4 +48,5 @@ class PyLintLinter:
                                    )
                 result.append(info)
         return result
+
 
