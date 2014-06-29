@@ -15,7 +15,9 @@ class EditAreaEventFilter(core.VObject):
             return False
 
         self.logger.info("Event filter!")
-        if isinstance(event, gui.VKeyEvent) and event.key() == vixtk.Key.Key_Colon:
+        if isinstance(event, gui.VKeyEvent) \
+               and event.key() == vixtk.Key.Key_Colon\
+               and self._editor_model.mode() == flags.COMMAND_MODE:
             self._editor_model.setMode(flags.COMMAND_INPUT_MODE)
             self._command_bar.setMode(flags.COMMAND_INPUT_MODE)
             self._command_bar.setFocus()
