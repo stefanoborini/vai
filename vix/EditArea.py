@@ -1,11 +1,9 @@
 import vixtk
 from vixtk import gui, core, utils
 from .EditAreaController import EditAreaController
-from .positions import DocumentPos
 from . import flags
 import logging
 
-from pygments.formatter import Formatter
 from pygments import token
 
 TOKEN_TO_COLORS = {
@@ -95,6 +93,30 @@ class EditArea(gui.VWidget):
         self._buffer.viewModel().setDocumentPosAtTop(new_pos)
         self.update()
 
+    def scrollPageUp(self):
+        if not self._hasModels():
+            return
+
+        top_pos = self._buffer.viewModel().documentPosAtTop()
+        new_pos = (top_pos[0]-self.height(), top_pos[1])
+        if new_pos[0] < 1:
+           new_pos = (1, top_pos[1])
+
+        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
+        self.update()
+
+    def scrollPageDown(self):
+        if not self._hasModels():
+            return
+
+        top_pos = self._buffer.viewModel().documentPosAtTop()
+        new_pos = (top_pos[0]+self.height(), top_pos[1])
+        if new_pos[0]+self.height() >= self._buffer.document().numLines():
+            new_pos = (self._buffer.document().numLines() - self.height()+1,  top_pos[1])
+
+        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
+        self.update()
+
     def keyEvent(self, event):
         if not self._hasModels():
             return
@@ -107,6 +129,7 @@ class EditArea(gui.VWidget):
         gui.VCursor.setPos(self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
     def handleDirectionalKey(self, event):
+        # XXX move to controller?
         if not self._hasModels():
             return
 
@@ -115,10 +138,14 @@ class EditArea(gui.VWidget):
 
         key = event.key()
 
-        direction = { vixtk.Key.Key_Up: flags.UP,
-                      vixtk.Key.Key_Down: flags.DOWN,
-                      vixtk.Key.Key_Left: flags.LEFT,
-                      vixtk.Key.Key_Right: flags.RIGHT
+        direction = { vixtk.Key.Key_Up:       flags.UP,
+                      vixtk.Key.Key_Down:     flags.DOWN,
+                      vixtk.Key.Key_Left:     flags.LEFT,
+                      vixtk.Key.Key_Right:    flags.RIGHT,
+                      vixtk.Key.Key_PageUp:   flags.PAGE_UP,
+                      vixtk.Key.Key_PageDown: flags.PAGE_DOWN,
+                      vixtk.Key.Key_Home:     flags.HOME,
+                      vixtk.Key.Key_End:      flags.END,
                     }[key]
 
         self.moveCursor(direction)
@@ -142,5 +169,11 @@ class EditArea(gui.VWidget):
             doc_cursor.toLineEnd()
         elif direction == flags.HOME:
             doc_cursor.toLineBeginning()
+        elif direction == flags.PAGE_UP:
+            self.scrollPageUp()
+            doc_cursor.toLine(self._buffer.viewModel().documentPosAtTop()[0])
+        elif direction == flags.PAGE_DOWN:
+            self.scrollPageDown()
+            doc_cursor.toLine(self._buffer.viewModel().documentPosAtTop()[0])
         else:
             raise Exception("Unknown direction flag %s", str(direction))
