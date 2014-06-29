@@ -23,6 +23,10 @@ class TestUtils(unittest.TestCase):
                                           "   ciao   hello                     what")
                                          # 01234567890123456789012345678901234567890
 
+    def testClamp(self):
+        self.assertEqual(utils.clamp(30, 0, 50), 30)
+        self.assertEqual(utils.clamp(30, 0, 20), 20)
+        self.assertEqual(utils.clamp(30, 40, 60), 40)
 
 if __name__ == '__main__':
     unittest.main()
