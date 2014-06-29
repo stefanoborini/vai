@@ -96,15 +96,18 @@ class EditAreaController(core.VObject):
             else:
                 return
 
-        elif event.key() == vixtk.Key.Key_A and event.modifiers() == 0:
-            self._editor_model.setMode(flags.INSERT_MODE)
-            self._edit_area.moveCursor(flags.LEFT)
-            event.accept()
+        elif event.key() == vixtk.Key.Key_A:
+            if event.modifiers() == 0:
+                self._editor_model.setMode(flags.INSERT_MODE)
+                self._edit_area.moveCursor(flags.LEFT)
+                event.accept()
 
-        elif event.key() == vixtk.Key.Key_A and event.modifiers() &  vixtk.KeyModifier.ShiftModifier:
-            self._editor_model.setMode(flags.INSERT_MODE)
-            self._edit_area.moveCursor(flags.END)
-            event.accept()
+            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+                self._editor_model.setMode(flags.INSERT_MODE)
+                self._edit_area.moveCursor(flags.END)
+                event.accept()
+            else:
+                return
 
         elif event.key() == vixtk.Key.Key_U:
             if len(self._buffer.commandHistory()):
