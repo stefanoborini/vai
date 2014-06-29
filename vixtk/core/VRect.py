@@ -64,13 +64,6 @@ class VRect(object):
     def __str__(self):
         return "VRect(x=%d, y=%d, width=%d, height=%d)" % (self.x(), self.y(), self.width(), self.height())
 
-
-
-            self._size = size
-        else:
-            self._size = VSize(width=size[0], height=size[1])
-
-
 def x(rect):
     return rect[0]
 def y(rect):
