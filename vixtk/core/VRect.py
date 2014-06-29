@@ -63,3 +63,47 @@ class VRect(object):
 
     def __str__(self):
         return "VRect(x=%d, y=%d, width=%d, height=%d)" % (self.x(), self.y(), self.width(), self.height())
+
+
+
+            self._size = size
+        else:
+            self._size = VSize(width=size[0], height=size[1])
+
+
+def x(rect):
+    return rect[0]
+def y(rect):
+    return rect[1]
+def left(rect):
+    return rect[0]
+def right(rect):
+    return rect[0] + rect[2] - 1
+def top(rect):
+    return rect[1]
+def bottom(rect):
+    return rect[1] + rect[3] - 1
+def topLeft(rect):
+    return (rect[0], rect[1])
+def topRight(rect):
+    return (rect[0] + rect[2] - 1, rect[1])
+def bottomLeft(rect):
+    return (rect[0], rect[1] + rect[3] - 1)
+def bottomRight(rect):
+    return (rect[0] + rect[2] - 1, rect[1] + rect[3] - 1)
+def size(rect):
+    return (rect[2], rect[3])
+def height(rect):
+    return rect[3]
+def width(rect):
+    return rect[2]
+def isNull(rect):
+    return (rect[2] == 0 and rect[3] == 0)
+def moveTo(rect, top_left):
+    return (top_left[0], top_left[1], rect[2], rect[3])
+def intersects(rect, other):
+    return (left(rect) <= right(other)
+                and right(rect) >= left(other)
+                and top(rect) <= bottom(other)
+                and bottom(rect) >= top(other))
+
