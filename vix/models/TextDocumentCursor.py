@@ -25,6 +25,16 @@ class TextDocumentCursor(core.VObject):
         self.positionChanged.emit(self._pos)
         return True
 
+    def toLine(self, line):
+        column = self.pos()[1]
+        if line < 1 or line > self._text_document.numLines() or column < 1:
+            return False
+
+        self._pos = (line, min(self._text_document.lineLength(line), column))
+        self._optimistic_column = self._pos[1]
+        self.positionChanged.emit(self._pos)
+        return True
+
     def toLineNext(self):
         if self._pos[0] >= self._text_document.numLines():
             return False

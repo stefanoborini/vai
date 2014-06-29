@@ -293,8 +293,9 @@ def nativeToVixKeyCode(native_key_code):
       259                  : Key.Key_Up,
       260                  : Key.Key_Left,
       261                  : Key.Key_Right,
+      338                  : Key.Key_PageDown,
+      339                  : Key.Key_PageUp,
     }
-
     return key_mapper.get(native_key_code)
 
 def isKeyCodePrintable(key_code):

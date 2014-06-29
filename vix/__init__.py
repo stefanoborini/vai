@@ -41,10 +41,14 @@ def main():
             ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
             ps.print_stats()
             print(s.getvalue())
+        app.resetScreen()
 
     except Exception as e:
         import traceback
         import contextlib
+
+        app.resetScreen()
+
         with contextlib.closing(open("vix_crashreport.out", "w")) as f:
             f.write(traceback.format_exc())
 
@@ -52,7 +56,6 @@ def main():
             import pdb
             pdb.post_mortem()
 
-        app.resetScreen()
         if not args.noreport:
             BugReport.report()
 

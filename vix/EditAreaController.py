@@ -7,7 +7,12 @@ import logging
 DIRECTIONAL_KEYS = [ vixtk.Key.Key_Up,
                      vixtk.Key.Key_Down,
                      vixtk.Key.Key_Left,
-                     vixtk.Key.Key_Right ]
+                     vixtk.Key.Key_Right,
+                     vixtk.Key.Key_PageUp,
+                     vixtk.Key.Key_PageDown,
+                     vixtk.Key.Key_Home,
+                     vixtk.Key.Key_End,
+                     ]
 
 class EditAreaController(core.VObject):
     def __init__(self, edit_area):
@@ -130,7 +135,6 @@ class EditAreaController(core.VObject):
             event.accept()
 
     def _handleEventDeleteMode(self, event):
-        """
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
@@ -141,7 +145,6 @@ class EditAreaController(core.VObject):
             command.execute()
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
-        """
 
     def _handleEventGoMode(self, event):
         if event.key() == vixtk.Key.Key_Escape:
