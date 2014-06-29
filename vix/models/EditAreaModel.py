@@ -2,9 +2,9 @@ from vixtk import core
 from .. import flags
 from ..positions import DocumentPos
 
-class ViewModel(core.VObject):
+class EditAreaModel(core.VObject):
     def __init__(self):
-        super(ViewModel, self).__init__()
+        super().__init__()
         self._document_pos_at_top = DocumentPos(1,1)
         self.documentPosChanged = core.VSignal(self)
 

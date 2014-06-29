@@ -126,7 +126,7 @@ class EditAreaController(core.VObject):
 
         elif event.key() == vixtk.Key.Key_G and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
             self._buffer.documentCursor().toLastLine()
-            self._buffer.viewModel().setDocumentPosAtTop((self._buffer.documentCursor().pos()[0]-self._edit_area.height()+1,1))
+            self._buffer.editAreaModel().setDocumentPosAtTop((self._buffer.documentCursor().pos()[0]-self._edit_area.height()+1,1))
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
 
@@ -151,7 +151,7 @@ class EditAreaController(core.VObject):
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
         elif event.key() == vixtk.Key.Key_G:
-            self._buffer.viewModel().setDocumentPosAtTop((1,1))
+            self._buffer.editAreaModel().setDocumentPosAtTop((1,1))
             self._buffer.documentCursor().toFirstLine()
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
