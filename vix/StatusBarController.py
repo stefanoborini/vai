@@ -3,9 +3,9 @@ class StatusBarController(object):
         self._status_bar = status_bar
         self._document = None
         self._document_cursor = None
-        self._view_model = None
+        self._edit_area_model = None
 
-    def setModels(self, document, document_cursor, view_model):
+    def setModels(self, document, document_cursor):
         if self._document:
             self._document.modifiedChanged.disconnect(self._status_bar.setFileChangedFlag)
             self._document.filenameChanged.disconnect(self._status_bar.setFilename)

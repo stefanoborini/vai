@@ -60,7 +60,7 @@ class EditArea(gui.VWidget):
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.erase()
-        pos_at_top = self._buffer.viewModel().documentPosAtTop()
+        pos_at_top = self._buffer.editAreaModel().documentPosAtTop()
         document_cursor_pos = self._buffer.documentCursor().pos()
         if self._hasModels():
             for i in range(0, h):
@@ -88,46 +88,46 @@ class EditArea(gui.VWidget):
     def scrollDown(self):
         if not self._hasModels():
             return
-        top_pos = self._buffer.viewModel().documentPosAtTop()
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
         if top_pos[0] + self.height() > self._buffer.document().numLines():
             return
         new_pos = (top_pos[0]+1, top_pos[1])
-        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
 
     def scrollUp(self):
         if not self._hasModels():
             return
-        top_pos = self._buffer.viewModel().documentPosAtTop()
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
         if top_pos[0] == 1:
             return
 
         new_pos = (top_pos[0]-1, top_pos[1])
-        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
 
     def scrollPageUp(self):
         if not self._hasModels():
             return
 
-        top_pos = self._buffer.viewModel().documentPosAtTop()
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
         new_pos = (top_pos[0]-self.height(), top_pos[1])
         if new_pos[0] < 1:
            new_pos = (1, top_pos[1])
 
-        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
 
     def scrollPageDown(self):
         if not self._hasModels():
             return
 
-        top_pos = self._buffer.viewModel().documentPosAtTop()
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
         new_pos = (top_pos[0]+self.height(), top_pos[1])
         if new_pos[0]+self.height() >= self._buffer.document().numLines():
             new_pos = (self._buffer.document().numLines() - self.height()+1,  top_pos[1])
 
-        self._buffer.viewModel().setDocumentPosAtTop(new_pos)
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
 
     def keyEvent(self, event):
@@ -184,9 +184,9 @@ class EditArea(gui.VWidget):
             doc_cursor.toLineBeginning()
         elif direction == flags.PAGE_UP:
             self.scrollPageUp()
-            doc_cursor.toLine(self._buffer.viewModel().documentPosAtTop()[0])
+            doc_cursor.toLine(self._buffer.editAreaModel().documentPosAtTop()[0])
         elif direction == flags.PAGE_DOWN:
             self.scrollPageDown()
-            doc_cursor.toLine(self._buffer.viewModel().documentPosAtTop()[0])
+            doc_cursor.toLine(self._buffer.editAreaModel().documentPosAtTop()[0])
         else:
             raise Exception("Unknown direction flag %s", str(direction))

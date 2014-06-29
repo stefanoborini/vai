@@ -4,18 +4,18 @@ from vixtk import gui
 class SideRulerController:
     def __init__(self, side_ruler):
         self._side_ruler = side_ruler
-        self._view_model = None
+        self._edit_area_model = None
         self._document_model = None
 
-    def setModel(self, document_model, view_model):
-        if self._view_model:
-            self._view_model.documentPosChanged.disconnect(self.updateRange)
+    def setModel(self, document_model, edit_area_model):
+        if self._edit_area_model:
+            self._edit_area_model.documentPosChanged.disconnect(self.updateRange)
 
         if self._document_model:
             self._document_model.lineMetaInfoChanged.disconnect(self.updateBadges)
 
-        self._view_model = view_model
-        self._view_model.documentPosChanged.connect(self.updateRange)
+        self._edit_area_model = edit_area_model
+        self._edit_area_model.documentPosChanged.connect(self.updateRange)
 
         self._document_model = document_model
         self._document_model.lineMetaInfoChanged.connect(self.updateBadges)
@@ -24,8 +24,8 @@ class SideRulerController:
         self.updateBadges()
 
     def updateRange(self):
-        if self._view_model:
-            top_pos = self._view_model.documentPosAtTop()
+        if self._edit_area_model:
+            top_pos = self._edit_area_model.documentPosAtTop()
             self._side_ruler.setStart(top_pos[0])
 
     def updateBadges(self, *args):

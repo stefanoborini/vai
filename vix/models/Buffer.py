@@ -1,10 +1,10 @@
 from .TextDocumentCursor import TextDocumentCursor
 
 class Buffer:
-    def __init__(self, document, view_model):
+    def __init__(self, document, edit_area_model):
         self._document = document
         self._document_cursor = TextDocumentCursor(self._document)
-        self._view_model = view_model
+        self._edit_area_model = edit_area_model
         self._command_history = []
 
     def isEmpty(self):
@@ -19,8 +19,8 @@ class Buffer:
     def documentCursor(self):
         return self._document_cursor
 
-    def viewModel(self):
-        return self._view_model
+    def editAreaModel(self):
+        return self._edit_area_model
 
     def commandHistory(self):
         return self._command_history

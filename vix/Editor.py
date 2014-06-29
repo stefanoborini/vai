@@ -14,7 +14,7 @@ from .Lexer import Lexer
 from .LinterResult import LinterResult
 from .PyFlakesLinter import PyFlakesLinter
 from . import flags
-from .models.ViewModel import ViewModel
+from .models.EditAreaModel import EditAreaModel
 from .models.Buffer import Buffer
 from .models.BufferList import BufferList
 from .models.TextDocument import TextDocument
@@ -40,7 +40,7 @@ class Editor(gui.VWidget):
 
         self._buffers = BufferList()
         self._buffers.currentBufferChanged.connect(self._bufferChanged)
-        self._buffers.addAndSelect(Buffer(TextDocument(), ViewModel()))
+        self._buffers.addAndSelect(Buffer(TextDocument(), EditAreaModel()))
 
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
@@ -104,7 +104,7 @@ class Editor(gui.VWidget):
             gui.VApplication.vApp.exit()
         elif command_text.startswith("e "):
             buffer = Buffer(TextDocument(command_text[2:]),
-                                        ViewModel()
+                                        EditAreaModel()
                                         )
             self._buffers.addAndSelect(buffer)
             self.doLint()
@@ -187,7 +187,7 @@ class Editor(gui.VWidget):
     def openFile(self, filename):
         current_buffer = self._buffers.current()
         try:
-            new_buffer = Buffer(TextDocument(filename), ViewModel())
+            new_buffer = Buffer(TextDocument(filename), EditAreaModel())
         except Exception as e:
             self._status_bar.setMessage("Error: could not open file. %s" % str(e), 3000)
             return
@@ -200,8 +200,8 @@ class Editor(gui.VWidget):
         self.doLint()
 
     def _bufferChanged(self, old_buffer, new_buffer):
-        self._status_bar_controller.setModels(new_buffer.document(), new_buffer.documentCursor(), new_buffer.viewModel())
-        self._side_ruler_controller.setModel(new_buffer.document(),new_buffer.viewModel())
+        self._status_bar_controller.setModels(new_buffer.document(), new_buffer.documentCursor())
+        self._side_ruler_controller.setModel(new_buffer.document(),new_buffer.editAreaModel())
         self._edit_area.setModels(new_buffer, self._editor_model)
         if old_buffer:
             old_buffer.documentCursor().positionChanged.disconnect(self.showInfoHoverBoxIfNeeded)
