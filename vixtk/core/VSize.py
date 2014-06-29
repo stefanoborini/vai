@@ -13,3 +13,10 @@ class VSize(object):
 
     def __str__(self):
         return "VSize(width=%d, height=%d)" % self._size
+
+
+
+def width(size):
+    return size[0]
+def height(size):
+    return size[1]
