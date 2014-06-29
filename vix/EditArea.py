@@ -124,8 +124,8 @@ class EditArea(gui.VWidget):
         self.moveCursor(direction)
 
     def moveCursor(self, direction):
-        logging.error("Hello" + str(self._visual_cursor_pos))
         doc_cursor = self._buffer.documentCursor()
+
         if direction == flags.UP:
             if self._visual_cursor_pos[1] == 0:
                 self.scrollUp()
@@ -138,5 +138,9 @@ class EditArea(gui.VWidget):
             doc_cursor.toCharPrev()
         elif direction == flags.RIGHT:
             doc_cursor.toCharNext()
-#                     flags.HOME: doc_cursor.toLineBeginning,
-#                     flags.END: doc_cursor.toLineEnd,
+        elif direction == flags.END:
+            doc_cursor.toLineEnd()
+        elif direction == flags.HOME:
+            doc_cursor.toLineBeginning()
+        else:
+            raise Exception("Unknown direction flag %s", str(direction))
