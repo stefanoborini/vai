@@ -133,6 +133,12 @@ class EditAreaController(core.VObject):
         elif event.key() == vixtk.Key.Key_J and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
             self._buffer.documentCursor().joinWithNextLine()
             event.accept()
+        elif event.key() == vixtk.Key.Key_Dollar:
+            self._edit_area.moveCursor(flags.END)
+            event.accept()
+        elif event.key() == vixtk.Key.Key_AsciiCircum:
+            self._edit_area.moveCursor(flags.HOME)
+            event.accept()
 
     def _handleEventDeleteMode(self, event):
         if event.key() == vixtk.Key.Key_Escape:
