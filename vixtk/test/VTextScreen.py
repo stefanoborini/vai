@@ -62,10 +62,7 @@ class VTextScreen(object):
 
     def write(self, pos, string, fg_color=None, bg_color=None):
         for pos_x in range(len(string)):
-            try:
-                self._render_output[pos.y()][pos.x()+pos_x] = string[pos_x]
-            except:
-                pass
+            self._render_output[pos[1]][pos[0]+pos_x] = string[pos_x]
 
     def dump(self):
         ret = []
@@ -84,6 +81,3 @@ class VTextScreen(object):
 
     def stringAt(self, x, y, l):
         return ''.join(self._render_output[y][x:x+l])
-
-
-

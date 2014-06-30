@@ -125,16 +125,19 @@ class TextDocument(core.VObject):
 
         self._contents.insert(line_number, [{}, {}, EOL])
         self._setModified(True)
+        self.lineCreated.emit()
 
     def newLine(self, line_number):
         self._contents.insert(line_number-1, [{}, {}, EOL])
         self._setModified(True)
+        self.lineCreated.emit()
 
     def insertLine(self, line_number, text):
         if not text.endswith(EOL):
             text += EOL
         self._contents.insert(line_number-1, [{}, {}, text])
         self._setModified(True)
+        self.lineCreated.emit()
 
     def insert(self, document_pos, string):
         text = self._contents[document_pos[0]-1][LINE_INDEX]
@@ -195,6 +198,7 @@ class TextDocument(core.VObject):
         self.lineChanged.emit(document_pos, None, None)
         self.contentChanged.emit()
         self._setModified(True)
+        self.lineCreated.emit()
 
     def joinWithNextLine(self, line_number):
         if not self.hasLine(line_number+1):
@@ -233,6 +237,7 @@ class TextDocument(core.VObject):
                                         ]
         self._contents.pop(line_number)
         self.contentChanged.emit()
+        self.lineDeleted.emit()
         self._setModified(True)
 
     def deleteLine(self, line_number):

@@ -60,7 +60,7 @@ class Editor(gui.VWidget):
     def _createSideRuler(self):
         self._side_ruler = SideRuler(self)
         self._side_ruler.move( (0, 0) )
-        self._side_ruler.resize( (4, self.height()-2) )
+        self._side_ruler.resize( (5, self.height()-2) )
         self._side_ruler_controller = SideRulerController(self._side_ruler)
 
     def _createEditArea(self):

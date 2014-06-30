@@ -9,24 +9,33 @@ class SideRulerController:
 
     def setModel(self, document_model, edit_area_model):
         if self._edit_area_model:
-            self._edit_area_model.documentPosChanged.disconnect(self.updateRange)
+            self._edit_area_model.documentPosChanged.disconnect(self.updateTopRow)
 
         if self._document_model:
             self._document_model.lineMetaInfoChanged.disconnect(self.updateBadges)
+            self._document_model.lineDeleted.disconnect(self.updateNumRows)
+            self._document_model.lineCreated.disconnect(self.updateNumRows)
 
         self._edit_area_model = edit_area_model
-        self._edit_area_model.documentPosChanged.connect(self.updateRange)
+        self._edit_area_model.documentPosChanged.connect(self.updateTopRow)
 
         self._document_model = document_model
         self._document_model.lineMetaInfoChanged.connect(self.updateBadges)
+        self._document_model.lineDeleted.connect(self.updateNumRows)
+        self._document_model.lineCreated.connect(self.updateNumRows)
 
-        self.updateRange()
+        self.updateTopRow()
+        self.updateNumRows()
         self.updateBadges()
 
-    def updateRange(self):
+    def updateTopRow(self, *args):
         if self._edit_area_model:
             top_pos = self._edit_area_model.documentPosAtTop()
-            self._side_ruler.setStart(top_pos[0])
+            self._side_ruler.setTopRow(top_pos[0])
+
+    def updateNumRows(self, *args):
+        if self._document_model:
+            self._side_ruler.setNumRows(self._document_model.numLines())
 
     def updateBadges(self, *args):
         if self._document_model:
