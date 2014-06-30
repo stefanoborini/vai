@@ -5,8 +5,8 @@ import logging
 class SideRuler(gui.VWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        self._start = 1
-        self._end = None
+        self._num_rows = 1
+        self._top_row = 1
         self._skip_intervals = []
         self._badges = {}
 
@@ -16,14 +16,14 @@ class SideRuler(gui.VWidget):
         painter = gui.VPainter(self)
         painter.erase()
         num_digits = self._lineNumberWidth()
-        entries = _computeLineValues(self._start, h, self._skip_intervals)
+        entries = _computeLineValues(self._top_row, h, self._skip_intervals)
         self.logger.info("Badges %s" % str(self._badges))
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
             bg_color = gui.VGlobalColor.blue
 
-            if self._end is not None and current > self._end:
+            if current > self._num_rows:
                 painter.drawText( (0, i), "~".ljust(num_digits)+" "+border,
                                 fg_color=gui.VGlobalColor.blue,
                 )
@@ -34,32 +34,26 @@ class SideRuler(gui.VWidget):
                 badge_mark = badge.marker
                 bg_color = badge.bg_color
 
-            painter.drawText( (0, i), str(current).rjust(num_digits) + badge_mark + border,
-                            fg_color=gui.VGlobalColor.yellow, bg_color=bg_color)
+            painter.drawText( (0, i),
+                              str(current).rjust(num_digits) + badge_mark + border,
+                              fg_color=gui.VGlobalColor.yellow,
+                              bg_color=bg_color)
 
         self.logger.info("Done painting sideruler")
 
-#    def _computeExpectedValues(self):
-#        if self._end_line is None:
-#            values = range(self._start_line, self._start_line+self.height())
-#        else:
-#            values = range(self._start_line, min(self._end_line, self._start_line+self.height()))
+    def setNumRows(self, num_rows):
+        self._num_rows = num_rows
+        self.update()
 
-    def setStart(self, start):
-        self._start = start
+    def setTopRow(self, top_row):
+        self._top_row = top_row
         self.update()
 
     def minimumSize(self):
         return (self._lineNumberWidth(), 1)
 
     def _lineNumberWidth(self):
-
-#        if self._document_model.numLines() == 0:
-#            return 1
-#
-        num_digits = int(math.log10(max(_computeLineValues(self._start, self.height(), self._skip_intervals))))+1
-        return num_digits
-
+        return int(math.log10(self._num_rows))+1
 
     def addBadge(self, line, badge):
         self.logger.info("Added badge %s %s" % (line, badge))
