@@ -9,6 +9,9 @@ class TextDocumentCursor(core.VObject):
 
         self.positionChanged = core.VSignal(self)
 
+    def textDocument(self):
+        return self._text_document
+
     def currentLine(self):
         return self._text_document.getLine(self._pos[0])
 
