@@ -242,7 +242,11 @@ class TextDocument(core.VObject):
 
     def deleteLine(self, line_number):
         self._contents.pop(line_number-1)
-        self.lineDeleted.emit(line_number)
+        if len(self._contents) == 0:
+            self._contents.append([{}, {}, EOL])
+            self.lineChanged.emit(line_number)
+        else:
+            self.lineDeleted.emit(line_number)
         self.contentChanged.emit()
         self._setModified(True)
 

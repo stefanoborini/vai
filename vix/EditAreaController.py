@@ -146,7 +146,7 @@ class EditAreaController(core.VObject):
             event.accept()
         elif event.key() == vixtk.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
-            command = commands.DeleteLineCommand(self._buffer.document(), self._buffer.documentCursor().pos()[0])
+            command = commands.DeleteLineAtCursorCommand(self._buffer)
             self._buffer.commandHistory().append(command)
             command.execute()
             self._editor_model.setMode(flags.COMMAND_MODE)
