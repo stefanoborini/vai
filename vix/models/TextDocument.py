@@ -6,38 +6,37 @@ from .TextDocumentCursor import TextDocumentCursor
 EOL='\n'
 LINE_META_INDEX = 0
 CHAR_META_INDEX = 1
-LINE_INDEX = 2
+TEXT_INDEX = 2
+
+class DocumentMeta:
+    Modified = "Modified"
+    LastModified = "LastModified"
+    Filename = "Filename"
 
 class TextDocument(core.VObject):
     """
     Represents the contents of a file.
-
-    Line numbers and column numbers are 1-based, which is the
-    standard behavior in vim. To prevent errors, document
-    positions use the DocumentPos namedtuple, instead of a
-    simple tuple.
     """
     def __init__(self, filename=None):
+        self._document_meta = {}
+
         if filename:
-            self._filename = filename
+            self._document_meta[DocumentMeta.Filename] = filename
             self._contents = []
             with contextlib.closing(open(filename,'r')) as f:
-                for line in f:
-                    self._contents.append([{}, {}, line])
+                for textline in f:
+                    self._contents.append(({}, {}, _withEOL(textline)))
 
             if len(self._contents) == 0:
-                self._contents.append([{}, {}, EOL])
+                self._contents.append(({}, {}, EOL))
 
-            # Always add an EOL character at the very end if not already there.
-            # It appears to be a common convention in the unix world.
-            if len(self._contents) > 0 and not self._contents[-1][LINE_INDEX].endswith(EOL):
-                self._contents[-1][LINE_INDEX] = self._contents[-1][LINE_INDEX] + EOL
         else:
-            self._contents = [ [{}, {}, EOL] ]
-            self._filename = 'noname.txt'
+            self._contents = [ ({}, {}, EOL) ]
+            self._document_meta[DocumentMeta.Filename] = 'noname.txt'
 
-        self._modified = False
-        self._last_modified = time.time()
+        self._document_meta[DocumentMeta.Modified] = False
+        self._document_meta[DocumentMeta.LastModified] = time.time()
+
         self._cursors = []
 
         self.lineChanged = core.VSignal(self)
@@ -47,11 +46,400 @@ class TextDocument(core.VObject):
         self.modifiedChanged = core.VSignal(self)
         self.filenameChanged = core.VSignal(self)
         self.lineMetaInfoChanged = core.VSignal(self)
+        self.lineMetaInfoDeleted = core.VSignal(self)
         self.charMetaInfoChanged = core.VSignal(self)
+        self.charMetaInfoDeleted = core.VSignal(self)
         self.transactionFinished = core.VSignal(self)
+        self.documentSaved = core.VSignal(self)
+
+    # Query routines
+    def isEmpty(self):
+        return len(self._contents) == 1 \
+                and len(self._contents[0][TEXT_INDEX]) == 1 \
+                and self._contents[0][TEXT_INDEX][0] == EOL
+
+    def isLineEmpty(self, line_number):
+        line_index = line_number - 1
+        return len(self._contents[line_index][TEXT_INDEX]) == 1 \
+                and self._contents[line_index][TEXT_INDEX][0] == EOL
+
+    def lineText(self, line_number):
+        self._checkLineNumber(line_number)
+        line_index = line_number - 1
+        return self._contents[line_index][TEXT_INDEX]
+
+    def hasLine(self, line_number):
+        try:
+            self._checkLineNumber(line_number)
+        except:
+            return False
+        return True
+
+    def lineLength(self, line_number):
+        return len(self.lineText(line_number))
+
+    def documentText(self):
+        return "".join([x[TEXT_INDEX] for x in self._contents])
+
+    def filename(self):
+        return self._document_meta[DocumentMeta.Filename]
+
+    def numLines(self):
+        return len(self._contents)
+
+    def isModified(self):
+        return self._document_meta[DocumentMeta.Modified]
+
+    ## Meta info routines
+    # Document Meta
+
+    def documentMeta(self):
+        return self._document_meta
+
+    def updateDocumentMeta(self, meta_info):
+        self._document_meta.update(meta_info)
+
+    def deleteDocumentMeta(self, keys):
+        if isinstance(keys, str):
+            keys = [keys]
+
+        for k in keys:
+            try:
+                del self._document_meta[k]
+            except KeyError:
+                pass
+
+    def lastModified(self):
+        return self._document_meta[DocumentMeta.LastModified]
+
+
+    # Line meta
+
+    def lineMeta(self, line_number):
+        self._checkLineNumber(line_number)
+        line_index = line_number - 1
+        return self._contents[line_index][LINE_META_INDEX]
+
+    def updateLineMeta(self, line_number, meta_dict):
+        self._checkLineNumber(line_number)
+
+        line_index = line_number - 1
+        self._contents[line_index][LINE_META_INDEX].update(meta_dict)
+        self.lineMetaInfoChanged.emit(line_number, meta_dict)
+
+    def deleteLineMeta(self, line_number, keys):
+        self._checkLineNumber(line_number)
+        line_index = line_number - 1
+
+        if isinstance(keys, str):
+            keys = [keys]
+
+        for k in keys:
+            try:
+                del self._contents[line_index][LINE_META_INDEX][k]
+            except KeyError:
+                pass
+        self.lineMetaInfoDeleted.emit(line_number, keys)
+
+    # Char meta
+
+    def charMeta(self, pos):
+        self._checkPos(pos)
+
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+
+        how_many = char_number - self.lineLength(line_number)
+        char_meta = self._contents[line_index][CHAR_META_INDEX]
+        ret = {}
+        for key, value in char_meta.items():
+            ret[key] = value[char_index:]
+
+        return ret
+
+    def updateCharMeta(self, pos, meta_dict):
+        self._checkPos(pos)
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+
+        char_meta = self._contents[line_index][CHAR_META_INDEX]
+        text = self._contents[line_index][TEXT_INDEX]
+        for key, value in meta_dict.items():
+            if not key in char_meta:
+                char_meta[key] = [None]*len(text)
+
+            char_meta[key][char_index:char_index+len(value)] = value
+            char_meta[key] = char_meta[key][0:len(text)]
+
+        self.charMetaInfoChanged.emit(pos)
+
+    def deleteCharMeta(self, pos, how_many, keys):
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+
+        char_meta = self._contents[line_index][CHAR_META_INDEX]
+        for key in keys:
+            try:
+                meta_values = char_meta[key]
+            except KeyError:
+                continue
+            meta_values[char_index:char_index+how_many] = None
+            char_meta[key] = meta_values[0:len(text)]
+
+        self.charMetaInfoDeleted.emit(pos)
+
+    ## Modify document routines
+    # Line operations
+    def newLineAfter(self, line_number):
+        self._checkLineNumber(line_number)
+        line_index = line_number - 1
+
+        # Add an EOL if not already there
+        self._contents[line_index] = ( self._contents[line_index][LINE_META_INDEX],
+                                       self._contents[line_index][CHAR_META_INDEX],
+                                       _withEOL(self._contents[line_index][TEXT_INDEX])
+                                      )
+
+        self._contents.insert(line_index+1, ({}, {}, EOL))
+        self._setModified(True)
+        self.lineCreated.emit(line_index+1)
+        self.contentChanged.emit()
+
+    def newLine(self, line_number):
+        line_index = line_number - 1
+        self._contents.insert(line_index, ({}, {}, EOL))
+        self._setModified(True)
+        self.lineCreated.emit(line_number)
+        self.contentChanged.emit()
+
+    def insertLine(self, line_number, text, line_meta=None, char_meta=None):
+        self._checkLineNumber(line_number)
+        line_index = line_number - 1
+        line_meta = {} if line_meta is None else line_meta
+        char_meta = {} if char_meta is None else char_meta
+        self._contents.insert(line_index, [line_meta, char_meta, _withEOL(text)])
+        self._setModified(True)
+        self.lineCreated.emit(line_number)
+        self.contentChanged.emit()
+
+    def deleteLine(self, line_number):
+        self._checkLineNumber(line_number)
+        line_index = line_number - 1
+        self._contents.pop(line_index)
+        self._setModified(True)
+        if len(self._contents) == 0:
+            self._contents.append(({}, {}, EOL))
+            self.lineChanged.emit(line_number)
+        else:
+            self.lineDeleted.emit(line_number)
+        self.contentChanged.emit()
+
+    def replaceLine(self, line_number, text, line_meta=None, char_meta=None):
+        self._checkLineNumber(line_number)
+
+        line_index = line_number - 1
+        self._contents.pop(line_index)
+        line_meta = {} if line_meta is None else line_meta
+        char_meta = {} if char_meta is None else char_meta
+
+        self._contents.insert(line_index, (line_meta, char_meta, _withEOL(text)))
+        self._setModified(True)
+        self.lineChanged.emit(line_number)
+        self.contentChanged.emit()
+
+    def breakLine(self, pos):
+        self._checkPos(pos)
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+
+        current_line_contents = self._contents.pop(line_index)
+
+        orig_line_meta = current_line_contents[LINE_META_INDEX]
+        orig_char_meta = current_line_contents[CHAR_META_INDEX]
+        orig_text      = current_line_contents[TEXT_INDEX]
+
+        above_char_meta = {}
+        below_char_meta = {}
+        for key, values in orig_char_meta.items():
+           above_char_meta[key] = values[:char_index] + [None]
+           below_char_meta[key] = values[char_index:]
+
+        above_text = _withEOL(orig_text[:char_index])
+        below_text = _withEOL(orig_text[char_index:])
+
+        self._contents.insert(line_index, (dict(orig_line_meta),
+                                           below_char_meta,
+                                           below_text
+                                          )
+                            )
+
+        self._contents.insert(line_index, (dict(orig_line_meta),
+                                           above_char_meta,
+                                           above_text
+                                          )
+                            )
+
+        self._setModified(True)
+        self.lineChanged.emit(line_number, None, None)
+        self.lineCreated.emit(line_number+1)
+        self.contentChanged.emit()
+
+    def joinWithNextLine(self, line_number):
+        self._checkLineNumber(line_number)
+
+        if not self.hasLine(line_number+1):
+            return
+
+        line_index = line_number - 1
+
+        if self.isLineEmpty(line_number):
+            if not self.isEmpty():
+                self._contents.pop(line_index)
+                self._setModified(True)
+                self.contentChanged.emit()
+            return
+
+        current_line_contents = self._contents.pop(line_index)
+        current_line_meta = current_line_contents[LINE_META_INDEX]
+        current_line_char_meta = current_line_contents[CHAR_META_INDEX]
+        current_line_text = current_line_contents[TEXT_INDEX]
+
+        next_line_contents = self._contents.pop(line_index)
+        next_line_meta = next_line_contents[LINE_META_INDEX]
+        next_line_char_meta = next_line_contents[CHAR_META_INDEX]
+        next_line_text = next_line_contents[TEXT_INDEX]
+
+        # Merge line meta. Collisions: current_line values are chosen
+
+        new_line_meta = dict(next_line_meta)
+        new_line_meta.update(current_line_meta)
+
+        # Merge char meta. Collisions: meta will be merged.
+        # [1,1] + [2,2] = [1,1,2,2]
+
+        new_char_meta = {}
+        all_keys = set(list(current_line_char_meta.keys()) + list(next_line_char_meta.keys()))
+        for key in all_keys:
+            current_line_char_values = current_line_char_meta.get(key)
+            next_line_char_values = next_line_char_meta.get(key)
+            if current_line_char_values is None:
+                current_line_char_values = [None] * len(_withoutEOL(current_line_text))
+            if next_line_char_values is None:
+                next_line_char_values = [None] * len(_withEOL(next_line_text))
+
+            new_char_meta[key] = current_line_char_values + next_line_char_values
+
+        self._contents.insert(line_index, ( new_line_meta,
+                                             new_char_meta,
+                                             _withoutEOL(current_line_text) + _withEOL(next_line_text)
+                                        )
+                             )
+        self._setModified(True)
+        self.contentChanged.emit()
+        self.lineDeleted.emit(line_number+1)
+        self.lineChanged.emit(line_number)
+
+    # Char operations
+    def insertChars(self, pos, string):
+        self._checkPos(pos)
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+
+        contents = self._contents.pop(line_index)
+        text = contents[TEXT_INDEX]
+
+        new_text = text[:char_index] + \
+                   string + \
+                   text[char_index:]
+
+        char_meta = contents[CHAR_META_INDEX]
+        for key, values in char_meta.items():
+            char_meta[key] = values[:char_index] + \
+                             [None] * len(string) + \
+                             values[char_index:]
+
+        self._contents.insert(line_index, ( contents[LINE_META_INDEX],
+                                            char_meta,
+                                            new_text
+                                          )
+                                )
+
+        self._setModified(True)
+        self.lineChanged.emit(pos)
+        self.contentChanged.emit()
+
+    def deleteChars(self, pos, length):
+        self._checkPos(pos)
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+
+        contents = self._contents.pop(line_index)
+        text = contents[TEXT_INDEX]
+        line_meta = contents[LINE_META_INDEX]
+
+        new_text = text[:char_index] + text[char_index+length:]
+
+        new_eol_meta = []
+        if not _hasEOL(new_text):
+            new_eol_meta = [None]
+
+        char_meta = contents[CHAR_META_INDEX]
+        for key, values in char_meta.items():
+            char_meta[key] = values[:char_index] + values[char_index+length:] + new_eol_meta
+
+        self._contents.insert(line_index, ( line_meta,
+                                            char_meta,
+                                            _withEOL(text)
+                                        )
+                                )
+
+        self._setModified(True)
+        self.lineChanged.emit(line_number)
+        self.contentChanged.emit()
+
+    def replaceChars(self, pos, length, string):
+        self._checkPos(pos)
+        line_number, char_number = pos
+        line_index = line_number - 1
+        char_index = char_number - 1
+        pass
+
+    # Input Output
+
+    def save(self):
+        self.saveAs(self.filename())
+
+    def saveAs(self, filename):
+        with contextlib.closing(open(filename,'w')) as f:
+            f.write(self.documentText())
+
+        filename_changed = (self._document_meta[DocumentMeta.Filename] != filename)
+
+        self._document_meta[DocumentMeta.Filename] = filename
+        self._setModified(False)
+        if filename_changed:
+            self.filenameChanged.emit(filename)
+        self.documentSaved.emit(filename)
+
+    # Cursor handling
+    def registerCursor(self, cursor):
+        self._cursors.append(cursor)
 
     def createCursor(self):
         return TextDocumentCursor(self)
+
+    def beginTransaction(self):
+        self.enableSignals(False)
+
+    def endTransaction(self):
+        self.enableSignals(True)
+        self.transactionFinished.emit()
 
     def enableSignals(self, enabled):
         for signal in [ self.lineChanged,
@@ -66,225 +454,41 @@ class TextDocument(core.VObject):
                         ]:
             signal.setEnabled(enabled)
 
-    def lastModified(self):
-        """
-        Returns the epoch time in second of the last modification.
-        Changes in metainfo is not considered for modifications
-        """
-        return self._last_modified
+    def isValidLine(self, line_number):
+        return (1 <= line_number <= len(self._contents))
 
-    def isEmpty(self):
-        return len(self._contents) == 1 \
-                and len(self._contents[0][LINE_INDEX]) == 1 \
-                and self._contents[0][LINE_INDEX][0] == EOL
+    def isValidPos(self, pos):
+        return (self.isValidLine(pos[0]) and (1 <= pos[1] <= self.lineLength(pos[0])))
 
-    def getLine(self, line_number):
-        self._checkLineNumber(line_number)
-        return self._contents[line_number-1][LINE_INDEX]
-
-    def updateLineMeta(self, line_number, meta_dict):
-        self._contents[line_number-1][LINE_META_INDEX].update(meta_dict)
-        self.lineMetaInfoChanged.emit(line_number, meta_dict)
-
-    def lineMeta(self, line_number):
-        return self._contents[line_number-1][LINE_META_INDEX]
-
-    def updateCharMeta(self, line_number, meta_dict):
-        for values in meta_dict.values():
-            if len(values) != len(self._contents[line_number-1][LINE_INDEX]):
-                raise Exception("Invalid length")
-
-        self._contents[line_number-1][CHAR_META_INDEX].update(meta_dict)
-        self.charMetaInfoChanged.emit(line_number, meta_dict)
-
-    def charMeta(self, line_number):
-        return self._contents[line_number-1][CHAR_META_INDEX]
-
-    def beginTransaction(self):
-        self.enableSignals(False)
-
-    def endTransaction(self):
-        self.enableSignals(True)
-        self.transactionFinished.emit()
-
-    def hasLine(self, line_number):
-        try:
-            self._checkLineNumber(line_number)
-        except:
-            return False
-        return True
-
-    def lineLength(self, line_number):
-        return len(self.getLine(line_number))
-
-    def newLineAfter(self, line_number):
-        self._checkLineNumber(line_number)
-        # Add an EOL if not already there
-        if not self._contents[line_number-1][LINE_INDEX].endswith(EOL):
-            self._contents[line_number-1][LINE_INDEX] = self._contents[line_number-1][LINE_INDEX]+EOL
-
-        self._contents.insert(line_number, [{}, {}, EOL])
-        self._setModified(True)
-        self.lineCreated.emit()
-
-    def newLine(self, line_number):
-        self._contents.insert(line_number-1, [{}, {}, EOL])
-        self._setModified(True)
-        self.lineCreated.emit()
-
-    def insertLine(self, line_number, text):
-        if not text.endswith(EOL):
-            text += EOL
-        self._contents.insert(line_number-1, [{}, {}, text])
-        self._setModified(True)
-        self.lineCreated.emit()
-
-    def insert(self, document_pos, string):
-        text = self._contents[document_pos[0]-1][LINE_INDEX]
-        self._contents[document_pos[0]-1][LINE_INDEX] = text[:document_pos[1]-1] + \
-                                                         string + \
-                                                         text[document_pos[1]-1:]
-
-        char_meta = self._contents[document_pos[0]-1][CHAR_META_INDEX]
-        for key, values in char_meta.items():
-            char_meta[key] = values[:document_pos[1]-1] + \
-                             [None] * len(string) + \
-                             values[document_pos[1]-1:]
-
-        self.lineChanged.emit(document_pos, string, None)
-        self.contentChanged.emit()
-        self._setModified(True)
-
-    def delete(self, document_pos, length):
-        removed = self._contents[document_pos[0]-1][LINE_INDEX][document_pos[1]-1:document_pos[1]+length-1]
-
-        text = self._contents[document_pos[0]-1][LINE_INDEX]
-        self._contents[document_pos[0]-1][LINE_INDEX] = text[:document_pos[1]-1] + text[document_pos[1]+length-1:]
-
-        char_meta = self._contents[document_pos[0]-1][CHAR_META_INDEX]
-        for key, values in char_meta.items():
-           char_meta[key] = values[:document_pos[1]-1] + values[document_pos[1]+length-1:]
-
-        self.lineChanged.emit(document_pos, None, removed)
-        self.contentChanged.emit()
-        self._setModified(True)
-
-#    def replace(self, line_number, column, length, replace):
-#        removed = self._contents[line_number-1][column-1:column+length-1]
-#        self._contents[line_number-1] = self._contents[line_number-1][:column-1] + replace + self._contents[line_number-1][column+length-1:]
-#        self.lineChanged.emit(line_number, column, replace, removed)
-#        self._setModified(True)
-
-    def breakLine(self, document_pos):
-        current_line_contents = self._contents[document_pos[0]-1]
-
-        char_meta = current_line_contents[CHAR_META_INDEX]
-        newline_char_meta = {}
-        oldline_char_meta = {}
-        for key, values in char_meta.items():
-           oldline_char_meta[key] = values[:document_pos[1]-1] + [None]
-           newline_char_meta[key] = values[document_pos[1]-1:]
-
-        self._contents.insert(document_pos[0], [dict(current_line_contents[LINE_META_INDEX]),
-                                                 newline_char_meta,
-                                                 current_line_contents[LINE_INDEX][document_pos[1]-1:]
-                                                ])
-
-        self._contents[document_pos[0]-1] = [ dict(current_line_contents[LINE_META_INDEX]),
-                                                oldline_char_meta,
-                                                current_line_contents[LINE_INDEX][:document_pos[1]-1]+'\n'
-                                            ]
-
-        self.lineChanged.emit(document_pos, None, None)
-        self.contentChanged.emit()
-        self._setModified(True)
-        self.lineCreated.emit()
-
-    def joinWithNextLine(self, line_number):
-        if not self.hasLine(line_number+1):
-            return
-
-        if len(self._contents[line_number][LINE_INDEX].strip()) == 0:
-            self._contents.pop(line_number)
-            self.contentChanged.emit()
-            self._setModified(True)
-            return
-
-        current_line_contents = self._contents[line_number-1]
-        next_line_contents = self._contents[line_number]
-        current_line_char_meta = current_line_contents[CHAR_META_INDEX]
-        next_line_char_meta = next_line_contents[CHAR_META_INDEX]
-
-        new_char_meta = {}
-        all_keys = set(list(current_line_char_meta.keys()) + list(next_line_char_meta.keys()))
-        for key in all_keys:
-            current_line_values = current_line_char_meta.get(key)
-            next_line_values = next_line_char_meta.get(key)
-            if current_line_values is None:
-                current_line_values = [None] * len(current_line_contents[LINE_INDEX])
-            if next_line_values is None:
-                next_line_values = [None] * len(next_line_contents[LINE_INDEX].strip())
-
-            new_char_meta[key] = current_line_values + next_line_values
-
-        new_line_meta = next_line_contents[LINE_META_INDEX]
-        new_char_meta.update(current_line_contents[LINE_META_INDEX])
-
-        self._contents[line_number-1] = [
-                                          new_line_meta,
-                                          new_char_meta,
-                                          current_line_contents[LINE_INDEX][:-1]+" "+next_line_contents[LINE_INDEX].lstrip()
-                                        ]
-        self._contents.pop(line_number)
-        self.contentChanged.emit()
-        self.lineDeleted.emit()
-        self._setModified(True)
-
-    def deleteLine(self, line_number):
-        self._contents.pop(line_number-1)
-        if len(self._contents) == 0:
-            self._contents.append([{}, {}, EOL])
-            self.lineChanged.emit(line_number)
-        else:
-            self.lineDeleted.emit(line_number)
-        self.contentChanged.emit()
-        self._setModified(True)
-
-    def filename(self):
-        return self._filename
-
-    def numLines(self):
-        return len(self._contents)
+    # Private
 
     def _checkLineNumber(self, line_number):
-        if line_number < 1 or line_number > len(self._contents):
+        if not self.isValidLine(line_number):
             raise IndexError("Out of bound. line_number = %d, len = %d" % (line_number, len(self._contents)))
 
-    def isModified(self):
-        return self._modified
-
-    def save(self):
-        self.saveAs(self.filename())
-
-    def saveAs(self, filename):
-        self._filename = filename
-
-        with contextlib.closing(open(filename,'w')) as f:
-            f.write(self.text())
-
-        self._setModified(False)
-        self.filenameChanged.emit(self.filename())
-
-    def text(self):
-        return "".join([x[LINE_INDEX] for x in self._contents])
+    def _checkPos(self, pos):
+        if not self.isValidPos(pos):
+            raise IndexError("Out of bound. pos[1] = %d, len = %d" % (pos[1], len(self._contents[pos[0]-1][TEXT_INDEX])))
 
     def _setModified(self, modified):
         if modified:
-            self._last_modified = time.time()
+            self._document_meta[DocumentMeta.LastModified] = time.time()
 
-        if self._modified != modified:
-            self._modified = modified
-            self.modifiedChanged.emit(self._modified)
+        if self._document_meta[DocumentMeta.Modified] != modified:
+            self._document_meta[DocumentMeta.Modified] = modified
+            self.modifiedChanged.emit(modified)
 
-    def registerCursor(self, cursor):
-        self._cursors.append(cursor)
+
+
+def _withEOL(text):
+    if len(text) == 0 or text[-1] != EOL:
+        return text+EOL
+    return text
+
+def _withoutEOL(text):
+    if len(text) == 0 or text[-1] != EOL:
+        return text
+    return text[:-1]
+
+def _hasEOL(text):
+    return (len(text) != 0 and text[-1] == EOL)

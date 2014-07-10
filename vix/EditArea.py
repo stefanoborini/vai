@@ -66,9 +66,9 @@ class EditArea(gui.VWidget):
             for i in range(0, h):
                 document_line = pos_at_top[0] + i
                 if document_line <= self._buffer.document().numLines():
-                    line = self._buffer.document().getLine(document_line)
+                    line = self._buffer.document().lineText(document_line)
                     painter.drawText( (0, i), line.replace('\n', ' '))
-                    char_meta = self._buffer.document().charMeta(document_line)
+                    char_meta = self._buffer.document().charMeta( (document_line,1))
                     colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])]
                     painter.setColors((0, i), colors)
 

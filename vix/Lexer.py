@@ -4,17 +4,17 @@ import logging
 
 class Lexer:
     def __init__(self):
-        self._document_model = None
+        self._document = None
 
-    def setModel(self, document_model):
-        self._document_model = document_model
+    def setModel(self, document):
+        self._document = document
 
-        self._document_model.contentChanged.connect(self._lexContents)
+        self._document.contentChanged.connect(self._lexContents)
         self._lexContents()
 
     def _lexContents(self):
-        tokens = pygments.lex(self._document_model.text(), pygments.lexers.PythonLexer())
-        self._document_model.beginTransaction()
+        tokens = pygments.lex(self._document.documentText(), pygments.lexers.PythonLexer())
+        self._document.beginTransaction()
         current_line_num = 1
         meta = []
         for token in tokens:
@@ -23,8 +23,8 @@ class Lexer:
             meta.extend([ttype]*len(string))
 
             if string.endswith('\n'):
-                self._document_model.updateCharMeta(current_line_num, {"lextoken": meta})
+                self._document.updateCharMeta((current_line_num,1), {"lextoken": meta})
                 current_line_num += 1
                 meta = []
 
-        self._document_model.endTransaction()
+        self._document.endTransaction()

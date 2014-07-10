@@ -12,86 +12,113 @@ class TextDocumentCursor(core.VObject):
     def textDocument(self):
         return self._text_document
 
-    def currentLine(self):
-        return self._text_document.getLine(self._pos[0])
+    def lineText(self):
+        return self._text_document.lineText(self._pos[0])
 
     def pos(self):
         return self._pos
 
-    def moveTo(self, pos):
-        line, column = pos
-        if line < 1 or line > self._text_document.numLines() or column < 1:
+    def isValid(self):
+        return self._text_document.isValidPos(self._pos)
+
+    def toPos(self, pos):
+        """
+        Move to a specific position if possible. Return True if the
+        movement succeeds. If the movement is not possible,
+        the position will be unchanged and it will return False.
+        """
+        if not self._text_document.isValidPos(pos):
             return False
 
-        self._pos = (line, min(self._text_document.lineLength(line), column))
+        self._pos = pos
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
         return True
 
-    def toLine(self, line):
-        column = self.pos()[1]
-        if line < 1 or line > self._text_document.numLines() or column < 1:
+    def toLine(self, line_number):
+        if not self.isValid():
+            column = 1
+        else:
+            column = self.pos()[1]
+
+        if not self._text_document.isValidLine(line_number):
             return False
 
-        self._pos = (line, min(self._text_document.lineLength(line), column))
+        self._pos = (line_number, min(self._text_document.lineLength(line_number), column))
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
         return True
 
     def toLineNext(self):
-        if self._pos[0] >= self._text_document.numLines():
+        next_line_number = self._pos[0]+1
+        if not self._text_document.hasLine(next_line_number):
             return False
-        self._pos = (self._pos[0]+1,
-                                    min(
-                                        self._text_document.lineLength(self._pos[0]+1),
-                                        max(self._pos[1],
-                                            self._optimistic_column
-                                           )
-                                        )
+
+        self._pos = (next_line_number,
+                     min(
+                         self._text_document.lineLength(next_line_number),
+                         max(self._pos[1],
+                             self._optimistic_column
+                        )
+                      )
                     )
         self.positionChanged.emit(self._pos)
         return True
 
     def toLinePrev(self):
-        if self._pos[0] == 1:
+        prev_line_number = self._pos[0]-1
+        if not self._text_document.hasLine(prev_line_number):
             return False
 
-        self._pos = (self._pos[0]-1,
-                                    min(
-                                        self._text_document.lineLength(self._pos[0]-1),
-                                        max(self._pos[1],
-                                            self._optimistic_column
-                                           )
-                                        )
-                    )
+        self._pos = (prev_line_number,
+                     min(
+                         self._text_document.lineLength(prev_line_number),
+                         max(self._pos[1],
+                             self._optimistic_column
+                         )
+                     )
+                   )
         self.positionChanged.emit(self._pos)
         return True
 
     def toCharNext(self):
-        if self._pos[1] == self._text_document.lineLength(self._pos[0]):
+        line_number = self._pos[0]
+        next_char_number = self._pos[1]+1
+        next_pos = (line_number, next_char_number)
+        if not self._text_document.isValidPos(next_pos):
             return False
 
-        self._pos = (self._pos[0], self._pos[1]+1)
+        self._pos = next_pos
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
         return True
 
     def toCharPrev(self):
-        if self._pos[1] == 1:
+        line_number = self._pos[0]
+        prev_char_number = self._pos[1]-1
+        prev_pos = (line_number, prev_char_number)
+
+        if not self._text_document.isValidPos(prev_pos):
             return False
 
-        self._pos = (self._pos[0], self._pos[1]-1)
+        self._pos = prev_pos
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
         return True
 
     def toLineBeginning(self):
+        if not self.isValid():
+            return False
+
         self._pos = (self._pos[0], 1)
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
         return True
 
     def toLineEnd(self):
+        if not self.isValid():
+            return False
+
         self._pos = (self._pos[0], self._text_document.lineLength(self._pos[0]))
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
@@ -99,13 +126,13 @@ class TextDocumentCursor(core.VObject):
 
     def toFirstLine(self):
         self._pos = (1,1)
-        self._optimistic_column = self._pos[1]
+        self._optimistic_column = 0
         self.positionChanged.emit(self._pos)
         return True
 
     def toLastLine(self):
         self._pos = (self._text_document.numLines(), 1)
-        self._optimistic_column = self._pos[1]
+        self._optimistic_column = 0
         self.positionChanged.emit(self._pos)
         return True
 
@@ -122,41 +149,67 @@ class TextDocumentCursor(core.VObject):
     def charMeta(self): pass
 
     def newLineAfter(self):
-        self._text_document.createLineAfter(self._pos[0])
+        if not self.isValid():
+            return False
+        self._text_document.newLineAfter(self._pos[0])
 
     def newLine(self):
-        self._text_document.createLine(self._pos[0])
+        if not self.isValid():
+            return False
+        self._text_document.newLine(self._pos[0])
+        return True
 
     def deleteLine(self):
+        if not self.isValid():
+            return False
         current_line = self._pos[0]
         if current_line == self._text_document.numLines():
             self.toLinePrev()
         self._text_document.deleteLine(current_line)
+        return True
 
-    def insertChar(self, char):
-        self._text_document.insert(self._pos, char)
+    def insertSingleChar(self, string):
+        if not self.isValid():
+            return False
+        self._text_document.insertChars(self._pos, string)
         self.toCharNext()
+        return True
 
-    def deleteChar(self):
+    def deleteSingleChar(self):
         if self.toCharPrev():
-            self._text_document.delete(self._pos, 1)
+            self._text_document.deleteChars(self._pos, 1)
+            return True
+        return False
 
-    def deleteCharAfter(self):
+    def deleteSingleCharAfter(self):
+        if not self.isValid():
+            return False
+
         current_column = self._pos[1]
         if current_column == self._text_document.lineLength(self._pos[0]):
             if self.toCharPrev():
-                self._text_document.delete( (self._pos[0], current_column), 1)
+                self._text_document.deleteChars( (self._pos[0], current_column), 1)
         else:
-            self._text_document.delete( (self._pos[0], current_column), 1)
+            self._text_document.deleteChars( (self._pos[0], current_column), 1)
 
-    def replace(self, length, replace): pass
+        return True
+
+    def replace(self, length, replace):
+        pass
 
     def breakLine(self):
+        if not self.isValid():
+            return False
+
         self._text_document.breakLine(self._pos)
         self._pos = (self._pos[0]+1, 1)
         self._optimistic_column = self._pos[1]
         self.positionChanged.emit(self._pos)
+        return True
 
     def joinWithNextLine(self):
+        if not self.isValid():
+            return False
         self._text_document.joinWithNextLine(self._pos[0])
+        return True
 
