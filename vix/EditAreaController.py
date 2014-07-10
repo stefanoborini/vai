@@ -49,7 +49,7 @@ class EditAreaController(core.VObject):
             meta = self._buffer.documentCursor().lineMeta()
             if "change" not in meta:
                 self._buffer.documentCursor().updateLineMeta({"change": "modified"})
-            self._buffer.documentCursor().deleteChar()
+            self._buffer.documentCursor().deleteSingleChar()
         elif event.key() == vixtk.Key.Key_Return:
             self._buffer.documentCursor().breakLine()
         else:
@@ -64,7 +64,7 @@ class EditAreaController(core.VObject):
                     self._buffer.documentCursor().updateLineMeta({"change": "modified"})
 
                 for c in text:
-                    self._buffer.documentCursor().insertChar(c)
+                    self._buffer.documentCursor().insertSingleChar(c)
 
         event.accept()
 
