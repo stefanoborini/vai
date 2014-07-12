@@ -1,0 +1,4 @@
+#!python
+
+def foo():
+    pass
