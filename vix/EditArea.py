@@ -111,7 +111,7 @@ class EditArea(gui.VWidget):
             return
 
         top_pos = self._buffer.editAreaModel().documentPosAtTop()
-        new_pos = (top_pos[0]-self.height(), top_pos[1])
+        new_pos = (top_pos[0]-self.height()+2, top_pos[1])
         if new_pos[0] < 1:
            new_pos = (1, top_pos[1])
 
@@ -123,9 +123,9 @@ class EditArea(gui.VWidget):
             return
 
         top_pos = self._buffer.editAreaModel().documentPosAtTop()
-        new_pos = (top_pos[0]+self.height(), top_pos[1])
-        if new_pos[0]+self.height() >= self._buffer.document().numLines():
-            new_pos = (self._buffer.document().numLines() - self.height()+1,  top_pos[1])
+        new_pos = (top_pos[0]+self.height()-2, top_pos[1])
+        if new_pos[0] > self._buffer.document().numLines():
+            new_pos = (self._buffer.document().numLines(),  top_pos[1])
 
         self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
