@@ -39,31 +39,36 @@ class NewLineAfterCommand(object):
         document.deleteLine(self._pos[0]+1)
         cursor.toPos(self._pos)
 
-
 class DeleteLineAtCursorCommand(object):
     def __init__(self, buffer):
         self._buffer = buffer
-        self._cursor_pos = None
-        self._line_contents = None
+        self._pos = None
+        self._line_text = None
+        self._line_meta = None
+        self._char_meta = None
 
     def execute(self):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
-        self._line_contents = cursor.lineText()
-        self._cursor_pos = cursor.pos()
-        cursor.deleteLine()
+        self._pos = cursor.pos()
+
+        self._line_text = document.lineText(self._pos[0])
+        self._line_meta = document.lineMeta(self._pos[0])
+        self._char_meta = document.charMeta( (self._pos[0], 1))
+        document.deleteLine(self._pos[0])
 
     def undo(self):
-        if self._line_contents is None or self._cursor_pos is None:
+        if self._pos is None:
             return
 
         document = self._buffer.document()
-        document.insertLine(self._cursor_pos[0], self._line_contents)
+        document.insertLine(self._pos[0], self._line_text)
+        document.updateLineMeta(self._pos[0], self._line_meta)
+        document.updateCharMeta( (self._pos[0], 1), self._char_meta)
 
         cursor = self._buffer.documentCursor()
-        cursor.toPos(self._cursor_pos)
-        self._line_contents = None
-        self._cursor_pos = None
+        cursor.toPos(self._pos)
+        self._pos = None
 
 class DeleteSingleCharCommand(object):
     def __init__(self, buffer):
