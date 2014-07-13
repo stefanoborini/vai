@@ -90,15 +90,14 @@ class EditAreaController(core.VObject):
         elif event.key() == vixtk.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.setMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._buffer.document(), self._buffer.documentCursor().pos()[0]+1)
+                command = commands.NewLineAfterCommand(self._buffer)
                 self._buffer.commandHistory().append(command)
                 command.execute()
-                self._edit_area.moveCursor(flags.DOWN)
                 event.accept()
 
             elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
                 self._editor_model.setMode(flags.INSERT_MODE)
-                command = commands.CreateLineCommand(self._buffer.document(), self._buffer.documentCursor().pos()[0])
+                command = commands.NewLineCommand(self._buffer)
                 self._buffer.commandHistory().append(command)
                 command.execute()
                 event.accept()

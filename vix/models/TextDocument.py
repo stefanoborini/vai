@@ -13,6 +13,10 @@ class DocumentMeta:
     LastModified = "LastModified"
     Filename = "Filename"
 
+class LineMeta:
+    Change = "Change"
+    LinterResult = "LinterResult"
+
 class TextDocument(core.VObject):
     """
     Represents the contents of a file.
