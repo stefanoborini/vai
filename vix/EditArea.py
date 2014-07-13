@@ -52,9 +52,6 @@ class EditArea(gui.VWidget):
         self._controller.setModels(buffer, editor_model)
         self.update()
 
-    def _hasModels(self):
-        return self._buffer and self._editor_model
-
     def paintEvent(self, event):
         self.logger.info("XXX paintEvent")
         w, h = self.size()
@@ -75,12 +72,6 @@ class EditArea(gui.VWidget):
         document_cursor_pos = self._buffer.documentCursor().pos()
         self._setVisualCursorPos((document_cursor_pos[1]-pos_at_top[1], document_cursor_pos[0]-pos_at_top[0] ))
         #gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
-
-    def _setVisualCursorPos(self, cursor_pos):
-        pos_x = utils.clamp(cursor_pos[0], 0, self.width()-1)
-        pos_y = utils.clamp(cursor_pos[1], 0, self.height()-1)
-        self._visual_cursor_pos = (pos_x, pos_y)
-        gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
 
     def visualCursorPos(self):
         return self._visual_cursor_pos
@@ -190,3 +181,14 @@ class EditArea(gui.VWidget):
             doc_cursor.toLine(self._buffer.editAreaModel().documentPosAtTop()[0])
         else:
             raise Exception("Unknown direction flag %s", str(direction))
+
+    # Private
+
+    def _hasModels(self):
+        return self._buffer and self._editor_model
+
+    def _setVisualCursorPos(self, cursor_pos):
+        pos_x = utils.clamp(cursor_pos[0], 0, self.width()-1)
+        pos_y = utils.clamp(cursor_pos[1], 0, self.height()-1)
+        self._visual_cursor_pos = (pos_x, pos_y)
+        gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
