@@ -42,6 +42,12 @@ class EditAreaController(core.VObject):
         elif self._editor_model.mode() == flags.GO_MODE:
             self._handleEventGoMode(event)
 
+    def setModels(self, buffer, editor_model):
+        self._buffer = buffer
+        self._editor_model = editor_model
+
+    # Private
+
     def _handleEventInsertMode(self, event):
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
@@ -60,12 +66,9 @@ class EditAreaController(core.VObject):
                 text = event.text()
 
             if len(text) != 0:
-                meta = self._buffer.documentCursor().lineMeta()
-                if "change" not in meta:
-                    self._buffer.documentCursor().updateLineMeta({"change": "modified"})
-
-                for c in text:
-                    self._buffer.documentCursor().insertSingleChar(c)
+                command = commands.InsertStringCommand(self._buffer, text)
+                self._buffer.commandHistory().append(command)
+                command.execute()
 
         event.accept()
 
@@ -162,10 +165,6 @@ class EditAreaController(core.VObject):
             self._buffer.documentCursor().toFirstLine()
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
-
-    def setModels(self, buffer, editor_model):
-        self._buffer = buffer
-        self._editor_model = editor_model
 
     def _hasModels(self):
         return self._buffer and self._editor_model
