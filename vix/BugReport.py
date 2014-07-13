@@ -1,12 +1,19 @@
-def report():
-    print("Apologies. Vix has crashed. ")
-    print("A traceback report of the error has been created in vix_crashreport.log")
+import contextlib
 
-    print("Would you like to send a bug report to the development team?")
-    print("The bug report will not contain information about your document content.")
-    if yes():
-        print("Sending traceback to developers")
-        print("Sending unsuccessful. Feature not implemented")
+def report():
+    print("Apologies. Vix has crashed.")
+    print("---------------------------")
+    with contextlib.closing(open("vix_crashreport.out")) as f:
+        print(f.read())
+
+    print("---------------------------")
+    print("The traceback has been saved in vix_crashreport.out")
+
+    #print("Would you like to send a bug report to the development team?")
+    #print("The bug report will not contain information about your document content.")
+    #if yes():
+        #print("Sending traceback to developers")
+        #print("Sending unsuccessful. Feature not implemented")
 
 
 def yes():
