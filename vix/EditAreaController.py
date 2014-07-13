@@ -52,7 +52,7 @@ class EditAreaController(core.VObject):
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
         elif event.key() == vixtk.Key.Key_Backspace:
-            command = DeleteSingleCharCommand(self._buffer)
+            command = commands.DeleteSingleCharCommand(self._buffer)
             self._buffer.commandHistory().append(command)
             command.execute()
         elif event.key() == vixtk.Key.Key_Return:
@@ -150,8 +150,9 @@ class EditAreaController(core.VObject):
         elif event.key() == vixtk.Key.Key_D:
             self._editor_model.setMode(flags.DELETE_MODE)
             command = commands.DeleteLineAtCursorCommand(self._buffer)
-            self._buffer.commandHistory().append(command)
-            command.execute()
+            result = command.execute()
+            if result.success:
+                self._buffer.commandHistory().append(command)
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
 
