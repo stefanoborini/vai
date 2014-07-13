@@ -9,7 +9,6 @@ from .CommandBarController import CommandBarController
 from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
-from .LineBadge import LineBadge
 from .Lexer import Lexer
 from .LinterResult import LinterResult
 from .PyFlakesLinter import PyFlakesLinter

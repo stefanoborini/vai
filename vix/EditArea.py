@@ -63,10 +63,10 @@ class EditArea(gui.VWidget):
             for i in range(0, h):
                 document_line = pos_at_top[0] + i
                 if document_line <= self._buffer.document().numLines():
-                    line = self._buffer.document().lineText(document_line)
+                    line = self._buffer.document().lineText(document_line)[pos_at_top[1]-1:]
                     painter.drawText( (0, i), line.replace('\n', ' '))
                     char_meta = self._buffer.document().charMeta( (document_line,1))
-                    colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])]
+                    colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])][pos_at_top[1]-1:]
                     painter.setColors((0, i), colors)
 
         document_cursor_pos = self._buffer.documentCursor().pos()
@@ -121,6 +121,29 @@ class EditArea(gui.VWidget):
         self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
 
+    def scrollPageLeft(self):
+        if not self._hasModels():
+            return
+
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
+        new_pos = (top_pos[0], top_pos[1]-int(self.width()/2))
+        if new_pos[1] < 1:
+           new_pos = (top_pos[0], 1)
+
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
+        self.update()
+
+    def scrollPageRight(self):
+        if not self._hasModels():
+            return
+
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
+        new_pos = (top_pos[0], top_pos[1]+int(self.width()/2))
+
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
+        self.update()
+
+
     def keyEvent(self, event):
         if not self._hasModels():
             return
@@ -166,8 +189,12 @@ class EditArea(gui.VWidget):
                 self.scrollDown()
             doc_cursor.toLineNext()
         elif direction == flags.LEFT:
+            if self._visual_cursor_pos[0] == 0:
+                self.scrollPageLeft()
             doc_cursor.toCharPrev()
         elif direction == flags.RIGHT:
+            if self._visual_cursor_pos[0] == self.width()-1:
+                self.scrollPageRight()
             doc_cursor.toCharNext()
         elif direction == flags.END:
             doc_cursor.toLineEnd()
