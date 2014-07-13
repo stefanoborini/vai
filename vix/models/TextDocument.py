@@ -384,14 +384,17 @@ class TextDocument(core.VObject):
         line_meta = contents[LINE_META_INDEX]
 
         new_text = text[:char_index] + text[char_index+length:]
+        deleted_text = text[char_index:char_index+length]
 
         new_eol_meta = []
         if not _hasEOL(new_text):
             new_eol_meta = [None]
 
         char_meta = contents[CHAR_META_INDEX]
+        deleted_char_meta = {}
         for key, values in char_meta.items():
             char_meta[key] = values[:char_index] + values[char_index+length:] + new_eol_meta
+            deleted_char_meta[key] = values[char_index:char_index+length]
 
         self._contents.insert(line_index, ( line_meta,
                                             char_meta,
@@ -402,6 +405,7 @@ class TextDocument(core.VObject):
         self._setModified(True)
         self.lineChanged.emit(line_number)
         self.contentChanged.emit()
+        return (deleted_text, deleted_char_meta)
 
     def replaceChars(self, pos, length, string):
         self._checkPos(pos)
