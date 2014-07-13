@@ -48,6 +48,20 @@ class Editor(gui.VWidget):
         super().show()
         self._edit_area.setFocus()
 
+    def openFile(self, filename):
+        current_buffer = self._buffers.current()
+        try:
+            new_buffer = Buffer(TextDocument(filename), EditAreaModel())
+        except Exception as e:
+            self._status_bar.setMessage("Error: could not open file. %s" % str(e), 3000)
+            return
+
+        if current_buffer.isEmpty() and not current_buffer.isModified():
+            self._buffers.replaceAndSelect(current_buffer, new_buffer)
+        else:
+            self._buffers.addAndSelect(new_buffer)
+
+        self._doLint()
 
     # Private
 
@@ -169,20 +183,6 @@ class Editor(gui.VWidget):
             self._status_bar.setMessage(None)
             #self._info_hover_box.hide()
 
-    def openFile(self, filename):
-        current_buffer = self._buffers.current()
-        try:
-            new_buffer = Buffer(TextDocument(filename), EditAreaModel())
-        except Exception as e:
-            self._status_bar.setMessage("Error: could not open file. %s" % str(e), 3000)
-            return
-
-        if current_buffer.isEmpty() and not current_buffer.isModified():
-            self._buffers.replaceAndSelect(current_buffer, new_buffer)
-        else:
-            self._buffers.addAndSelect(new_buffer)
-
-        self._doLint()
 
     def _bufferChanged(self, old_buffer, new_buffer):
         self._status_bar_controller.setModels(new_buffer.document(), new_buffer.documentCursor())
