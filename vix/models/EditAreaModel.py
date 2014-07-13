@@ -1,11 +1,10 @@
 from vixtk import core
 from .. import flags
-from ..positions import DocumentPos
 
 class EditAreaModel(core.VObject):
     def __init__(self):
         super().__init__()
-        self._document_pos_at_top = DocumentPos(1,1)
+        self._document_pos_at_top = (1,1)
         self.documentPosChanged = core.VSignal(self)
 
     def documentPosAtTop(self):

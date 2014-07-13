@@ -35,6 +35,18 @@ class CommandBar(gui.VWidget):
     def setFocus(self):
         self._line_edit.setFocus()
 
+    def eventFilter(self, event):
+        if isinstance(event, gui.VKeyEvent):
+            if event.key() == vixtk.Key.Key_Escape:
+                self.escapePressed.emit()
+                return True
+            elif event.key() == vixtk.Key.Key_Backspace and len(self.commandText()) == 0:
+                self.escapePressed.emit()
+                return True
+        return False
+
+    # Private
+
     def _updateText(self):
         if self._mode == flags.INSERT_MODE:
             text = "-- INSERT --"
@@ -59,12 +71,3 @@ class CommandBar(gui.VWidget):
         self._state_label.setText(text)
         self._line_edit.setGeometry( (len(text), 0, self.width()-len(text), 1) )
 
-    def eventFilter(self, event):
-        if isinstance(event, gui.VKeyEvent):
-            if event.key() == vixtk.Key.Key_Escape:
-                self.escapePressed.emit()
-                return True
-            elif event.key() == vixtk.Key.Key_Backspace and len(self.commandText()) == 0:
-                self.escapePressed.emit()
-                return True
-        return False
