@@ -9,10 +9,13 @@ class VSignal(object):
             slot = target.emit
         else:
             slot = target
-        self._slots.append(slot)
+
+        if target not in self._slots:
+            self._slots.append(slot)
 
     def disconnect(self, target):
-        self._slots.remove(target)
+        if target in self._slots:
+            self._slots.remove(target)
 
     def emit(self, *args, **kwargs):
         if not self._enabled:
