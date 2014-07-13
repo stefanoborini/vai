@@ -1,4 +1,6 @@
 from .LineBadge import LineBadge
+from .LinterResult import LinterResult
+from .models.TextDocument import LineMeta
 from vixtk import gui
 
 class SideRulerController:
@@ -41,14 +43,38 @@ class SideRulerController:
         if self._document:
             for line_num in range(1,self._document.numLines()+1):
                 meta = self._document.lineMeta(line_num)
+                badge = None
 
-                if meta.get("change") == "added":
-                    self._side_ruler.addBadge(line_num, LineBadge(marker="+", description="",
-                              fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.green))
-                elif meta.get("change") == "modified":
-                    self._side_ruler.addBadge(line_num, LineBadge(marker=".", description="",
-                             fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.magenta))
-                elif meta.get("change") == None:
+                linting = meta.get(LineMeta.LinterResult)
+                if linting is not None:
+                    if linting.level == LinterResult.Level.ERROR:
+                        badge = LineBadge(marker="E",
+                                          description=linting.message,
+                                          fg_color=gui.VGlobalColor.yellow,
+                                          bg_color=gui.VGlobalColor.red
+                                )
+                    elif linting.level == LinterResult.Level.WARNING:
+                        badge = LineBadge(marker="W",
+                                          description=linting.message,
+                                          fg_color=gui.VGlobalColor.yellow,
+                                          bg_color=gui.VGlobalColor.brown
+                                )
+                    elif linting.level == LinterResult.Level.INFO:
+                        badge = LineBadge(marker="*",
+                                          description=linting.message,
+                                          fg_color=gui.VGlobalColor.yellow,
+                                          bg_color=gui.VGlobalColor.cyan
+                                        )
+
+                change = meta.get(LineMeta.Change)
+                if change == "added":
+                    badge = LineBadge(marker="+", description="", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.green)
+                elif change == "modified":
+                    badge = LineBadge(marker=".", description="", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.magenta)
+
+
+                if badge is None:
                     self._side_ruler.removeBadge(line_num)
-
+                else:
+                    self._side_ruler.addBadge(line_num, badge)
 
