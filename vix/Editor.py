@@ -2,7 +2,7 @@ from vixtk import gui, core, consts, utils
 
 from .SideRuler import SideRuler
 from .SideRulerController import SideRulerController
-from .StatusBar import StatusBar
+from . import widgets
 from .StatusBarController import StatusBarController
 from .CommandBar import CommandBar
 from .CommandBarController import CommandBarController
@@ -66,7 +66,7 @@ class Editor(gui.VWidget):
     # Private
 
     def _createStatusBar(self):
-        self._status_bar = StatusBar(self)
+        self._status_bar = widgets.StatusBar(self)
         self._status_bar.move( (0, self.height()-2) )
         self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setColors(gui.VGlobalColor.cyan, gui.VGlobalColor.blue)

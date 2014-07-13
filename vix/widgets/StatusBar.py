@@ -12,7 +12,6 @@ class StatusBar(gui.VLabel):
         self._remove_message_timer.timeout.connect(self.clearMessage)
 
     def setMessage(self, message, timeout=None):
-
         if self._remove_message_timer.isRunning():
             self._remove_message_timer.stop()
 
@@ -46,6 +45,7 @@ class StatusBar(gui.VLabel):
         self._file_changed_flag = changed
         self._updateText()
 
+    # Private
     def _updateText(self):
         self.logger.info("Updating text")
         if self._message == "":
