@@ -74,3 +74,28 @@ class BreakLineCommand(object):
 
     def undo(self):
         pass
+
+class InsertStringCommand(object):
+    def __init__(self, buffer, string):
+        self._buffer = buffer
+        self._string = string
+        self._pos = None
+        self._meta_modified = False
+
+    def execute(self):
+        cursor = self._buffer.documentCursor()
+        self._pos = cursor.pos()
+        line_meta = cursor.lineMeta()
+        if not "change" in line_meta:
+            self._buffer.documentCursor().updateLineMeta({"change": "modified"})
+            self._meta_modified = True
+
+        for c in self._string:
+            self._buffer.documentCursor().insertSingleChar(c)
+
+    def undo(self):
+        cursor = self._buffer.documentCursor()
+        cursor.toPos(self._pos)
+        self._buffer.document().deleteChars(self._pos, len(self._string))
+        if self._meta_modified:
+            self._buffer.document().deleteLineMeta(self._pos[0], "change")
