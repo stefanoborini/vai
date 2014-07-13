@@ -1,4 +1,7 @@
+import collections
 from .models.TextDocument import LineMeta
+
+CommandResult = collections.namedtuple('CommandResult', ['success', 'info'])
 
 class NewLineCommand(object):
     def __init__(self, buffer):
@@ -49,6 +52,9 @@ class DeleteLineAtCursorCommand(object):
 
     def execute(self):
         document = self._buffer.document()
+        if document.isEmpty():
+            return CommandResult(success=False, info=None)
+
         cursor = self._buffer.documentCursor()
         self._pos = cursor.pos()
 
@@ -56,6 +62,7 @@ class DeleteLineAtCursorCommand(object):
         self._line_meta = document.lineMeta(self._pos[0])
         self._char_meta = document.charMeta( (self._pos[0], 1))
         document.deleteLine(self._pos[0])
+        return CommandResult(success=True, info=None)
 
     def undo(self):
         if self._pos is None:
