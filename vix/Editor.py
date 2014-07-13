@@ -42,6 +42,16 @@ class Editor(gui.VWidget):
         self._buffers.currentBufferChanged.connect(self._bufferChanged)
         self._buffers.addAndSelect(Buffer(TextDocument(), EditAreaModel()))
 
+    def buffers(self):
+        return self._buffers
+
+    def show(self):
+        super().show()
+        self._edit_area.setFocus()
+
+
+    # Private
+
     def _createStatusBar(self):
         self._status_bar = StatusBar(self)
         self._status_bar.move( (0, self.height()-2) )
@@ -54,8 +64,8 @@ class Editor(gui.VWidget):
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
         self._command_bar_controller = CommandBarController(self._command_bar, self._editor_model)
-        self._command_bar.returnPressed.connect(self.executeCommand)
-        self._command_bar.escapePressed.connect(self.abortCommand)
+        self._command_bar.returnPressed.connect(self._executeCommand)
+        self._command_bar.escapePressed.connect(self._abortCommand)
 
     def _createSideRuler(self):
         self._side_ruler = SideRuler(self)
@@ -82,10 +92,10 @@ class Editor(gui.VWidget):
         self._backup_timer = core.VTimer()
         self._backup_timer.setInterval(60*1000)
         self._backup_timer.setSingleShot(False)
-        self._backup_timer.timeout.connect(self.doBackup)
+        self._backup_timer.timeout.connect(self._doBackup)
         self._backup_timer.start()
 
-    def executeCommand(self):
+    def _executeCommand(self):
         command_text = self._command_bar.commandText().strip()
         logging.info("Executing command "+command_text)
 
@@ -97,17 +107,17 @@ class Editor(gui.VWidget):
             else:
                 gui.VApplication.vApp.exit()
         elif command_text == "w":
-            self.doSave()
-            self.doLint()
+            self._doSave()
+            self._doLint()
         elif command_text == "wq":
-            self.doSave()
+            self._doSave()
             gui.VApplication.vApp.exit()
         elif command_text.startswith("e "):
             buffer = Buffer(TextDocument(command_text[2:]),
                                         EditAreaModel()
                                         )
             self._buffers.addAndSelect(buffer)
-            self.doLint()
+            self._doLint()
         elif command_text.startswith("bp"):
             self._buffers.selectPrev()
         elif command_text.startswith("bn"):
@@ -118,13 +128,13 @@ class Editor(gui.VWidget):
         self._editor_model.setMode(flags.COMMAND_MODE)
         self._edit_area.setFocus()
 
-    def abortCommand(self):
+    def _abortCommand(self):
         logging.info("Aborting command")
         self._command_bar.clear()
         self._editor_model.setMode(flags.COMMAND_MODE)
         self._edit_area.setFocus()
 
-    def doLint(self):
+    def _doLint(self):
         document = self.buffers().current().document()
 
         linter1 = PyFlakesLinter(document)
@@ -151,17 +161,14 @@ class Editor(gui.VWidget):
                                                            bg_color=gui.VGlobalColor.cyan)
                                         )
 
-    def buffers(self):
-        return self._buffers
-
-    def doSave(self):
+    def _doSave(self):
         logging.info("Saving file")
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
         self._buffers.current().document().save()
         self._status_bar.setMessage("Saved %s" % self._buffers.current().document().filename(), 3000)
 
-    def doBackup(self):
+    def _doBackup(self):
         logging.info("Saving backup file")
         #self._status_bar.setMessage("Saving backup...")
         #gui.VApplication.vApp.processEvents()
@@ -169,11 +176,7 @@ class Editor(gui.VWidget):
         #self._current_document.saveBackup()
         #self._status_bar.setTemporaryMessage("Backup saved", 3000)
 
-    def show(self):
-        super().show()
-        self._edit_area.setFocus()
-
-    def showInfoHoverBoxIfNeeded(self, document_pos):
+    def _showInfoHoverBoxIfNeeded(self, document_pos):
         badge = self._side_ruler.badge(document_pos[0])
         if badge is not None:
             self._status_bar.setMessage(badge.description, 3000)
@@ -197,14 +200,14 @@ class Editor(gui.VWidget):
         else:
             self._buffers.addAndSelect(new_buffer)
 
-        self.doLint()
+        self._doLint()
 
     def _bufferChanged(self, old_buffer, new_buffer):
         self._status_bar_controller.setModels(new_buffer.document(), new_buffer.documentCursor())
         self._side_ruler_controller.setModel(new_buffer.document(),new_buffer.editAreaModel())
         self._edit_area.setModels(new_buffer, self._editor_model)
         if old_buffer:
-            old_buffer.documentCursor().positionChanged.disconnect(self.showInfoHoverBoxIfNeeded)
-        new_buffer.documentCursor().positionChanged.connect(self.showInfoHoverBoxIfNeeded)
+            old_buffer.documentCursor().positionChanged.disconnect(self._showInfoHoverBoxIfNeeded)
+        new_buffer.documentCursor().positionChanged.connect(self._showInfoHoverBoxIfNeeded)
         self._lexer.setModel(new_buffer.document())
 
