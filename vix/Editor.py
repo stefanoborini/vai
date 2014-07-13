@@ -17,7 +17,7 @@ from . import flags
 from .models.EditAreaModel import EditAreaModel
 from .models.Buffer import Buffer
 from .models.BufferList import BufferList
-from .models.TextDocument import TextDocument
+from .models.TextDocument import TextDocument, LineMeta
 from .models.EditorModel import EditorModel
 import logging
 
@@ -142,24 +142,7 @@ class Editor(gui.VWidget):
         info = linter1.runOnce() #+ linter2.lint(document)
 
         for i in info:
-            if i.level == LinterResult.Level.ERROR:
-                self._side_ruler.addBadge(i.line,LineBadge(marker="E",
-                                                           description=i.message,
-                                                           fg_color=gui.VGlobalColor.yellow,
-                                                           bg_color=gui.VGlobalColor.red)
-                                        )
-            elif i.level == LinterResult.Level.WARNING:
-                self._side_ruler.addBadge(i.line,LineBadge(marker="W",
-                                                           description=i.message,
-                                                           fg_color=gui.VGlobalColor.yellow,
-                                                           bg_color=gui.VGlobalColor.brown)
-                                        )
-            else:
-                self._side_ruler.addBadge(i.line,LineBadge(marker="*",
-                                                           description=i.message,
-                                                           fg_color=gui.VGlobalColor.yellow,
-                                                           bg_color=gui.VGlobalColor.cyan)
-                                        )
+            document.updateLineMeta(i.line, {LineMeta.LinterResult: i})
 
     def _doSave(self):
         logging.info("Saving file")
