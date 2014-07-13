@@ -168,31 +168,33 @@ class TextDocumentCursor(core.VObject):
         self._text_document.deleteLine(current_line)
         return True
 
-    def insertSingleChar(self, string):
+    def insertSingleChar(self, char):
         if not self.isValid():
             return False
-        self._text_document.insertChars(self._pos, string)
+        self._text_document.insertChars(self._pos, char)
         self.toCharNext()
         return True
 
     def deleteSingleChar(self):
         if self.toCharPrev():
-            self._text_document.deleteChars(self._pos, 1)
-            return True
-        return False
+            deleted = self._text_document.deleteChars(self._pos, 1)
+            return deleted
+        return None
 
     def deleteSingleCharAfter(self):
         if not self.isValid():
-            return False
+            return None
 
         current_column = self._pos[1]
         if current_column == self._text_document.lineLength(self._pos[0]):
             if self.toCharPrev():
-                self._text_document.deleteChars( (self._pos[0], current_column), 1)
+                deleted = self._text_document.deleteChars( (self._pos[0], current_column), 1)
+            else:
+                deleted = None
         else:
-            self._text_document.deleteChars( (self._pos[0], current_column), 1)
+            deleted = self._text_document.deleteChars( (self._pos[0], current_column), 1)
 
-        return True
+        return deleted
 
     def replace(self, length, replace):
         pass

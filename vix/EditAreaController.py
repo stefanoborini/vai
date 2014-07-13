@@ -46,12 +46,13 @@ class EditAreaController(core.VObject):
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.setMode(flags.COMMAND_MODE)
         elif event.key() == vixtk.Key.Key_Backspace:
-            meta = self._buffer.documentCursor().lineMeta()
-            if "change" not in meta:
-                self._buffer.documentCursor().updateLineMeta({"change": "modified"})
-            self._buffer.documentCursor().deleteSingleChar()
+            command = DeleteSingleCharCommand(self._buffer)
+            self._buffer.commandHistory().append(command)
+            command.execute()
         elif event.key() == vixtk.Key.Key_Return:
-            self._buffer.documentCursor().breakLine()
+            command = commands.BreakLineCommand(self._buffer)
+            self._buffer.commandHistory().append(command)
+            command.execute()
         else:
             if event.key() == vixtk.Key.Key_Tab:
                 text = " "*4
@@ -76,7 +77,7 @@ class EditAreaController(core.VObject):
             event.accept()
 
         elif event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
-            self._buffer.documentCursor().deleteCharAfter()
+            self._buffer.documentCursor().deleteSingleCharAfter()
             event.accept()
 
         elif event.key() == vixtk.Key.Key_G and event.modifiers() == 0:
