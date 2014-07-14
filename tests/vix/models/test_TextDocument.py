@@ -238,7 +238,25 @@ class TestTextDocument(unittest.TestCase):
 
     def testDeleteChars(self):
         doc = TextDocument(fixture("basic_nonempty_file.txt"))
-        doc.deleteChars( (1,3), 1)
+        d = doc.deleteChars( (1,3), 1)
+        self.assertEqual(doc.lineText(1), 'helo\n')
+        self.assertEqual(d[0], 'l')
+
+        d = doc.deleteChars( (1,2), 100)
+        self.assertEqual(doc.lineText(1), 'h\n')
+        self.assertEqual(d[0], 'elo')
+
+        d = doc.deleteChars( (1,2), 100)
+        self.assertEqual(doc.lineText(1), 'h\n')
+        self.assertEqual(d[0], '')
+
+        d = doc.deleteChars( (1,1), 100)
+        self.assertEqual(doc.lineText(1), '\n')
+        self.assertEqual(d[0], 'h')
+
+        d = doc.deleteChars( (1,1), 100)
+        self.assertEqual(doc.lineText(1), '\n')
+        self.assertEqual(d[0], '')
 
     def testReplaceChars(self):
         doc = TextDocument(fixture("basic_nonempty_file.txt"))

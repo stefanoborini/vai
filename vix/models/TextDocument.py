@@ -377,18 +377,33 @@ class TextDocument(core.VObject):
         self.lineChanged.emit(pos)
         self.contentChanged.emit()
 
-    def deleteChars(self, pos, length):
+    def deleteChars(self, pos, how_many):
+        """
+        Deletes at max how_many characters, starting and including
+        position pos. The EOL is never deleted.
+        Returns a tuple containing the deleted string and the character
+        metainfo for that string.
+        """
         self._checkPos(pos)
         line_number, char_number = pos
         line_index = line_number - 1
         char_index = char_number - 1
+        line_length = self.lineLength(line_number)
+
+        #  0 1 2 3 4 5
+        # 'h e l l o \n'  line_length = 6
+        #   |       |
+        #   |       char_index+how_many = 5. how_many = 4
+        #   char_index = 1
+        if char_index+how_many > line_length-1:
+            how_many = line_length-char_index-1
 
         contents = self._contents.pop(line_index)
         text = contents[TEXT_INDEX]
         line_meta = contents[LINE_META_INDEX]
 
-        new_text = text[:char_index] + text[char_index+length:]
-        deleted_text = text[char_index:char_index+length]
+        new_text = text[:char_index] + text[char_index+how_many:]
+        deleted_text = text[char_index:char_index+how_many]
 
         new_eol_meta = []
         if not _hasEOL(new_text):
@@ -397,16 +412,17 @@ class TextDocument(core.VObject):
         char_meta = contents[CHAR_META_INDEX]
         deleted_char_meta = {}
         for key, values in char_meta.items():
-            char_meta[key] = values[:char_index] + values[char_index+length:] + new_eol_meta
-            deleted_char_meta[key] = values[char_index:char_index+length]
+            char_meta[key] = values[:char_index] + values[char_index+how_many:] + new_eol_meta
+            deleted_char_meta[key] = values[char_index:char_index+how_many]
 
         self._contents.insert(line_index, ( line_meta,
                                             char_meta,
-                                            _withEOL(text)
+                                            new_text
                                         )
                                 )
 
         self._setModified(True)
+        self.lineMetaInfoChanged.emit(line_number)
         self.lineChanged.emit(line_number)
         self.contentChanged.emit()
         return (deleted_text, deleted_char_meta)
