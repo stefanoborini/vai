@@ -30,6 +30,21 @@ class TestCommands(unittest.TestCase):
 
     def testNewLineAfterCommand(self):
         command = commands.NewLineAfterCommand(self.buffer)
+        status = command.execute()
+        self.assertNotEqual(status, None)
+        self.assertEqual(self.buffer.document().numLines(), 5)
+        self.assertEqual(self.buffer.document().lineMeta(1), {})
+        self.assertEqual(self.buffer.document().lineMeta(2), {LineMeta.Change: "added"})
+        self.assertEqual(self.buffer.document().lineMeta(3), {})
+        self.assertNotEqual(self.buffer.document().lineText(1), "\n")
+        self.assertEqual(self.buffer.document().lineText(2), "\n")
+        self.assertEqual(self.buffer.documentCursor().pos(), (2,1))
+
+        command.undo()
+        self.assertEqual(self.buffer.document().numLines(), 4)
+        self.assertEqual(self.buffer.document().lineMeta(1), {})
+        self.assertEqual(self.buffer.document().lineMeta(2), {})
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
 
     def testDeleteLineAtCursorCommand(self):
         command = commands.DeleteLineAtCursorCommand(self.buffer)

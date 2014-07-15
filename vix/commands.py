@@ -36,6 +36,7 @@ class NewLineAfterCommand(object):
         document.newLineAfter(self._pos[0])
         document.updateLineMeta(self._pos[0]+1, {LineMeta.Change: "added"})
         cursor.toLineNext()
+        return CommandResult(True, None)
 
     def undo(self):
         document = self._buffer.document()
