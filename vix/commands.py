@@ -60,7 +60,8 @@ class DeleteLineAtCursorCommand(object):
 
         if cursor.pos()[0] == self._buffer.document().numLines():
             # Last line. Move the cursor up
-            cursor.toLinePrev()
+            if not cursor.toLinePrev():
+                cursor.toLineBeginning()
 
         self._line_memento = document.lineMemento(self._pos[0])
         document.deleteLine(self._pos[0])
