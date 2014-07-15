@@ -15,6 +15,7 @@ class NewLineCommand(object):
         self._pos = cursor.pos()
         document.newLine(self._pos[0])
         document.updateLineMeta(self._pos[0], {LineMeta.Change: "added"})
+        return CommandResult(True, None)
 
     def undo(self):
         document = self._buffer.document()
