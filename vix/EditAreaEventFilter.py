@@ -5,6 +5,10 @@ from . import flags
 import logging
 
 class EditAreaEventFilter(core.VObject):
+    """
+    Event filter to detect the use of commandbar initiation
+    keys, such as :, / and ?
+    """
     def __init__(self, command_bar):
         super().__init__()
         self._editor_model = None
@@ -14,7 +18,6 @@ class EditAreaEventFilter(core.VObject):
         if not self._hasModel():
             return False
 
-        self.logger.info("Event filter!")
         if isinstance(event, gui.VKeyEvent) \
                and event.key() == vixtk.Key.Key_Colon\
                and self._editor_model.mode() == flags.COMMAND_MODE:
@@ -25,10 +28,12 @@ class EditAreaEventFilter(core.VObject):
 
         return False
 
-    def _hasModel(self):
-        return self._editor_model is not None
-
     def setModel(self, editor_model):
         self._editor_model = editor_model
+
+    # Private
+
+    def _hasModel(self):
+        return self._editor_model is not None
 
 
