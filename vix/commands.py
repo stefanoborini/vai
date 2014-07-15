@@ -48,9 +48,7 @@ class DeleteLineAtCursorCommand(object):
     def __init__(self, buffer):
         self._buffer = buffer
         self._pos = None
-        self._line_text = None
-        self._line_meta = None
-        self._char_meta = None
+        self._line_memento = None
 
     def execute(self):
         document = self._buffer.document()
@@ -60,24 +58,19 @@ class DeleteLineAtCursorCommand(object):
         cursor = self._buffer.documentCursor()
         self._pos = cursor.pos()
 
-        self._line_text = document.lineText(self._pos[0])
-        self._line_meta = document.lineMeta(self._pos[0])
-        self._char_meta = document.charMeta( (self._pos[0], 1))
+        if cursor.pos()[0] == self._buffer.document().numLines():
+            # Last line. Move the cursor up
+            cursor.toLinePrev()
+
+        self._line_memento = document.lineMemento(self._pos[0])
         document.deleteLine(self._pos[0])
         return CommandResult(success=True, info=None)
 
     def undo(self):
-        if self._pos is None:
-            return
-
         document = self._buffer.document()
-        document.insertLine(self._pos[0], self._line_text)
-        document.updateLineMeta(self._pos[0], self._line_meta)
-        #document.updateCharMeta( (self._pos[0], 1), self._char_meta)
-
+        document.insertFromMemento(self._pos[0], self._line_memento)
         cursor = self._buffer.documentCursor()
         cursor.toPos(self._pos)
-        self._pos = None
 
 class DeleteSingleCharCommand(object):
     def __init__(self, buffer):
