@@ -1,6 +1,6 @@
 from vixtk import gui, core, consts, utils
 
-from .SideRuler import SideRuler
+from .widgets import SideRuler
 from .SideRulerController import SideRulerController
 from . import widgets
 from .StatusBarController import StatusBarController
