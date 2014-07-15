@@ -1,10 +1,8 @@
 from vixtk import gui, core, consts, utils
 
-from .widgets import SideRuler
 from .SideRulerController import SideRulerController
 from . import widgets
 from .StatusBarController import StatusBarController
-from .CommandBar import CommandBar
 from .CommandBarController import CommandBarController
 from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
@@ -73,7 +71,7 @@ class Editor(gui.VWidget):
         self._status_bar_controller = StatusBarController(self._status_bar)
 
     def _createCommandBar(self):
-        self._command_bar = CommandBar(self)
+        self._command_bar = widgets.CommandBar(self)
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
         self._command_bar_controller = CommandBarController(self._command_bar, self._editor_model)
@@ -81,7 +79,7 @@ class Editor(gui.VWidget):
         self._command_bar.escapePressed.connect(self._abortCommand)
 
     def _createSideRuler(self):
-        self._side_ruler = SideRuler(self)
+        self._side_ruler = widgets.SideRuler(self)
         self._side_ruler.move( (0, 0) )
         self._side_ruler.resize( (5, self.height()-2) )
         self._side_ruler_controller = SideRulerController(self._side_ruler)
