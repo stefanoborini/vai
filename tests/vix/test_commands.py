@@ -47,7 +47,7 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.document.lineMeta(2), {})
         self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
 
-    def testDeleteLineAtCursorCommand(self):
+    def testDeleteLineAtCursorCommand1(self):
         removed_line = self.document.lineText(1)
 
         command = commands.DeleteLineAtCursorCommand(self.buffer)
@@ -65,7 +65,10 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.document.lineText(1), removed_line)
         self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
 
+    def testDeleteLineAtCursorCommand2(self):
+        """testDeleteLineAtCursorCommand from the bottom"""
         removed_line = self.document.lineText(4)
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
         self.buffer.documentCursor().toPos((4,1))
         command.execute()
         self.assertEqual(self.document.numLines(), 3)
@@ -76,6 +79,33 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.document.lineText(4), removed_line)
         self.assertEqual(self.buffer.documentCursor().pos(), (4,1))
 
+    def testDeleteLineAtCursorCommand3(self):
+        """testDeleteLineAtCursorCommand all the way from the bottom"""
+        self.buffer.documentCursor().toPos((4,2))
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        command.execute()
+        self.assertEqual(self.document.numLines(), 3)
+        self.assertEqual(self.buffer.documentCursor().pos(), (3,2))
+
+        command.execute()
+        self.assertEqual(self.document.numLines(), 2)
+        self.assertEqual(self.buffer.documentCursor().pos(), (2,1))
+
+        command.execute()
+        self.assertEqual(self.document.numLines(), 1)
+        self.assertNotEqual(self.document.lineLength(1), 1)
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,2))
+
+        command.execute()
+        self.assertEqual(self.document.numLines(), 1)
+        self.assertEqual(self.document.lineLength(1), 1)
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
+
+        status = command.execute()
+        self.assertFalse(status.success)
+        self.assertEqual(self.document.numLines(), 1)
+        self.assertEqual(self.document.lineLength(1), 1)
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
 
     def testDeleteSingleCharCommand(self):
         command = commands.DeleteSingleCharCommand(self.buffer)
