@@ -28,6 +28,7 @@ def main():
         e.show()
 
         if args.profile:
+            import cProfile
             pr = cProfile.Profile()
             pr.enable()
 
@@ -61,4 +62,3 @@ def main():
 
     return 0
 
-import cProfile
