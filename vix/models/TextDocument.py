@@ -1,4 +1,5 @@
 import time
+import copy
 from vixtk import gui, core, utils
 import contextlib
 from .TextDocumentCursor import TextDocumentCursor
@@ -483,6 +484,23 @@ class TextDocument(core.VObject):
 
     def isValidPos(self, pos):
         return (self.isValidLine(pos[0]) and (1 <= pos[1] <= self.lineLength(pos[0])))
+
+    # Memento extraction for a line
+
+    def lineMemento(self, line_number):
+        return copy.deepcopy(self._contents[line_number-1])
+
+    def insertFromMemento(self, line_number, memento):
+        self._contents.insert(line_number-1, copy.deepcopy(memento))
+        self.lineMetaInfoChanged.emit(line_number)
+        self.charMetaInfoChanged.emit((line_number, 1))
+        self.contentChanged.emit()
+
+    def replaceFromMemento(self, line_number, memento):
+        self._contents[line_number-1] = copy.deepcopy(memento)
+        self.lineMetaInfoChanged.emit(line_number)
+        self.charMetaInfoChanged.emit((line_number, 1))
+        self.contentChanged.emit()
 
     # Private
 
