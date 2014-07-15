@@ -1,6 +1,6 @@
 from vixtk import gui, core
 import vixtk
-from . import flags
+from .. import flags
 
 class CommandBar(gui.VWidget):
     def __init__(self, parent=None):
