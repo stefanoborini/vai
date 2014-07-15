@@ -1,6 +1,6 @@
 import unittest
 from vixtk import test, gui, core
-from vix import SideRuler
+from vix.widgets import SideRuler
 
 class SideRulerTest(unittest.TestCase):
     def setUp(self):
@@ -14,7 +14,7 @@ class SideRulerTest(unittest.TestCase):
         del self.app
 
     def testBasicSideRulerRepresentation(self):
-        ruler = SideRuler.SideRuler(parent=None)
+        ruler = SideRuler(parent=None)
         ruler.setNumRows(10)
         ruler.setGeometry((0,0,5,40))
         ruler.show()
