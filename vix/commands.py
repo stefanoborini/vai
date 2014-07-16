@@ -256,3 +256,30 @@ class InsertStringCommand(object):
     def undo(self):
         self._buffer.documentCursor().toPos(self._pos)
         self._buffer.document().replaceFromMemento(self._pos[0], self._line_memento)
+
+class DeleteToEndOfLineCommand(object):
+    def __init__(self, buffer):
+        self._buffer = buffer
+        self._pos = None
+        self._line_memento = None
+
+    def execute(self):
+        cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
+
+        self._pos = cursor.pos()
+        self._line_memento = document.lineMemento(self._pos[0])
+
+        line_meta = document.lineMeta(self._pos[0])
+        if not LineMeta.Change in line_meta:
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
+
+        deleted = document.deleteChars(self._pos, document.lineLength(self._pos[0])-self._pos[1])
+        cursor.toCharPrev()
+        return CommandResult(success=True, info=deleted)
+
+    def undo(self):
+        cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
+        cursor.toPos(self._pos)
+        document.replaceFromMemento(self._pos[0], self._line_memento)
