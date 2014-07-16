@@ -2,6 +2,7 @@ import vixtk
 from vixtk import gui, core, utils
 from .EditAreaController import EditAreaController
 from . import flags
+from .models.TextDocument import CharMeta
 import logging
 
 from pygments import token
@@ -66,7 +67,7 @@ class EditArea(gui.VWidget):
                     line = self._buffer.document().lineText(document_line)[pos_at_top[1]-1:]
                     painter.drawText( (0, i), line.replace('\n', ' '))
                     char_meta = self._buffer.document().charMeta( (document_line,1))
-                    colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get("lextoken", [])][pos_at_top[1]-1:]
+                    colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken, [])][pos_at_top[1]-1:]
                     painter.setColors((0, i), colors)
 
         document_cursor_pos = self._buffer.documentCursor().pos()

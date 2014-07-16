@@ -18,6 +18,9 @@ class LineMeta:
     Change = "Change"
     LinterResult = "LinterResult"
 
+class CharMeta:
+    LexerToken = "LexerToken"
+
 class TextDocument(core.VObject):
     """
     Represents the contents of a file.
