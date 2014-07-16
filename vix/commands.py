@@ -78,13 +78,25 @@ class DeleteSingleCharCommand(object):
         self._buffer = buffer
         self._pos = None
         self._line_memento = None
+        self._sub_command = None
 
     def execute(self):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        if cursor.pos()[1] == 1:
+        pos = cursor.pos()
+        if pos == (1,1):
             return CommandResult(success=False, info=None)
+
+        if pos[1] == 1:
+            cursor.toPos( (pos[0]-1, self.lineLength(pos[0]-1)) )
+            command = JoinWithNextLineCommand(self._buffer)
+            result = command.execute()
+            if result.success:
+                self._sub_command = result
+                return CommandResult(True, '\n')
+            else:
+                return CommandResult(False, None)
 
         self._pos = cursor.pos()
         self._line_memento = document.lineMemento(self._pos[0])
@@ -98,9 +110,14 @@ class DeleteSingleCharCommand(object):
         return CommandResult(success=True, info=deleted)
 
     def undo(self):
+        if self._sub_command is not None:
+            self._sub_command.undo()
+            return
+
         cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
         cursor.toPos(self._pos)
-        cursor.replaceFromMemento(self._line_memento)
+        document.replaceFromMemento(self._pos[0], self._line_memento)
 
 class DeleteSingleCharAfterCommand(object):
     def __init__(self, buffer):
@@ -127,8 +144,9 @@ class DeleteSingleCharAfterCommand(object):
 
     def undo(self):
         cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
         cursor.toPos(self._pos)
-        cursor.replaceFromMemento(self._line_memento)
+        document.replaceFromMemento(self._pos[0], self._line_memento)
 
 class BreakLineCommand(object):
     def __init__(self, buffer):
@@ -140,24 +158,23 @@ class BreakLineCommand(object):
     def execute(self):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
-        pos = cursor.pos()
 
-        if pos[1] == document.lineLength(pos[0]):
+        self._pos = cursor.pos()
+        if self._pos[1] == document.lineLength(self._pos[0]):
             command = NewLineAfterCommand(self._buffer)
             result = command.execute()
             if result.success:
                 self._sub_command = command
             return result
 
-        if pos[1] == 1:
+        if self._pos[1] == 1:
             command = NewLineCommand(self._buffer)
             result = command.execute()
             if result.success:
                 self._sub_command = command
+            cursor.toPos((self._pos[0]+1, 1))
             return result
 
-
-        self._pos = cursor.pos()
         self._line_memento = document.lineMemento(self._pos[0])
 
         document.breakLine(self._pos)
@@ -170,12 +187,13 @@ class BreakLineCommand(object):
         return CommandResult(success=True, info=None)
 
     def undo(self):
+        cursor = self._buffer.documentCursor()
+        cursor.toPos(self._pos)
+
         if self._sub_command is not None:
             self._sub_command.undo()
             return
 
-        cursor = self._buffer.documentCursor()
-        cursor.toPos(self._pos)
         document = self._buffer.document()
         document.replaceFromMemento(self._pos[0], self._line_memento)
         document.deleteLine(self._pos[0]+1)
@@ -189,7 +207,12 @@ class JoinWithNextLineCommand(object):
 
     def execute(self):
         cursor = self._buffer.documentCursor()
-        self._pos = cursor.pos()
+        document = self._buffer.document()
+        pos = cursor.pos()
+        if pos[0] == document.numLines():
+            return CommandResult(success=False, info=None)
+
+        self._pos = pos
         document = self._buffer.document()
         line_meta = document.lineMeta(self._pos[0])
 
