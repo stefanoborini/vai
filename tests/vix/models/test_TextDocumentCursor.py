@@ -6,17 +6,12 @@ from vixtk.test import VSignalSpy
 from vix.models.TextDocument import TextDocument
 from vix.models.TextDocumentCursor import TextDocumentCursor
 from vix import flags
-
-def baseDir():
-    return os.path.dirname(inspect.getfile(sys.modules[__name__]))
-
-def fixture(name):
-    return os.path.join(baseDir(), "fixtures", name)
+from tests import fixtures
 
 class TestTextDocumentCursor(unittest.TestCase):
 
     def setUp(self):
-        self.doc = TextDocument(fixture("basic_nonempty_file.txt"))
+        self.doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
 
     def testPos(self):
         cursor = TextDocumentCursor(self.doc)
