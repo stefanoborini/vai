@@ -134,27 +134,55 @@ class BreakLineCommand(object):
     def __init__(self, buffer):
         self._buffer = buffer
         self._pos = None
+        self._line_memento = None
 
     def execute(self):
         cursor = self._buffer.documentCursor()
-        self._pos = cursor.pos()
-        cursor.breakLine()
         document = self._buffer.document()
-        if document.lineMeta(cursor.pos()[0]-1).get(LineMeta.Change) == None:
-            document.updateLineMeta(cursor.pos()[0]-1, {LineMeta.Change: "modified"})
-        document.updateLineMeta(cursor.pos()[0], {LineMeta.Change: "added"})
+        pos = cursor.pos()
+        if pos[1] == 1 or pos[1] == document.lineLength(pos[0]):
+            return CommandResult(success=False, info=None)
+
+        self._pos = cursor.pos()
+        self._line_memento = document.lineMemento(self._pos[0])
+
+        document.breakLine(self._pos)
+        cursor.toPos((self._pos[0]+1, 1))
+        line_meta = document.lineMeta(self._pos[0])
+        if line_meta.get(LineMeta.Change) == None:
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
+
+        document.updateLineMeta(self._pos[0]+1, {LineMeta.Change: "added"})
+        return CommandResult(success=True, info=None)
 
     def undo(self):
-        pass
+        cursor = self._buffer.documentCursor()
+        cursor.toPos(self._pos)
+        document = self._buffer.document()
+        document.replaceFromMemento(self._pos[0], self._line_memento)
+        document.deleteLine(self._pos[0]+1)
 
 class JoinWithNextLineCommand(object):
     def __init__(self, buffer):
         self._buffer = buffer
+        self._pos = None
+        self._line_1_memento = None
+        self._line_2_memento = None
 
     def execute(self):
-        pass
+        cursor = self._buffer.documentCursor()
+        self._pos = cursor.pos()
+        document = self._buffer.document()
+        line_meta = document.lineMeta(self._pos[0])
+
+        document.joinWithNextLine(self._pos[0])
+        if line_meta.get(LineMeta.Change) == None:
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
+
+        return CommandResult(success=True, info=None)
+
     def undo(self):
-        pass
+        raise NotImplementedError()
 
 class InsertStringCommand(object):
     def __init__(self, buffer, string):
@@ -164,6 +192,7 @@ class InsertStringCommand(object):
         self._meta_modified = False
 
     def execute(self):
+        raise NotImplementedError()
         cursor = self._buffer.documentCursor()
         self._pos = cursor.pos()
         line_meta = cursor.lineMeta()
@@ -175,6 +204,7 @@ class InsertStringCommand(object):
             self._buffer.documentCursor().insertSingleChar(c)
 
     def undo(self):
+        raise NotImplementedError()
         cursor = self._buffer.documentCursor()
         cursor.toPos(self._pos)
         self._buffer.document().deleteChars(self._pos, len(self._string))
