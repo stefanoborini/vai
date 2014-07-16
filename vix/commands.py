@@ -77,57 +77,58 @@ class DeleteSingleCharCommand(object):
     def __init__(self, buffer):
         self._buffer = buffer
         self._pos = None
-        self._deleted = None
-        self._meta_modified = False
+        self._line_memento = None
 
     def execute(self):
+        document = self._buffer.document()
         cursor = self._buffer.documentCursor()
-        self._pos = cursor.pos()
-        self._line_meta = document.lineMeta(self._pos[0])
-        self._char_meta = document.charMeta( (self._pos[0], 1))
-        if not LineMeta.Change in self._line_meta:
-            self._buffer.documentCursor().updateLineMeta({LineMeta.Change: "modified"})
-            self._meta_modified = True
 
-        self._deleted = cursor.deleteSingleChar()
+        if cursor.pos()[1] == 1:
+            return CommandResult(success=False, info=None)
+
+        self._pos = cursor.pos()
+        self._line_memento = document.lineMemento(self._pos[0])
+
+        line_meta = document.lineMeta(self._pos[0])
+        if not LineMeta.Change in line_meta:
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
+
+        deleted = document.deleteChars( (self._pos[0], self._pos[1]-1), 1)
+        cursor.toCharPrev()
+        return CommandResult(success=True, info=deleted)
 
     def undo(self):
         cursor = self._buffer.documentCursor()
         cursor.toPos(self._pos)
-        cursor.insertSingleChar(self._deleted[0])
-        document.updateLineMeta(self._pos[0], self._line_meta)
-        #document.updateCharMeta( (self._pos[0], 1), self._char_meta)
+        cursor.replaceFromMemento(self._line_memento)
 
 class DeleteSingleCharAfterCommand(object):
     def __init__(self, buffer):
         self._buffer = buffer
         self._pos = None
-        self._deleted = None
-        self._meta_modified = False
-        self._line_meta = None
-        self._char_meta = None
+        self._line_memento = None
 
     def execute(self):
         cursor = self._buffer.documentCursor()
-        deleted = cursor.deleteSingleCharAfter()
-        if deleted is None:
-            self
+        document = self._buffer.document()
 
+        if cursor.pos()[1] == document.lineLength(cursor.pos()[0]):
+            return CommandResult(success=False, info=None)
 
         self._pos = cursor.pos()
-        self._line_meta = cursor.lineMeta()
-        if not LineMeta.Change in self._line_meta:
-            self._buffer.documentCursor().updateLineMeta({LineMeta.Change: "modified"})
-            self._meta_modified = True
+        self._line_memento = document.lineMemento(self._pos[0])
 
+        line_meta = document.lineMeta(self._pos[0])
+        if not LineMeta.Change in line_meta:
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
+
+        deleted = document.deleteChars(self._pos, 1)
+        return CommandResult(success=True, info=deleted)
 
     def undo(self):
         cursor = self._buffer.documentCursor()
         cursor.toPos(self._pos)
-        document = self._buffer.document()
-        document.insertChars(self._pos, self._deleted[0])
-        document.updateLineMeta(self._pos[0], self._line_meta)
-        #document.updateCharMeta( (self._pos[0], 1), self._char_meta)
+        cursor.replaceFromMemento(self._line_memento)
 
 class BreakLineCommand(object):
     def __init__(self, buffer):
