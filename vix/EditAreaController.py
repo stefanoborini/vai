@@ -94,7 +94,7 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_D:
+        if event.key() == vixtk.Key.Key_D and event.modifiers() == 0:
             self._editor_model.setMode(flags.DELETE_MODE)
             event.accept()
             return
@@ -144,6 +144,8 @@ class EditAreaController(core.VObject):
                 command = commands.NewLineCommand(self._buffer)
         elif event.key() == vixtk.Key.Key_J and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
             command = commands.JoinWithNextLineCommand(self._buffer)
+        elif event.key() == vixtk.Key.Key_D and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            command = commands.DeleteToEndOfLineCommand(self._buffer)
 
         if command is not None:
             result = command.execute()

@@ -1,4 +1,4 @@
-from vixtk import gui, core, consts, utils
+from vixtk import gui, core
 
 from .SideRulerController import SideRulerController
 from . import widgets
