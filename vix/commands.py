@@ -216,6 +216,9 @@ class JoinWithNextLineCommand(object):
         document = self._buffer.document()
         line_meta = document.lineMeta(self._pos[0])
 
+        self._line_1_memento = document.lineMemento(self._pos[0])
+        self._line_2_memento = document.lineMemento(self._pos[0]+1)
+
         document.joinWithNextLine(self._pos[0])
         if line_meta.get(LineMeta.Change) == None:
             document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
@@ -223,31 +226,33 @@ class JoinWithNextLineCommand(object):
         return CommandResult(success=True, info=None)
 
     def undo(self):
-        raise NotImplementedError()
+        document = self._buffer.document()
+        document.insertFromMemento(self._pos[0]+1, self._line_2_memento)
+        document.replaceFromMemento(self._pos[0], self._line_1_memento)
+        cursor = self._buffer.documentCursor()
+        cursor.toPos(self._pos)
 
 class InsertStringCommand(object):
     def __init__(self, buffer, string):
         self._buffer = buffer
         self._string = string
         self._pos = None
-        self._meta_modified = False
+        self._line_memento = None
 
     def execute(self):
-        raise NotImplementedError()
         cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
         self._pos = cursor.pos()
-        line_meta = cursor.lineMeta()
+        self._line_memento = document.lineMemento(self._pos[0])
+
+        line_meta = document.lineMeta(self._pos[0])
         if not LineMeta.Change in line_meta:
             self._buffer.documentCursor().updateLineMeta({LineMeta.Change: "modified"})
-            self._meta_modified = True
 
-        for c in self._string:
-            self._buffer.documentCursor().insertSingleChar(c)
+        document.insertChars(self._pos, self._string)
+        cursor.toPos( (self._pos[0], self._pos[1]+len(self._string)) )
+        return CommandResult(success=False, info=None)
 
     def undo(self):
-        raise NotImplementedError()
-        cursor = self._buffer.documentCursor()
-        cursor.toPos(self._pos)
-        self._buffer.document().deleteChars(self._pos, len(self._string))
-        if self._meta_modified:
-            self._buffer.document().deleteLineMeta(self._pos[0], LineMeta.Change)
+        self._buffer.documentCursor().toPos(self._pos)
+        self._buffer.document().replaceFromMemento(self._pos[0], self._line_memento)
