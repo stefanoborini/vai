@@ -27,7 +27,6 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.document.lineMeta(1), {})
         self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
 
-
     def testNewLineAfterCommand(self):
         command = commands.NewLineAfterCommand(self.buffer)
         status = command.execute()
@@ -108,10 +107,44 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
 
     def testDeleteSingleCharCommand(self):
+        self.buffer.documentCursor().toPos((1,1))
+        line = self.document.lineText(1)
         command = commands.DeleteSingleCharCommand(self.buffer)
+        result = command.execute()
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
+        self.assertEqual(self.document.lineText(1), line)
+        self.assertFalse(result.success)
+        self.assertEqual(result.info, None)
+
+        self.buffer.documentCursor().toPos((1,2))
+        result = command.execute()
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
+        self.assertEqual(self.document.lineText(1), line[1:])
+        self.assertTrue(result.success)
+        self.assertEqual(result.info, ('#', {}))
+
+        # FIXME test undo
 
     def testDeleteSingleCharAfterCommand(self):
+        self.buffer.documentCursor().toPos((1,1))
+        line = self.document.lineText(1)
         command = commands.DeleteSingleCharAfterCommand(self.buffer)
+        result = command.execute()
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,1))
+        self.assertEqual(self.document.lineText(1), line[1:])
+        self.assertTrue(result.success)
+        self.assertEqual(result.info, ('#', {}))
+
+        line = self.document.lineText(1)
+        self.buffer.documentCursor().toLineEnd()
+        end_pos = self.buffer.documentCursor().pos()
+        result = command.execute()
+        self.assertEqual(self.buffer.documentCursor().pos(), end_pos)
+        self.assertEqual(self.document.lineText(1), line)
+        self.assertFalse(result.success)
+        self.assertEqual(result.info, None)
+
+        # FIXME test undo
 
     def testBreakLineCommand(self):
         command = commands.BreakLineCommand(self.buffer)
