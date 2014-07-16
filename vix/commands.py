@@ -135,13 +135,27 @@ class BreakLineCommand(object):
         self._buffer = buffer
         self._pos = None
         self._line_memento = None
+        self._sub_command = None
 
     def execute(self):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
         pos = cursor.pos()
-        if pos[1] == 1 or pos[1] == document.lineLength(pos[0]):
-            return CommandResult(success=False, info=None)
+
+        if pos[1] == document.lineLength(pos[0]):
+            command = NewLineAfterCommand(self._buffer)
+            result = command.execute()
+            if result.success:
+                self._sub_command = command
+            return result
+
+        if pos[1] == 1:
+            command = NewLineCommand(self._buffer)
+            result = command.execute()
+            if result.success:
+                self._sub_command = command
+            return result
+
 
         self._pos = cursor.pos()
         self._line_memento = document.lineMemento(self._pos[0])
@@ -156,6 +170,10 @@ class BreakLineCommand(object):
         return CommandResult(success=True, info=None)
 
     def undo(self):
+        if self._sub_command is not None:
+            self._sub_command.undo()
+            return
+
         cursor = self._buffer.documentCursor()
         cursor.toPos(self._pos)
         document = self._buffer.document()

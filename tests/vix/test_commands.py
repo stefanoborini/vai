@@ -152,16 +152,17 @@ class TestCommands(unittest.TestCase):
         cursor.toPos((1,1))
         command = commands.BreakLineCommand(self.buffer)
         result = command.execute()
-        self.assertFalse(result.success)
-        self.assertEqual(line, self.document.lineText(1))
+        self.assertTrue(result.success)
+        self.assertEqual(self.document.lineText(1), '\n')
+        self.assertEqual(self.document.lineText(2), line)
 
-        cursor.toPos((1,4))
+        cursor.toPos((2,4))
         result = command.execute()
         self.assertTrue(result.success)
-        self.assertEqual(self.document.lineText(1), line[:3]+'\n')
-        self.assertEqual(self.document.lineText(2), line[3:])
-        self.assertEqual(self.document.numLines(), 5)
-        self.assertEqual(cursor.pos(), (2,1))
+        self.assertEqual(self.document.lineText(2), line[:3]+'\n')
+        self.assertEqual(self.document.lineText(3), line[3:])
+        self.assertEqual(self.document.numLines(), 6)
+        self.assertEqual(cursor.pos(), (3,1))
 
         # FIXME test undo
 
