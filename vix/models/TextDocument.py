@@ -218,6 +218,7 @@ class TextDocument(core.VObject):
         self._contents.insert(line_index, ({}, {}, EOL))
         self._setModified(True)
         self.lineCreated.emit(line_number)
+        self.lineMetaInfoChanged.emit(line_number)
         self.contentChanged.emit()
 
     def insertLine(self, line_number, text, line_meta=None, char_meta=None):

@@ -179,6 +179,12 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(cursor.pos(), (1,1))
         self.assertEqual(self.document.numLines(), 3)
 
+    def testJoinWithNextLineCommand2(self):
+        self.buffer.documentCursor().toLastLine()
+        command = commands.JoinWithNextLineCommand(self.buffer)
+        result = command.execute()
+        self.assertFalse(result.success)
+
         # FIXME test undo
 
     def testInsertStringCommand(self):
