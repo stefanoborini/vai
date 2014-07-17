@@ -1,6 +1,8 @@
 import os
 
 import logging
+import curses
+
 logging.basicConfig(filename='vixtk.log')
 
 class FocusPolicy(object):
@@ -289,12 +291,13 @@ def nativeToVixKeyCode(native_key_code):
       125                  : Key.Key_BraceRight,
       126                  : Key.Key_AsciiTilde,
       127                  : Key.Key_Backspace,
-      258                  : Key.Key_Down,
-      259                  : Key.Key_Up,
-      260                  : Key.Key_Left,
-      261                  : Key.Key_Right,
-      338                  : Key.Key_PageDown,
-      339                  : Key.Key_PageUp,
+      curses.KEY_DOWN      : Key.Key_Down,
+      curses.KEY_UP        : Key.Key_Up,
+      curses.KEY_LEFT      : Key.Key_Left,
+      curses.KEY_RIGHT     : Key.Key_Right,
+      curses.KEY_BACKSPACE : Key.Key_Backspace,
+      curses.KEY_NPAGE     : Key.Key_PageDown,
+      curses.KEY_PPAGE     : Key.Key_PageUp,
     }
     return key_mapper.get(native_key_code)
 
