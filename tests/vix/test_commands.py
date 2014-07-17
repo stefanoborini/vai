@@ -128,8 +128,14 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.document.lineText(1), line[1:])
         self.assertTrue(result.success)
         self.assertEqual(result.info, ('#', {}))
-
         # FIXME test undo
+
+    def testDeleteSingleCharCommand2(self):
+        self.buffer.documentCursor().toPos((2,1))
+        command = commands.DeleteSingleCharCommand(self.buffer)
+        result = command.execute()
+        self.assertEqual(self.buffer.documentCursor().pos(), (1,9))
+        self.assertEqual(self.document.numLines(), 3)
 
     def testDeleteSingleCharAfterCommand(self):
         self.buffer.documentCursor().toPos((1,1))
