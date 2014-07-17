@@ -59,13 +59,17 @@ class DeleteLineAtCursorCommand(object):
         cursor = self._buffer.documentCursor()
         self._pos = cursor.pos()
 
-        if cursor.pos()[0] == self._buffer.document().numLines():
+        if cursor.pos()[0] == document.numLines():
             # Last line. Move the cursor up
             if not cursor.toLinePrev():
                 cursor.toLineBeginning()
 
         self._line_memento = document.lineMemento(self._pos[0])
         document.deleteLine(self._pos[0])
+
+        # Deleted line, now we check the length of what comes up from below.
+        if document.lineLength(self._pos[0]) < self._pos[1]:
+            cursor.toPos( (self._pos[0], document.lineLength(self._pos[0])))
         return CommandResult(success=True, info=None)
 
     def undo(self):

@@ -74,7 +74,6 @@ class EditAreaController(core.VObject):
 
     def _handleEventCommandMode(self, event):
         # FIXME This code sucks. We need better handling of the state machine
-
         # No commands. only movement and no-command operations
         if event.key() == vixtk.Key.Key_I:
             if event.modifiers() & vixtk.KeyModifier.ShiftModifier:
@@ -164,6 +163,11 @@ class EditAreaController(core.VObject):
             result = command.execute()
             if result.success:
                 self._buffer.commandHistory().append(command)
+            self._editor_model.setMode(flags.COMMAND_MODE)
+            event.accept()
+            return
+        else:
+            # Reset if we don't recognize it.
             self._editor_model.setMode(flags.COMMAND_MODE)
             event.accept()
             return
