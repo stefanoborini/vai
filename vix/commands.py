@@ -62,15 +62,18 @@ class DeleteLineAtCursorCommand(object):
         if cursor.pos()[0] == document.numLines():
             # Last line. Move the cursor up
             if not cursor.toLinePrev():
+                # It's also the first line. Go at the beginning
                 cursor.toLineBeginning()
 
         self._line_memento = document.lineMemento(self._pos[0])
         document.deleteLine(self._pos[0])
 
         # Deleted line, now we check the length of what comes up from below.
-        if document.lineLength(self._pos[0]) < self._pos[1]:
-            cursor.toPos( (self._pos[0], document.lineLength(self._pos[0])))
-        return CommandResult(success=True, info=None)
+        # and set the cursor at the end of the line, if needed
+        if document.lineLength(cursor.pos()[0]) < cursor.pos()[1]:
+            cursor.toPos( (cursor.pos()[0], document.lineLength(cursor.pos()[0])))
+
+        return CommandResult(success=True, info=self._line_memento)
 
     def undo(self):
         document = self._buffer.document()
@@ -94,7 +97,7 @@ class DeleteSingleCharCommand(object):
             return CommandResult(success=False, info=None)
 
         if pos[1] == 1:
-            cursor.toPos( (pos[0]-1, self.lineLength(pos[0]-1)) )
+            cursor.toPos( (pos[0]-1, document.lineLength(pos[0]-1)) )
             command = JoinWithNextLineCommand(self._buffer)
             result = command.execute()
             if result.success:
