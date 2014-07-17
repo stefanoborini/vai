@@ -13,11 +13,14 @@ import collections
 import os
 import time
 
+class _VExceptionEvent:
+    def __init__(self, exception):
+        self.exception = exception
+
 class KeyEventThread(threading.Thread):
     def __init__(self, screen, key_event_queue, event_available_flag):
         super().__init__()
         self.daemon = True
-        self.exception_occurred_event = threading.Event()
         self.stop_event = threading.Event()
         self.exception = None
 
@@ -26,11 +29,14 @@ class KeyEventThread(threading.Thread):
         self._event_available_flag = event_available_flag
 
     def run(self):
-        try:
-            last_event = (None, time.time())
-            while not self.stop_event.is_set():
+        last_event = (None, time.time())
+        while not self.stop_event.is_set():
+            try:
                 c = self._screen.getKeyCode()
 
+                # Compensate for multikeys events that ncurses provides,
+                # Otherwise we would not be able to distinguish a single escape
+                # from an escape sequence
                 if last_event[0] == c and time.time()-last_event[1] < 0.04:
                     continue
                 last_event = (c, time.time())
@@ -42,9 +48,10 @@ class KeyEventThread(threading.Thread):
                 else:
                     if hasattr(self, "debug"):
                         logging.info("Unknown key code "+str(c))
-        except Exception as e:
-            self.exception = e
-            self.exception_occurred_event.set()
+            except Exception as e:
+                event = _VExceptionEvent(e)
+                self._key_event_queue.put(event)
+                self._event_available_flag.set()
 
     def registerTimer(self, timer):
         pass
@@ -74,8 +81,6 @@ class VApplication(core.VCoreApplication):
         self.processEvents(True)
         self._key_event_thread.start()
         while self._exit_flag != True:
-            if self._key_event_thread.exception_occurred_event.is_set():
-                raise self._key_event_thread.exception
             logging.info("Waiting for events")
             self._event_available_flag.wait()
             self._event_available_flag.clear()
@@ -108,16 +113,18 @@ class VApplication(core.VCoreApplication):
         while True:
             self.logger.info("key queue %d" % self._key_event_queue.qsize())
             try:
-                key_event = self._key_event_queue.get_nowait()
+                event = self._key_event_queue.get_nowait()
             except queue.Empty:
-                key_event = None
+                event = None
 
-            if key_event is None:
+            if event is None:
                 return
 
 
-            if isinstance(key_event, events.VKeyEvent):
-                self._processSingleKeyEvent(key_event)
+            if isinstance(event, events.VKeyEvent):
+                self._processSingleKeyEvent(event)
+            elif isinstance(event, _VExceptionEvent):
+                raise event.exception
 
     def _processSingleKeyEvent(self, key_event):
         self.logger.info("Key event %d %x" % (key_event.key(), key_event.modifiers()))
