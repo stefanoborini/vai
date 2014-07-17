@@ -101,7 +101,7 @@ class DeleteSingleCharCommand(object):
             command = JoinWithNextLineCommand(self._buffer)
             result = command.execute()
             if result.success:
-                self._sub_command = result
+                self._sub_command = command
                 return CommandResult(True, '\n')
             else:
                 return CommandResult(False, None)
