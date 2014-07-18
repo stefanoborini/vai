@@ -32,7 +32,7 @@ class Editor(gui.VWidget):
 
         self._initBackupTimer()
 
-        self._editor_model.setMode(flags.COMMAND_MODE)
+        self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
         self._buffers = BufferList()
@@ -108,7 +108,7 @@ class Editor(gui.VWidget):
 
     def _parseCommandBar(self):
         command_text = self._command_bar.commandText().strip()
-        mode = self._editor_model.mode()
+        mode = self._editor_model.mode
 
         if mode == flags.COMMAND_INPUT_MODE:
             if command_text == 'q!':
@@ -135,18 +135,19 @@ class Editor(gui.VWidget):
             elif command_text.startswith("bn"):
                 self._buffers.selectNext()
         elif mode == flags.SEARCH_FORWARD_MODE:
+            self._editor_model.current_search = command_text
             Search.find(self._buffers.current(), command_text)
         elif mode == flags.SEARCH_BACKWARD_MODE:
             raise Exception("search backward")
 
         self._command_bar.clear()
-        self._editor_model.setMode(flags.COMMAND_MODE)
+        self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
     def _abortCommandBar(self):
         logging.info("Aborting command")
         self._command_bar.clear()
-        self._editor_model.setMode(flags.COMMAND_MODE)
+        self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
     def _doLint(self):

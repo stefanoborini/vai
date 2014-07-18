@@ -21,23 +21,23 @@ class EditAreaEventFilter(core.VObject):
         if not isinstance(event, gui.VKeyEvent):
             return False
 
-        if self._editor_model.mode() != flags.COMMAND_MODE:
+        if self._editor_model.mode != flags.COMMAND_MODE:
             return False
 
         if event.key() == vixtk.Key.Key_Colon:
-            self._editor_model.setMode(flags.COMMAND_INPUT_MODE)
+            self._editor_model.mode = flags.COMMAND_INPUT_MODE
             self._command_bar.setMode(flags.COMMAND_INPUT_MODE)
             self._command_bar.setFocus()
             return True
 
         if event.key() == vixtk.Key.Key_Slash:
-            self._editor_model.setMode(flags.SEARCH_FORWARD_MODE)
+            self._editor_model.mode = flags.SEARCH_FORWARD_MODE
             self._command_bar.setMode(flags.SEARCH_FORWARD_MODE)
             self._command_bar.setFocus()
             return True
 
         if event.key() == vixtk.Key.Key_Question:
-            self._editor_model.setMode(flags.SEARCH_BACKWARD_MODE)
+            self._editor_model.mode = flags.SEARCH_BACKWARD_MODE
             self._command_bar.setMode(flags.SEARCH_BACKWARD_MODE)
             self._command_bar.setFocus()
             return True
