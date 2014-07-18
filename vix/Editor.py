@@ -8,9 +8,9 @@ from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
 from .Lexer import Lexer
-from .LinterResult import LinterResult
 from .PyFlakesLinter import PyFlakesLinter
 from . import flags
+from . import Search
 from .models.EditAreaModel import EditAreaModel
 from .models.Buffer import Buffer
 from .models.BufferList import BufferList
@@ -75,8 +75,8 @@ class Editor(gui.VWidget):
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
         self._command_bar_controller = CommandBarController(self._command_bar, self._editor_model)
-        self._command_bar.returnPressed.connect(self._executeCommand)
-        self._command_bar.escapePressed.connect(self._abortCommand)
+        self._command_bar.returnPressed.connect(self._parseCommandBar)
+        self._command_bar.escapePressed.connect(self._abortCommandBar)
 
     def _createSideRuler(self):
         self._side_ruler = widgets.SideRuler(self)
@@ -106,40 +106,44 @@ class Editor(gui.VWidget):
         self._backup_timer.timeout.connect(self._doBackup)
         self._backup_timer.start()
 
-    def _executeCommand(self):
+    def _parseCommandBar(self):
         command_text = self._command_bar.commandText().strip()
-        logging.info("Executing command "+command_text)
+        mode = self._editor_model.mode()
 
-        if command_text == 'q!':
-            gui.VApplication.vApp.exit()
-        elif command_text == 'q':
-            if any([b.isModified() for b in self._buffers.buffers()]):
-                self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 3000)
-            else:
+        if mode == flags.COMMAND_INPUT_MODE:
+            if command_text == 'q!':
                 gui.VApplication.vApp.exit()
-        elif command_text == "w":
-            self._doSave()
-            self._doLint()
-        elif command_text == "wq":
-            self._doSave()
-            gui.VApplication.vApp.exit()
-        elif command_text.startswith("e "):
-            buffer = Buffer(TextDocument(command_text[2:]),
-                                        EditAreaModel()
-                                        )
-            self._buffers.addAndSelect(buffer)
-            self._doLint()
-        elif command_text.startswith("bp"):
-            self._buffers.selectPrev()
-        elif command_text.startswith("bn"):
-            self._buffers.selectNext()
-
+            elif command_text == 'q':
+                if any([b.isModified() for b in self._buffers.buffers()]):
+                    self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 3000)
+                else:
+                    gui.VApplication.vApp.exit()
+            elif command_text == "w":
+                self._doSave()
+                self._doLint()
+            elif command_text == "wq":
+                self._doSave()
+                gui.VApplication.vApp.exit()
+            elif command_text.startswith("e "):
+                buffer = Buffer(TextDocument(command_text[2:]),
+                                            EditAreaModel()
+                                            )
+                self._buffers.addAndSelect(buffer)
+                self._doLint()
+            elif command_text.startswith("bp"):
+                self._buffers.selectPrev()
+            elif command_text.startswith("bn"):
+                self._buffers.selectNext()
+        elif mode == flags.SEARCH_FORWARD_MODE:
+            Search.find(self._buffers.current(), command_text)
+        elif mode == flags.SEARCH_BACKWARD_MODE:
+            raise Exception("search backward")
 
         self._command_bar.clear()
         self._editor_model.setMode(flags.COMMAND_MODE)
         self._edit_area.setFocus()
 
-    def _abortCommand(self):
+    def _abortCommandBar(self):
         logging.info("Aborting command")
         self._command_bar.clear()
         self._editor_model.setMode(flags.COMMAND_MODE)
