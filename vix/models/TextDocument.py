@@ -10,9 +10,10 @@ CHAR_META_INDEX = 1
 TEXT_INDEX = 2
 
 class DocumentMeta:
-    Modified = "Modified"
-    LastModified = "LastModified"
-    Filename = "Filename"
+    Modified = "Modified"            # bool. If the file has been modified since its opening
+    LastModified = "LastModified"    # The time when the last modification occurred
+    Filename = "Filename"            # The filename
+    NewFile = "NewFile"              # bool. If the TextDocument has no file on the disk yet.
 
 class LineMeta:
     Change = "Change"
@@ -31,13 +32,15 @@ class TextDocument(core.VObject):
         if filename:
             self._document_meta[DocumentMeta.Filename] = filename
             self._contents = []
-            with contextlib.closing(open(filename,'r')) as f:
-                for textline in f:
-                    self._contents.append(({}, {}, _withEOL(textline)))
+            try:
+                with contextlib.closing(open(filename,'r')) as f:
+                    for textline in f:
+                        self._contents.append(({}, {}, _withEOL(textline)))
+            except:
+                pass
 
             if len(self._contents) == 0:
                 self._contents.append(({}, {}, EOL))
-
         else:
             self._contents = [ ({}, {}, EOL) ]
             self._document_meta[DocumentMeta.Filename] = 'noname.txt'
