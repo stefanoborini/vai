@@ -24,4 +24,6 @@ class EditorModel(core.VObject):
 
     @current_search.setter
     def current_search(self, search):
+        assert(len(search) == 2)
         self._current_search = search
+
