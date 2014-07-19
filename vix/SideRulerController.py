@@ -23,6 +23,7 @@ class SideRulerController:
 
         self._document = document
         self._document.lineMetaInfoChanged.connect(self.updateBadges)
+        self._document.lineMetaInfoDeleted.connect(self.updateBadges)
         self._document.contentChanged.connect(self.updateNumRows)
         self._document.contentChanged.connect(self.updateBadges)
 

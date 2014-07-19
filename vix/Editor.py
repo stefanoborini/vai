@@ -162,6 +162,9 @@ class Editor(gui.VWidget):
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
         self._buffers.current().document().save()
+        document = self._buffers.current().document()
+        for line_num in range(1, document.numLines()+1):
+            document.deleteLineMeta(line_num, LineMeta.Change)
         self._status_bar.setMessage("Saved %s" % self._buffers.current().document().filename(), 3000)
 
     def _doBackup(self):
