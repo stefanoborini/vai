@@ -50,9 +50,9 @@ class Editor(gui.VWidget):
         current_buffer = self._buffers.current()
         try:
             new_buffer = Buffer(TextDocument(filename), EditAreaModel())
-        except Exception as e:
-            self._status_bar.setMessage("Error: could not open file. %s" % str(e), 3000)
-            return
+        except Exception:
+            new_buffer = Buffer(TextDocument(), EditAreaModel())
+            self._status_bar.setMessage("%s [New file]" % filename, 3000)
 
         if current_buffer.isEmpty() and not current_buffer.isModified():
             self._buffers.replaceAndSelect(current_buffer, new_buffer)
@@ -125,11 +125,7 @@ class Editor(gui.VWidget):
                 self._doSave()
                 gui.VApplication.vApp.exit()
             elif command_text.startswith("e "):
-                buffer = Buffer(TextDocument(command_text[2:]),
-                                            EditAreaModel()
-                                            )
-                self._buffers.addAndSelect(buffer)
-                self._doLint()
+                self.openFile(command_text[2:])
             elif command_text.startswith("bp"):
                 self._buffers.selectPrev()
             elif command_text.startswith("bn"):
