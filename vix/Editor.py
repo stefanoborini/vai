@@ -135,10 +135,11 @@ class Editor(gui.VWidget):
             elif command_text.startswith("bn"):
                 self._buffers.selectNext()
         elif mode == flags.SEARCH_FORWARD_MODE:
-            self._editor_model.current_search = command_text
-            Search.find(self._buffers.current(), command_text)
+            self._editor_model.current_search = (command_text, flags.FORWARD)
+            Search.find(self._buffers.current(), *self._editor_model.current_search)
         elif mode == flags.SEARCH_BACKWARD_MODE:
-            raise Exception("search backward")
+            self._editor_model.current_search = (command_text, flags.BACKWARD)
+            Search.find(self._buffers.current(), *self._editor_model.current_search)
 
         self._command_bar.clear()
         self._editor_model.mode = flags.COMMAND_MODE

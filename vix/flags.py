@@ -21,3 +21,5 @@
   PAGE_DOWN
 ) = list(range(8))
 
+(FORWARD,
+ BACKWARD) = list(range(2))

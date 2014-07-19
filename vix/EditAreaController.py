@@ -130,16 +130,18 @@ class EditAreaController(core.VObject):
             return
 
         if event.key() == vixtk.Key.Key_N:
-            if event.modifiers() == 0:
-                if self._editor_model.current_search is not None:
-                    Search.find(self._buffer, self._editor_model.current_search)
+            if self._editor_model.current_search is None:
                 event.accept()
                 return
-            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
-                if self._editor_model.current_search is not None:
-                    Search.find(self._buffer, self._editor_model.current_search, backwards=True)
-                event.accept()
-                return
+
+            text, direction = self._editor_model.current_search
+            if event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+                direction = {flags.FORWARD:flags.BACKWARD,
+                             flags.BACKWARD: flags.FORWARD}[direction]
+
+            Search.find(self._buffer, text, direction)
+            event.accept()
+            return
 
         # Command operations
         command = None
