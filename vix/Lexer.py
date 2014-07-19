@@ -20,21 +20,21 @@ class Lexer:
         # the lexer to process the initial \n. and we just skip the space token
         tokens = list(pygments.lex(" "+self._document.documentText(), pygments.lexers.PythonLexer()))
         self._document.beginTransaction()
-        current_line_num = 1
-        meta = []
+        current_line = 1
+        current_col = 1
 
         # Skip the space token
         for token in tokens[1:]:
-            ttype, string = token
+            ttype, token_string = token
 
-            meta.extend([ttype]*len(string))
+            token_lines = token_string.splitlines(True)
+            for token_line in token_lines:
+                meta = [ttype]*len(token_line)
 
-            if string.endswith('\n'):
-                self._document.deleteCharMeta( (current_line_num,1),
-                                                self._document.lineLength(current_line_num),
-                                                CharMeta.LexerToken)
-                self._document.updateCharMeta((current_line_num,1), {CharMeta.LexerToken: meta})
-                current_line_num += 1
-                meta = []
+                self._document.updateCharMeta((current_line, current_col), {CharMeta.LexerToken: meta})
+                current_col += len(token_line)
+                if token_line.endswith("\n"):
+                    current_line += 1
+                    current_col = 1
 
         self._document.endTransaction()

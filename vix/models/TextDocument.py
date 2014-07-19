@@ -1,6 +1,6 @@
 import time
 import copy
-from vixtk import gui, core, utils
+from vixtk import core
 import contextlib
 from .TextDocumentCursor import TextDocumentCursor
 
@@ -517,7 +517,7 @@ class TextDocument(core.VObject):
 
     def _checkPos(self, pos):
         if not self.isValidPos(pos):
-            raise IndexError("Out of bound. pos[1] = %d, len = %d" % (pos[1], len(self._contents[pos[0]-1][TEXT_INDEX])))
+            raise IndexError("Out of bound. pos = %s" % str(pos))
 
     def _setModified(self, modified):
         if modified:
