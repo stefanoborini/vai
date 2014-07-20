@@ -140,6 +140,7 @@ class EditAreaController(core.VObject):
                              flags.BACKWARD: flags.FORWARD}[direction]
 
             Search.find(self._buffer, text, direction)
+            self._edit_area.ensureCursorVisible()
             event.accept()
             return
 
