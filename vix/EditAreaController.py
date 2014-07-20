@@ -56,6 +56,8 @@ class EditAreaController(core.VObject):
             self._editor_model.mode = flags.COMMAND_MODE
         elif event.key() == vixtk.Key.Key_Backspace:
             command = commands.DeleteSingleCharCommand(self._buffer)
+        elif event.key() == vixtk.Key.Key_Delete:
+            command = commands.DeleteSingleCharAfterCommand(self._buffer)
         elif event.key() == vixtk.Key.Key_Return:
             command = commands.BreakLineCommand(self._buffer)
         else:
@@ -147,9 +149,9 @@ class EditAreaController(core.VObject):
         # Command operations
         command = None
 
-        if event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
+        if (event.key() == vixtk.Key.Key_X and event.modifiers() == 0) or \
+            event.key() == vixtk.Key.Key_Delete:
             command = commands.DeleteSingleCharAfterCommand(self._buffer)
-
         elif event.key() == vixtk.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.INSERT_MODE
