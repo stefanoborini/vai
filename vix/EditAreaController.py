@@ -154,8 +154,6 @@ class EditAreaController(core.VObject):
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.INSERT_MODE
                 command = commands.NewLineAfterCommand(self._buffer)
-                if self._edit_area.visualCursorPos()[1] == self._edit_area.height()-1:
-                    self._edit_area.scrollDown()
             elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
                 self._editor_model.mode = flags.INSERT_MODE
                 command = commands.NewLineCommand(self._buffer)
@@ -168,6 +166,7 @@ class EditAreaController(core.VObject):
             result = command.execute()
             if result.success:
                 self._buffer.commandHistory().append(command)
+            self._edit_area.ensureCursorVisible()
             event.accept()
 
     def _handleEventDeleteMode(self, event):
@@ -181,8 +180,7 @@ class EditAreaController(core.VObject):
             result = command.execute()
             if result.success:
                 self._buffer.commandHistory().append(command)
-            if self._edit_area.visualCursorPos()[1] == 0:
-                self._edit_area.scrollUp()
+            self._edit_area.ensureCursorVisible()
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return

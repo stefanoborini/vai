@@ -164,10 +164,10 @@ class EditArea(gui.VWidget):
         if doc_cursor_pos[0] == top_pos[0] - 1:
             # Cursor is just outside the top border, scroll one
             new_top_pos = (top_pos[0]-1, top_pos[1])
-        elif doc_cursor_pos[0] == top_pos[0] + self.height() + 1:
+        elif doc_cursor_pos[0] == top_pos[0] + self.height():
             new_top_pos = (top_pos[0]+1, top_pos[1])
         elif doc_cursor_pos[0] < top_pos[0] - 1 \
-            or doc_cursor_pos[0] > top_pos[0] + self.height() + 1:
+            or doc_cursor_pos[0] > top_pos[0] + self.height():
             # Cursor is far away. Put the line in the center
             new_top_pos = (doc_cursor_pos[0]-int(self.height()/2), new_top_pos[1])
 
