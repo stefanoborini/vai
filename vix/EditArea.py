@@ -148,6 +148,41 @@ class EditArea(gui.VWidget):
             return
         gui.VCursor.setPos(self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
+    def ensureCursorVisible(self):
+        # There are multiple zones where the cursor can be, and the behavior is
+        # different depending where the cursor is relative to the viewport area.
+        # if the cursor is within 1 position above or below the visible area,
+        # then it should scroll one line.
+        # In all other cases (horizontal, and vertical distant) it should jump.
+
+        doc_cursor_pos = self._buffer.documentCursor().pos()
+        top_pos = self._buffer.editAreaModel().documentPosAtTop()
+
+        new_top_pos = top_pos
+        # Check and adjust the vertical positioning
+
+        if doc_cursor_pos[0] == top_pos[0] - 1:
+            # Cursor is just outside the top border, scroll one
+            new_top_pos = (top_pos[0]-1, top_pos[1])
+        elif doc_cursor_pos[0] == top_pos[0] + self.height() + 1:
+            new_top_pos = (top_pos[0]+1, top_pos[1])
+        elif doc_cursor_pos[0] < top_pos[0] - 1 \
+            or doc_cursor_pos[0] > top_pos[0] + self.height() + 1:
+            # Cursor is far away. Put the line in the center
+            new_top_pos = (doc_cursor_pos[0]-int(self.height()/2), new_top_pos[1])
+
+        # Now check horizontal positioning. This is easier because
+        # We never scroll 1
+        if doc_cursor_pos[1] < top_pos[1] or \
+            doc_cursor_pos[1] > top_pos[1] + self.width():
+            new_top_pos = (new_top_pos[0], doc_cursor_pos[1] - int(self.width()/2))
+
+        #
+        new_top_pos = ( max(1, new_top_pos[0]), new_top_pos[1])
+        self._buffer.editAreaModel().setDocumentPosAtTop(new_top_pos)
+        self.update()
+
+
     def handleDirectionalKey(self, event):
         # XXX move to controller?
         if not self._hasModels():
