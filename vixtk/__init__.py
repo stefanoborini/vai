@@ -298,6 +298,7 @@ def nativeToVixKeyCode(native_key_code):
       curses.KEY_BACKSPACE : Key.Key_Backspace,
       curses.KEY_NPAGE     : Key.Key_PageDown,
       curses.KEY_PPAGE     : Key.Key_PageUp,
+      curses.KEY_DC        : Key.Key_Delete,
     }
     return key_mapper.get(native_key_code)
 
