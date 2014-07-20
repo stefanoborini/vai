@@ -30,7 +30,6 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
-    debug = logging.INFO
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -41,11 +40,6 @@ class EditArea(gui.VWidget):
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vixtk.FocusPolicy.StrongFocus)
 
-        #self.scrollDown = core.VSignal(self)
-        #self.scrollDown.connect(self.scrollDownSlot)
-        #self.scrollUp = core.VSignal(self)
-        #self.scrollUp.connect(self.scrollUpSlot)
-
         self.cursorPositionChanged = core.VSignal(self)
 
     def setModels(self, buffer, editor_model):
@@ -55,7 +49,6 @@ class EditArea(gui.VWidget):
         self.update()
 
     def paintEvent(self, event):
-        self.logger.info("XXX paintEvent")
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.erase()
@@ -73,7 +66,6 @@ class EditArea(gui.VWidget):
 
         document_cursor_pos = self._buffer.documentCursor().pos()
         self._setVisualCursorPos((document_cursor_pos[1]-pos_at_top[1], document_cursor_pos[0]-pos_at_top[0] ))
-        #gui.VCursor.setPos( self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
     def visualCursorPos(self):
         return self._visual_cursor_pos
@@ -144,7 +136,6 @@ class EditArea(gui.VWidget):
 
         self._buffer.editAreaModel().setDocumentPosAtTop(new_pos)
         self.update()
-
 
     def keyEvent(self, event):
         if not self._hasModels():
