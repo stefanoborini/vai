@@ -27,6 +27,7 @@ TOKEN_TO_COLORS = {
     token.Number.Hex:           (gui.VGlobalColor.red, None),
     token.Number.Oct:           (gui.VGlobalColor.red, None),
     token.Operator.Word:        (gui.VGlobalColor.yellow, None),
+    token.Name.Decorator:       (gui.VGlobalColor.blue, None),
 }
 
 class EditArea(gui.VWidget):
