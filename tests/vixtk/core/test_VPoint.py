@@ -14,6 +14,7 @@ class testVPoint(unittest.TestCase):
         vres = v1+v2
         self.assertEqual(vres.x(), 6)
         self.assertEqual(vres.y(), 8)
+
     def testDifference(self):
         v1 = core.VPoint(x=4, y=5)
         v2 = core.VPoint(x=2, y=2)
@@ -21,10 +22,8 @@ class testVPoint(unittest.TestCase):
         self.assertEqual(vres.x(), 2)
         self.assertEqual(vres.y(), 3)
 
-    def testVPoint(self):
-        p = core.VPoint(3,2)
-
-        self.assertEqual(p.x(), 3)
-        self.assertEqual(p.y(), 2)
-
-        self.assertEqual(list(p), [3,2])
+    def testVPointTuple(self):
+        self.assertEqual(core.VPoint.x((3,2)), 3)
+        self.assertEqual(core.VPoint.y((3,2)), 2)
+        self.assertEqual(core.VPoint.add((4,5), (2,3)), (6,8))
+        self.assertEqual(core.VPoint.sub((4,5), (2,2)), (2,3))
