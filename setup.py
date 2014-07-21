@@ -30,7 +30,7 @@ setup(
     description = "VIX is a console-based IDE similar to VIM",
     license = "BSD",
     keywords = "editor",
-    url="https://bitbucket.org/stefanoborini/vix",
+    url="https://github.com/stefanoborini/vix",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     long_description=long_description,
     classifiers=[
@@ -41,9 +41,6 @@ setup(
     ],
     test_suite = 'nose.collector',
     install_requires = ['pygments', "pylint", 'pyflakes'],
-    #package_data={
-    #    'sample': ['package_data.dat'],
-    #},
     entry_points={
         'console_scripts': [
             'vix=vix:main',
