@@ -3,4 +3,5 @@ vix_crashreport.out
 crashreport.out
 vixtk.log
 vix.egg-info
-
+build
+dist
