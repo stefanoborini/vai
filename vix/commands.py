@@ -15,9 +15,15 @@ class NewLineCommand(object):
         cursor = self._buffer.documentCursor()
 
         self._pos = cursor.pos()
+
+        current_text = document.lineText(self._pos[0])
+        current_indent = len(current_text) - len(current_text.lstrip(' '))
+
         document.newLine(self._pos[0])
+        document.insertChars( (self._pos[0], 1), ' '*current_indent )
         document.updateLineMeta(self._pos[0], {LineMeta.Change: "added"})
-        cursor.toPos( (self._pos[0], 1) )
+        cursor.toPos( (self._pos[0],1))
+        cursor.toLineEnd()
         return CommandResult(True, None)
 
     def undo(self):
@@ -36,7 +42,11 @@ class NewLineAfterCommand(object):
         cursor = self._buffer.documentCursor()
 
         self._pos = cursor.pos()
+        current_text = document.lineText(self._pos[0])
+        current_indent = len(current_text) - len(current_text.lstrip(' '))
+
         document.newLineAfter(self._pos[0])
+        document.insertChars( (self._pos[0]+1, 1), ' '*current_indent )
         document.updateLineMeta(self._pos[0]+1, {LineMeta.Change: "added"})
         cursor.toLineNext()
         return CommandResult(True, None)
@@ -208,8 +218,13 @@ class BreakLineCommand(object):
 
         self._line_memento = document.lineMemento(self._pos[0])
 
+        current_text = document.lineText(self._pos[0])
+        current_indent = len(current_text) - len(current_text.lstrip(' '))
+
         document.breakLine(self._pos)
-        cursor.toPos((self._pos[0]+1, 1))
+        document.insertChars( (self._pos[0]+1, 1), ' '*current_indent )
+        cursor.toPos((self._pos[0]+1, current_indent+1))
+
         line_meta = document.lineMeta(self._pos[0])
         if line_meta.get(LineMeta.Change) == None:
             document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
