@@ -20,16 +20,13 @@ class StatusBar(gui.VLabel):
             return
 
         self._message = message
-        self.logger.info("Setting message: %s" % self._message)
         self._updateText()
 
         if timeout is not None:
-            self.logger.info("Starting timer")
             self._remove_message_timer.setInterval(timeout)
             self._remove_message_timer.start()
 
     def clearMessage(self):
-        self.logger.info("Removing message")
         self._message = ""
         self._updateText()
 
@@ -47,7 +44,6 @@ class StatusBar(gui.VLabel):
 
     # Private
     def _updateText(self):
-        self.logger.info("Updating text")
         if self._message == "":
             self.setText(utils.strformat([(0, self._filename),
                                           (len(self._filename)+1, '[+]' if self._file_changed_flag else '   '),
