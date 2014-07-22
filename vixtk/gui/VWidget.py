@@ -6,10 +6,7 @@ from .VApplication import VApplication
 from .VPalette import VPalette
 from .VPainter import VPainter
 from .VScreen import VScreenArea
-
-
 from . import events
-import logging
 
 
 class VWidget(core.VObject):

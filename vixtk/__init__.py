@@ -3,8 +3,6 @@ import os
 import logging
 import curses
 
-logging.basicConfig(filename='vixtk.log')
-
 class FocusPolicy(object):
     NoFocus = 0
     StrongFocus = 11

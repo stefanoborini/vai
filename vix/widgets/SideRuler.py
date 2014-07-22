@@ -11,13 +11,11 @@ class SideRuler(gui.VWidget):
         self._badges = {}
 
     def paintEvent(self, event):
-        self.logger.info("Painting sideruler")
         w, h = self.size()
         painter = gui.VPainter(self)
         painter.erase()
         num_digits = self._lineNumberWidth()
         entries = _computeLineValues(self._top_row, h, self._skip_intervals)
-        self.logger.info("Badges %s" % str(self._badges))
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
@@ -39,7 +37,6 @@ class SideRuler(gui.VWidget):
                               fg_color=gui.VGlobalColor.yellow,
                               bg_color=bg_color)
 
-        self.logger.info("Done painting sideruler")
 
     def setNumRows(self, num_rows):
         self._num_rows = num_rows
@@ -56,12 +53,10 @@ class SideRuler(gui.VWidget):
         return int(math.log10(self._num_rows))+1
 
     def addBadge(self, line, badge):
-        self.logger.info("Added badge %s %s" % (line, badge))
         self._badges[line] = badge
         self.update()
 
     def removeBadge(self, line):
-        self.logger.info("Removed badge %s" % line)
         if line in self._badges:
             del self._badges[line]
             self.update()
