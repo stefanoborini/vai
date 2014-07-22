@@ -1,6 +1,8 @@
 import collections
 from .models.TextDocument import LineMeta
 
+# FIXME Make uniform with insertion
+TAB_SPACE = 4
 CommandResult = collections.namedtuple('CommandResult', ['success', 'info'])
 
 class NewLineCommand(object):
@@ -113,8 +115,29 @@ class DeleteSingleCharCommand(object):
         if not LineMeta.Change in line_meta:
             document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
 
-        deleted = document.deleteChars( (self._pos[0], self._pos[1]-1), 1)
-        cursor.toCharPrev()
+        # Check if we can remove a tab. These are the tab positions:
+        # 123456789
+        # T   T   T
+
+        # Get the tab position we can go to, and how many character we need to remove
+        # to get there. If we are exactly on a tab position, remove a tab from the last
+        # available tab position and add a full tab spacing to potentially remove.
+        # FIXME this code's math is ugly. maybe we can simplify it?
+        last_tab_pos = 1+int((self._pos[1]-1)/TAB_SPACE)*TAB_SPACE
+        how_many = self._pos[1]-last_tab_pos
+        if last_tab_pos > 1 and how_many == 0:
+            how_many = TAB_SPACE
+            last_tab_pos = last_tab_pos - TAB_SPACE
+
+        # Check if the candidate removal is only spaces. If yes, then we can remove
+        # the whole bunch, otherwise revert back to single char deletion.
+        text = document.lineText(self._pos[0])
+        if len(text[last_tab_pos-1:last_tab_pos-1+how_many].strip(' ')) != 0:
+            how_many = 1
+
+        deleted = document.deleteChars( (self._pos[0], self._pos[1]-how_many), how_many)
+        cursor.toPos((self._pos[0], self._pos[1]-how_many))
+
         return CommandResult(success=True, info=deleted)
 
     def undo(self):
