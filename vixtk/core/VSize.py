@@ -5,18 +5,21 @@ class VSize(object):
     def __iter__(self):
         return iter(self._size)
 
+    @property
     def width(self):
         return self._size[0]
 
+    @property
     def height(self):
         return self._size[1]
 
     def __str__(self):
         return "VSize(width=%d, height=%d)" % self._size
 
-
-
-def width(size):
-    return size[0]
-def height(size):
-    return size[1]
+    class tuple:
+        @staticmethod
+        def width(size):
+            return size[0]
+        @staticmethod
+        def height(size):
+            return size[1]
