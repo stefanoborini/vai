@@ -72,6 +72,7 @@ class EditAreaController(core.VObject):
         if command is not None:
             self._buffer.commandHistory().append(command)
             command.execute()
+            self._edit_area.ensureCursorVisible()
 
         event.accept()
 
@@ -115,6 +116,7 @@ class EditAreaController(core.VObject):
             if len(self._buffer.commandHistory()):
                 command = self._buffer.commandHistory().pop()
                 command.undo()
+                self._edit_area.ensureCursorVisible()
             event.accept()
             return
 
