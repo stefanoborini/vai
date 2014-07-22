@@ -23,6 +23,7 @@ class Editor(gui.VWidget):
         super().__init__(parent=parent)
         self._editor_model = EditorModel()
         self._lexer = Lexer()
+        self._buffers = BufferList()
 
         self._createStatusBar()
         self._createCommandBar()
@@ -35,7 +36,6 @@ class Editor(gui.VWidget):
         self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
-        self._buffers = BufferList()
         self._buffers.currentBufferChanged.connect(self._bufferChanged)
         self._buffers.addAndSelect(Buffer(TextDocument(), EditAreaModel()))
 
@@ -91,7 +91,7 @@ class Editor(gui.VWidget):
         self._edit_area.setFocus()
 
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar)
-        self._edit_area_event_filter.setModel(self._editor_model)
+        self._edit_area_event_filter.setModels(self._editor_model, self._buffers)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
 
     def _createInfoHoverBox(self):

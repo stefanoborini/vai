@@ -42,14 +42,23 @@ class EditAreaEventFilter(core.VObject):
             self._command_bar.setFocus()
             return True
 
+        if event.key() == vixtk.Key.Key_N and event.modifiers() & vixtk.KeyModifier.ControlModifier:
+            self._buffer_list.selectNext()
+            return True
+
+        if event.key() == vixtk.Key.Key_P and event.modifiers() & vixtk.KeyModifier.ControlModifier:
+            self._buffer_list.selectPrev()
+            return True
+
         return False
 
-    def setModel(self, editor_model):
+    def setModels(self, editor_model, buffer_list):
         self._editor_model = editor_model
+        self._buffer_list = buffer_list
 
     # Private
 
     def _hasModel(self):
-        return self._editor_model is not None
+        return self._editor_model is not None and self._buffer_list is not None
 
 
