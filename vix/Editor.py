@@ -131,11 +131,23 @@ class Editor(gui.VWidget):
             elif command_text.startswith("bn"):
                 self._buffers.selectNext()
         elif mode == flags.SEARCH_FORWARD_MODE:
-            self._editor_model.current_search = (command_text, flags.FORWARD)
-            Search.find(self._buffers.current(), *self._editor_model.current_search)
+            if command_text == '':
+                if self._editor_model.current_search is not None:
+                    command_text = self._editor_model.current_search[0]
+
+            if command_text != '':
+                self._editor_model.current_search = (command_text, flags.FORWARD)
+                Search.find(self._buffers.current(), command_text, flags.FORWARD)
+                self._edit_area.ensureCursorVisible()
         elif mode == flags.SEARCH_BACKWARD_MODE:
-            self._editor_model.current_search = (command_text, flags.BACKWARD)
-            Search.find(self._buffers.current(), *self._editor_model.current_search)
+            if command_text == '':
+                if self._editor_model.current_search is not None:
+                    command_text = self._editor_model.current_search[0]
+
+            if command_text != '':
+                self._editor_model.current_search = (command_text, flags.BACKWARD)
+                Search.find(self._buffers.current(), command_text, flags.BACKWARD)
+                self._edit_area.ensureCursorVisible()
 
         self._command_bar.clear()
         self._editor_model.mode = flags.COMMAND_MODE
