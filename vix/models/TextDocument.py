@@ -1,3 +1,4 @@
+import re
 import time
 import copy
 from vixtk import core
@@ -201,6 +202,21 @@ class TextDocument(core.VObject):
             char_meta[key] = meta_values[0:len(text)]
 
         self.charMetaInfoDeleted.emit(pos)
+
+    def wordAt(self, pos, split_func=None):
+        self._checkPos(pos)
+
+        if split_func == None:
+            split_func = re.compile("(\w[\w']*\w|\w)").finditer
+
+        line_text = self.lineText(pos[0])
+
+        res = list(filter(lambda x: x.start() <= pos[1]-1 < x.end(), split_func(line_text)))
+
+        if len(res) == 1:
+            return (res[0].group(0), res[0].start()+1)
+
+        return ('', None)
 
     ## Modify document routines
     # Line operations
