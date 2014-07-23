@@ -148,6 +148,17 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
+        if event.key() == vixtk.Key.Key_Asterisk:
+            word_at, word_pos = self._buffer.document().wordAt(self._buffer.documentCursor().pos())
+            if word_pos is not None:
+                self._editor_model.current_search = (word_at, flags.FORWARD)
+
+            Search.find(self._buffer, word_at, flags.FORWARD)
+            self._edit_area.ensureCursorVisible()
+            event.accept()
+            return
+
+
         # Command operations
         command = None
 
