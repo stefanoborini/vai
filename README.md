@@ -1,5 +1,8 @@
 # Vix
-![build status](https://travis-ci.org/stefanoborini/vix.svg?branch=master)
+[![build status](https://travis-ci.org/stefanoborini/vix.svg?branch=master)](https://travis-ci.org/stefanoborini/vix.svg?branch=master)
+[![Downloads](https://pypip.in/download/vix/badge.png)](https://pypi.python.org/pypi/vix/)
+[![Supported Python versions](https://pypip.in/py_versions/vix/badge.png)](https://pypi.python.org/pypi/vix/)
+[![Latest Version](https://pypip.in/version/vix/badge.png)](https://pypi.python.org/pypi/vix/)
 
 Vix is an editor that wants to be more than that. Most important of all, 
 it wants to be a better vim.
