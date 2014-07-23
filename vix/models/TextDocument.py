@@ -207,7 +207,7 @@ class TextDocument(core.VObject):
         self._checkPos(pos)
 
         if split_func == None:
-            split_func = re.compile("(\w[\w']*\w|\w)").finditer
+            split_func = re.compile("(\w+)").finditer
 
         line_text = self.lineText(pos[0])
 
