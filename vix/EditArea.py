@@ -3,7 +3,7 @@ from vixtk import gui, core, utils
 from .EditAreaController import EditAreaController
 from . import flags
 from .models.TextDocument import CharMeta
-import logging
+from . import Search
 
 from pygments import token
 
@@ -51,22 +51,50 @@ class EditArea(gui.VWidget):
 
     def paintEvent(self, event):
         w, h = self.size()
+        pos_at_top = self._buffer.editAreaModel().documentPosAtTop()
+        visible_line_interval = (pos_at_top[0], pos_at_top[0]+h)
+        cursor_pos = self._buffer.documentCursor().pos()
+        document = self._buffer.document()
+
         painter = gui.VPainter(self)
         painter.erase()
-        pos_at_top = self._buffer.editAreaModel().documentPosAtTop()
-        document_cursor_pos = self._buffer.documentCursor().pos()
-        if self._hasModels():
-            for i in range(0, h):
-                document_line = pos_at_top[0] + i
-                if document_line <= self._buffer.document().numLines():
-                    line = self._buffer.document().lineText(document_line)[pos_at_top[1]-1:]
-                    painter.drawText( (0, i), line.replace('\n', ' '))
-                    char_meta = self._buffer.document().charMeta( (document_line,1))
-                    colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken, [])][pos_at_top[1]-1:]
-                    painter.setColors((0, i), colors)
 
-        document_cursor_pos = self._buffer.documentCursor().pos()
-        self._setVisualCursorPos((document_cursor_pos[1]-pos_at_top[1], document_cursor_pos[0]-pos_at_top[0] ))
+        if not self._hasModels():
+            return
+
+        # Find the current hovered word to set highlighting
+        current_word, current_word_pos = self._buffer.document().wordAt(cursor_pos)
+        word_entries = []
+        if current_word_pos is not None:
+            # find all the words only in the visible area
+            word_entries = Search.findAll(self._buffer.document(),
+                                          current_word,
+                                          line_interval=visible_line_interval,
+                                          word=True)
+
+
+        for visual_line_num, doc_line_num in enumerate(range(*visible_line_interval)):
+            if doc_line_num > self._buffer.document().numLines():
+                continue
+
+            # Get the relevant text
+            line_text = document.lineText(doc_line_num)[pos_at_top[1]-1:]
+            painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
+
+            # Apply colors. First through the Lexer designation
+            char_meta = document.charMeta( (doc_line_num,1))
+            colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken, [])]
+
+            # Then, if there's a word, replace (None, None) entries with the highlight color
+            word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]
+            for word_start in word_entries_for_line:
+                for pos in range(word_start-1, word_start-1+len(current_word)):
+                    if colors[pos] == (None, None):
+                        colors[pos] = (gui.VGlobalColor.red, None)
+
+            painter.setColors((0, visual_line_num), colors[pos_at_top[1]-1:])
+
+        self._setVisualCursorPos((cursor_pos[1]-pos_at_top[1], cursor_pos[0]-pos_at_top[0] ))
 
     def visualCursorPos(self):
         return self._visual_cursor_pos

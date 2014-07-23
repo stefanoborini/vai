@@ -1,7 +1,7 @@
 import re
 from . import flags
 
-def findAll(document, search_text, line_interval=None, case_sensitive=True):
+def findAll(document, search_text, line_interval=None, case_sensitive=True, word=False):
     """
     Find all occurrences of a given search text (evt. regexp text)
     """
@@ -15,7 +15,12 @@ def findAll(document, search_text, line_interval=None, case_sensitive=True):
     if not case_sensitive:
        flags = re.IGNORECASE
 
-    allMatches = re.compile(re.escape(search_text), flags).finditer
+    if word:
+        search_text = r'\b'+re.escape(search_text)+r'\b'
+    else:
+        search_text = re.escape(search_text)
+
+    allMatches = re.compile(search_text, flags).finditer
 
     for line_num in range(*line_interval):
         line_text = document.lineText(line_num)
