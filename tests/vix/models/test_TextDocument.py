@@ -285,5 +285,9 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(_withoutEOL(""), "")
         self.assertEqual(_withoutEOL("\n"), "")
 
+    def testWordAt(self):
+        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        self.assertEqual(doc.wordAt((2,6)), ('are', 5))
+
 if __name__ == '__main__':
     unittest.main()
