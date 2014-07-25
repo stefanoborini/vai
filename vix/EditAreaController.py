@@ -81,7 +81,7 @@ class EditAreaController(core.VObject):
         # No commands. only movement and no-command operations
         if event.key() == vixtk.Key.Key_I:
             if event.modifiers() & vixtk.KeyModifier.ShiftModifier:
-                self._buffer.documentCursor().toLineBeginning()
+                self._buffer.documentCursor().toCharFirstNonBlank()
             self._editor_model.mode = flags.INSERT_MODE
             event.accept()
             return
