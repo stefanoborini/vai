@@ -180,7 +180,7 @@ class TextDocument(core.VObject):
             except KeyError:
                 continue
             meta_values[char_index:char_index+how_many] = None
-            char_meta[key] = meta_values[0:len(text)]
+            char_meta[key] = meta_values
 
         self.charMetaInfoDeleted.emit(pos)
 
@@ -390,6 +390,9 @@ class TextDocument(core.VObject):
         metainfo for that string.
         """
         self._checkPos(pos)
+        if how_many < 0:
+            raise ValueError("Negative how_many passed")
+            
         line_number, char_number = pos
         line_index = line_number - 1
         char_index = char_number - 1

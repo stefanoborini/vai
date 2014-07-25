@@ -199,11 +199,21 @@ class EditAreaController(core.VObject):
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
-        else:
-            # Reset if we don't recognize it.
+
+        if event.key() == vixtk.Key.Key_W:
+            command = commands.DeleteToEndOfWordCommand(self._buffer)
+            result = command.execute()
+            if result.success:
+                self._buffer.commandHistory().append(command)
+            self._edit_area.ensureCursorVisible()
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
+
+        # Reset if we don't recognize it.
+        self._editor_model.mode = flags.COMMAND_MODE
+        event.accept()
+        return
 
     def _handleEventGoMode(self, event):
         if event.key() == vixtk.Key.Key_Escape:

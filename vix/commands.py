@@ -329,3 +329,42 @@ class DeleteToEndOfLineCommand(object):
         document = self._buffer.document()
         cursor.toPos(self._pos)
         document.replaceFromMemento(self._pos[0], self._line_memento)
+
+class DeleteToEndOfWordCommand(object):
+    SPACERS = " {}[]().!@#$%^&*()=,"
+    def __init__(self, buffer):
+        self._buffer = buffer
+        self._pos = None
+        self._line_memento = None
+
+    def execute(self):
+        cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
+
+        self._pos = cursor.pos()
+        self._line_memento = document.lineMemento(self._pos[0])
+
+        line_meta = document.lineMeta(self._pos[0])
+        if not LineMeta.Change in line_meta:
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
+
+        text = document.lineText(self._pos[0])
+        if text[self._pos[1]-1] in DeleteToEndOfWordCommand.SPACERS:
+            remove_count = len(text[self._pos[1]-1:]) - len(text[self._pos[1]-1:].lstrip(DeleteToEndOfWordCommand.SPACERS))
+        else:
+            # Get the next spacer from the current position.
+            # It's the first of this list comprehension, if available
+            spacer_indexes = [ pos for pos, c in enumerate(text) if (pos > self._pos[1]-1 and c in DeleteToEndOfWordCommand.SPACERS)]
+            if len(spacer_indexes) == 0:
+                remove_count = document.lineLength(self._pos[0])-self._pos[1]
+            else:
+                remove_count = (spacer_indexes[0]+1) - self._pos[1]
+
+        deleted = document.deleteChars(self._pos, remove_count)
+        return CommandResult(success=True, info=deleted)
+
+    def undo(self):
+        cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
+        cursor.toPos(self._pos)
+        document.replaceFromMemento(self._pos[0], self._line_memento)
