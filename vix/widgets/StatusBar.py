@@ -44,9 +44,14 @@ class StatusBar(gui.VLabel):
 
     # Private
     def _updateText(self):
+        if self._filename == None:
+            filename = "[No Name]"
+        else:
+            filename = self._filename
+
         if self._message == "":
-            self.setText(utils.strformat([(0, self._filename),
-                                          (len(self._filename)+1, '[+]' if self._file_changed_flag else '   '),
+            self.setText(utils.strformat([(0, filename),
+                                          (len(filename)+1, '[+]' if self._file_changed_flag else '   '),
                                           (self.width()-len(self._position)-3, self._position)
                                          ], self.width()))
         else:

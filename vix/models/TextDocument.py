@@ -27,42 +27,23 @@ class TextDocument(core.VObject):
     """
     Represents the contents of a file.
     """
+
+    class MissingFilenameException(Exception): pass
+
     def __init__(self, filename=None):
+        self._initSignals()
+
         self._document_meta = {}
 
         if filename:
-            self._document_meta[DocumentMeta.Filename] = filename
-            self._contents = []
-            try:
-                with contextlib.closing(open(filename,'r')) as f:
-                    for textline in f:
-                        self._contents.append(({}, {}, _withEOL(textline)))
-            except:
-                pass
-
-            if len(self._contents) == 0:
-                self._contents.append(({}, {}, EOL))
+            self.load(filename)
         else:
             self._contents = [ ({}, {}, EOL) ]
-            self._document_meta[DocumentMeta.Filename] = 'noname.txt'
+            self._document_meta[DocumentMeta.Filename] = None
+            self._document_meta[DocumentMeta.Modified] = False
+            self._document_meta[DocumentMeta.LastModified] = time.time()
+            self._cursors = []
 
-        self._document_meta[DocumentMeta.Modified] = False
-        self._document_meta[DocumentMeta.LastModified] = time.time()
-
-        self._cursors = []
-
-        self.lineChanged = core.VSignal(self)
-        self.lineDeleted = core.VSignal(self)
-        self.lineCreated = core.VSignal(self)
-        self.contentChanged = core.VSignal(self)
-        self.modifiedChanged = core.VSignal(self)
-        self.filenameChanged = core.VSignal(self)
-        self.lineMetaInfoChanged = core.VSignal(self)
-        self.lineMetaInfoDeleted = core.VSignal(self)
-        self.charMetaInfoChanged = core.VSignal(self)
-        self.charMetaInfoDeleted = core.VSignal(self)
-        self.transactionFinished = core.VSignal(self)
-        self.documentSaved = core.VSignal(self)
 
     # Query routines
     def isEmpty(self):
@@ -460,7 +441,30 @@ class TextDocument(core.VObject):
 
     # Input Output
 
+    def load(self, filename):
+        self._document_meta[DocumentMeta.Filename] = filename
+        self._cursors = []
+        self._contents = []
+        try:
+            with contextlib.closing(open(filename,'r')) as f:
+                for textline in f:
+                    self._contents.append(({}, {}, _withEOL(textline)))
+        except:
+            pass
+
+        if len(self._contents) == 0:
+            self._contents.append(({}, {}, EOL))
+
+        self._document_meta[DocumentMeta.Modified] = False
+        self._document_meta[DocumentMeta.LastModified] = time.time()
+        self.contentChanged.emit()
+        self.modifiedChanged.emit(False)
+        self.filenameChanged.emit(filename)
+
     def save(self):
+        if self.filename() is None:
+            raise TextDocument.MissingFilenameException()
+
         self.saveAs(self.filename())
 
     def saveAs(self, filename):
@@ -526,6 +530,20 @@ class TextDocument(core.VObject):
         self.contentChanged.emit()
 
     # Private
+
+    def _initSignals(self):
+        self.lineChanged = core.VSignal(self)
+        self.lineDeleted = core.VSignal(self)
+        self.lineCreated = core.VSignal(self)
+        self.contentChanged = core.VSignal(self)
+        self.modifiedChanged = core.VSignal(self)
+        self.filenameChanged = core.VSignal(self)
+        self.lineMetaInfoChanged = core.VSignal(self)
+        self.lineMetaInfoDeleted = core.VSignal(self)
+        self.charMetaInfoChanged = core.VSignal(self)
+        self.charMetaInfoDeleted = core.VSignal(self)
+        self.transactionFinished = core.VSignal(self)
+        self.documentSaved = core.VSignal(self)
 
     def _checkLineNumber(self, line_number):
         if not self.isValidLine(line_number):
