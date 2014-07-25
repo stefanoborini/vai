@@ -1,4 +1,5 @@
 from vixtk import gui, core
+import os
 
 from .SideRulerController import SideRulerController
 from . import widgets
@@ -47,6 +48,17 @@ class Editor(gui.VWidget):
         self._edit_area.setFocus()
 
     def openFile(self, filename):
+        if os.path.exists(filename) and os.path.isfile(filename):
+            for buffer in self._buffers.buffers():
+                if buffer.document().filename() is None:
+                    continue
+
+                if os.path.samefile( os.path.abspath(os.path.realpath(buffer.document().filename())),
+                    filename):
+
+                    self._buffers.select(buffer)
+                    return
+
         current_buffer = self._buffers.current()
         try:
             new_buffer = Buffer(TextDocument(filename), EditAreaModel())

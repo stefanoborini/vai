@@ -14,7 +14,7 @@ class TestTextDocument(unittest.TestCase):
         doc = TextDocument()
 
         self.assertTrue(doc.isEmpty())
-        self.assertEqual(doc.filename(), "noname.txt")
+        self.assertEqual(doc.filename(), None)
         self.assertFalse(doc.isModified())
         self.assertEqual(doc.numLines(), 1)
         self.assertEqual(doc.documentText(), '\n')
@@ -258,9 +258,19 @@ class TestTextDocument(unittest.TestCase):
         doc.replaceChars( (1,3), 1, "hello")
 
     def testSave(self):
-        pass
-        #doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
-        #doc.save()
+        path = fixtures.tempFile("testSave")
+        doc = TextDocument(path)
+        doc.save()
+        self.assertTrue(os.path.exists(path))
+
+    def testSaveUnnamed(self):
+        doc = TextDocument()
+        self.assertRaises(TextDocument.MissingFilenameException, lambda: doc.save())
+
+        path = fixtures.tempFile("testSaveUnnamed")
+        doc.saveAs(path)
+        self.assertTrue(os.path.exists(path))
+        self.assertEqual(doc.filename(), path)
 
     def testSaveAs(self):
         doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
