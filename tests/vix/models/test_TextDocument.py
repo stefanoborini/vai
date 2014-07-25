@@ -1,12 +1,8 @@
 import os
-import sys
-import inspect
 import unittest
 import time
-from vixtk.test import VSignalSpy
 from vix.models.TextDocument import TextDocument
 from vix.models.TextDocument import _withEOL, _withoutEOL
-from vix import flags
 from tests import fixtures
 
 class TestTextDocument(unittest.TestCase):
@@ -233,6 +229,9 @@ class TestTextDocument(unittest.TestCase):
 
     def testDeleteChars(self):
         doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        
+        self.assertRaises(ValueError, lambda : doc.deleteChars((1,3), -1))
+        
         d = doc.deleteChars( (1,3), 1)
         self.assertEqual(doc.lineText(1), 'helo\n')
         self.assertEqual(d[0], 'l')
