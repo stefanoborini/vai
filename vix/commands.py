@@ -297,7 +297,7 @@ class InsertStringCommand(object):
 
         document.insertChars(self._pos, self._string)
         cursor.toPos( (self._pos[0], self._pos[1]+len(self._string)) )
-        return CommandResult(success=False, info=None)
+        return CommandResult(success=True, info=None)
 
     def undo(self):
         self._buffer.documentCursor().toPos(self._pos)
