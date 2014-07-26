@@ -1,5 +1,4 @@
 from .VApplication import VApplication
-import logging
 
 class VCursor:
     @staticmethod
