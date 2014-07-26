@@ -20,6 +20,7 @@ class VSize(object):
         @staticmethod
         def width(size):
             return size[0]
+        
         @staticmethod
         def height(size):
             return size[1]
