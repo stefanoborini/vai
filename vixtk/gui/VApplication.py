@@ -1,6 +1,5 @@
 from .. import FocusPolicy
 from .. import core
-from ..core import events as coreevents
 from . import events
 from .VPalette import VPalette
 from .VScreen import VScreen
@@ -216,7 +215,7 @@ class VApplication(core.VCoreApplication):
 
         if self._focus_widget is not None:
             self.logger.info("Focus out on widget %s." % self._focus_widget)
-            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(coreevents.VEvent.EventType.FocusOut))
+            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(core.VEvent.EventType.FocusOut))
 
         self._focus_widget = None
         if widget is not None:
@@ -225,7 +224,7 @@ class VApplication(core.VCoreApplication):
                 return
 
             self._focus_widget = widget
-            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(coreevents.VEvent.EventType.FocusIn))
+            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(core.VEvent.EventType.FocusIn))
 
     def defaultPalette(self):
         palette = VPalette()

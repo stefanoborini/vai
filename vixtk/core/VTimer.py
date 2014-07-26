@@ -1,7 +1,7 @@
 from .VCoreApplication import VCoreApplication
 from .VObject import VObject
 from .VSignal import VSignal
-from . import events
+from . import VTimerEvent
 import time
 import threading
 
@@ -41,7 +41,7 @@ class VTimer(VObject):
         self._thread.start()
 
     def _timeout(self):
-        VCoreApplication.vApp.postEvent(self, events.VTimerEvent())
+        VCoreApplication.vApp.postEvent(self, VTimerEvent.VTimerEvent())
 
     def setSingleShot(self, single_shot):
         self._single_shot = single_shot
@@ -58,7 +58,7 @@ class VTimer(VObject):
         return self._thread is not None
 
     def timerEvent(self, event):
-        if isinstance(event, events.VTimerEvent):
+        if isinstance(event, VTimerEvent.VTimerEvent):
             self.timeout.emit()
 
     @staticmethod
