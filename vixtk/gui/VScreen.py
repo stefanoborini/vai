@@ -194,17 +194,17 @@ class VScreen(object):
                 counter += 1
 
     def _findClosestColor(self, color):
-        screen_color = self._color_lookup_cache.get(color.rgb())
+        screen_color = self._color_lookup_cache.get(color.rgb)
         if screen_color is not None:
             return screen_color
 
-        closest = sorted([(VColor.distance(color, screen_color),
+        closest = sorted([(VColor.VColor.distance(color, screen_color),
                            screen_color)
                            for index, screen_color in enumerate(VGlobalScreenColor.allColors())
                          ],
                          key=lambda x: x[0]
                          )[0]
-        self._color_lookup_cache[color.rgb()] = closest[1]
+        self._color_lookup_cache[color.rgb] = closest[1]
         return closest[1]
 
     def outOfBounds(self, pos):
@@ -226,10 +226,13 @@ class VScreenColor(object):
     def equivRgb(self):
         return self._equiv_rgb
 
+    @property
     def r(self):
         return self._equiv_rgb[0]
+    @property
     def g(self):
         return self._equiv_rgb[1]
+    @property
     def b(self):
         return self._equiv_rgb[2]
 
