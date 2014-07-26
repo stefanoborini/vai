@@ -3,20 +3,17 @@ from .. import core
 from . import events
 from .VPalette import VPalette
 from .VScreen import VScreen
-from .VPainter import VPainter
-from .events import VFocusEvent, VPaintEvent, VHideEvent
+from .events import VFocusEvent
 import threading
 import queue
 import logging
-import collections
-import os
 import time
 
 class _VExceptionEvent:
     def __init__(self, exception):
         self.exception = exception
 
-class KeyEventThread(threading.Thread):
+class _KeyEventThread(threading.Thread):
     def __init__(self, screen, key_event_queue, event_available_flag):
         super().__init__()
         self.daemon = True
@@ -70,7 +67,7 @@ class VApplication(core.VCoreApplication):
         self._event_available_flag = threading.Event()
         self._event_queue = queue.Queue()
         self._key_event_queue = queue.Queue()
-        self._key_event_thread = KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
+        self._key_event_thread = _KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
         self._delete_later_queue = []
         self._exit_flag = False
 
@@ -95,6 +92,66 @@ class VApplication(core.VCoreApplication):
         self.logger.info("===================================")
         self._screen.refresh()
 
+    def postEvent(self, receiver, event):
+        self.logger.info(" <posted " + str(receiver) + " " + str(event))
+        self._event_queue.put((receiver, event))
+        self._event_available_flag.set()
+
+    def exit(self):
+        self._exit_flag = True
+
+    def addTopLevelWidget(self, widget):
+        self._root_widget.addChild(widget)
+
+    def deleteLater(self, widget):
+        self.logger.info("Added widget %s to deleteLater queue" % str(widget))
+        self._delete_later_queue.append(widget)
+
+    def screen(self):
+        return self._screen
+
+    def focusWidget(self):
+        return self._focus_widget
+
+    def setFocusWidget(self, widget):
+        if self._focus_widget is widget:
+            return
+
+        self.logger.info("Setting focus on widget %s." % widget)
+
+        if self._focus_widget is not None:
+            self.logger.info("Focus out on widget %s." % self._focus_widget)
+            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(core.VEvent.EventType.FocusOut))
+
+        self._focus_widget = None
+        if widget is not None:
+            if widget.focusPolicy() == FocusPolicy.NoFocus:
+                self.logger.info("Focus not accepted on widget %s due to its focus policy." % self._focus_widget)
+                return
+
+            self._focus_widget = widget
+            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(core.VEvent.EventType.FocusIn))
+
+    def defaultPalette(self):
+        palette = VPalette()
+        palette.setDefaults()
+        return palette
+
+    def palette(self):
+        return self._palette
+
+    def rootWidget(self):
+        try:
+            return self._root_widget
+        except AttributeError:
+            self._root_widget = None
+            return self._root_widget
+
+    def resetScreen(self):
+        self._screen.reset()
+
+    # Private
+
     def _hideScheduled(self):
         self.logger.info("Widget scheduled for deletion: %s" % str(self._delete_later_queue))
         for w in self._delete_later_queue:
@@ -117,7 +174,6 @@ class VApplication(core.VCoreApplication):
 
             if event is None:
                 return
-
 
             if isinstance(event, events.VKeyEvent):
                 self._processSingleKeyEvent(event)
@@ -181,65 +237,8 @@ class VApplication(core.VCoreApplication):
             #curses.resizeterm(y, x)
             #self.renderWidgets()
 
-    def postEvent(self, receiver, event):
-        self.logger.info(" <posted " + str(receiver) + " " + str(event))
-        self._event_queue.put((receiver, event))
-        self._event_available_flag.set()
-
-    def exit(self):
-        self._exit_flag = True
-
     def _exitCleanup(self):
         self._key_event_thread.stop_event.set()
         self._screen.reset()
         super().exit()
 
-    def addTopLevelWidget(self, widget):
-        self._root_widget.addChild(widget)
-
-    def deleteLater(self, widget):
-        self.logger.info("Added widget %s to deleteLater queue" % str(widget))
-        self._delete_later_queue.append(widget)
-
-    def screen(self):
-        return self._screen
-
-    def focusWidget(self):
-        return self._focus_widget
-
-    def setFocusWidget(self, widget):
-        if self._focus_widget is widget:
-            return
-
-        self.logger.info("Setting focus on widget %s." % widget)
-
-        if self._focus_widget is not None:
-            self.logger.info("Focus out on widget %s." % self._focus_widget)
-            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(core.VEvent.EventType.FocusOut))
-
-        self._focus_widget = None
-        if widget is not None:
-            if widget.focusPolicy() == FocusPolicy.NoFocus:
-                self.logger.info("Focus not accepted on widget %s due to its focus policy." % self._focus_widget)
-                return
-
-            self._focus_widget = widget
-            VApplication.vApp.postEvent(self._focus_widget, VFocusEvent(core.VEvent.EventType.FocusIn))
-
-    def defaultPalette(self):
-        palette = VPalette()
-        palette.setDefaults()
-        return palette
-
-    def palette(self):
-        return self._palette
-
-    def rootWidget(self):
-        try:
-            return self._root_widget
-        except AttributeError:
-            self._root_widget = None
-            return self._root_widget
-
-    def resetScreen(self):
-        self._screen.reset()
