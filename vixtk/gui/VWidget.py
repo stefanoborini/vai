@@ -1,7 +1,6 @@
 from .. import core
 from ..consts import Index
 from .. import FocusPolicy
-from ..core import events as coreevents
 from .VApplication import VApplication
 from .VPalette import VPalette
 from .VPainter import VPainter
@@ -184,10 +183,10 @@ class VWidget(core.VObject):
 
         elif isinstance(event, events.VFocusEvent):
             if self.isVisible():
-                if event.eventType() == coreevents.VEvent.EventType.FocusIn:
+                if event.eventType() == core.VEvent.EventType.FocusIn:
                     self.focusInEvent(event)
             else:
-                if event.eventType() == coreevents.VEvent.EventType.FocusOut:
+                if event.eventType() == core.VEvent.EventType.FocusOut:
                     self.focusOutEvent(event)
 
         elif isinstance(event, events.VHideEvent):

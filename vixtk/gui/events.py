@@ -1,5 +1,5 @@
 from .. import Key, KeyModifier, nativeToVixKeyCode, vixKeyCodeToText
-from ..core.events import VEvent
+from ..core import VEvent
 
 class VKeyEvent(VEvent):
     def __init__(self, key_code):

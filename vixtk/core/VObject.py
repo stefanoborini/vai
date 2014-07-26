@@ -1,4 +1,4 @@
-from .events import VTimerEvent
+from . import VTimerEvent
 import logging
 
 
@@ -93,7 +93,7 @@ class VObject:
         return self._event_filters
 
     def event(self, event):
-        if isinstance(event, VTimerEvent):
+        if isinstance(event, VTimerEvent.VTimerEvent):
             self.timerEvent(event)
             return True
         return False
