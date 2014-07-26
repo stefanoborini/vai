@@ -201,6 +201,8 @@ class TestCommands(unittest.TestCase):
 
     def testInsertStringCommand(self):
         command = commands.InsertStringCommand(self.buffer, '')
+        result = command.execute()
+        self.assertTrue(result.success)
 
 if __name__ == '__main__':
     unittest.main()
