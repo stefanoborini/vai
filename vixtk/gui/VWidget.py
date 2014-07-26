@@ -175,7 +175,7 @@ class VWidget(core.VObject):
                 for w in widget.depthFirstRightTree():
                     self.logger.info("Widget %s in rightTree" % str(w))
                     self.logger.info("%s, %s", w.absoluteRect(), widget.absoluteRect())
-                    if core.intersects(w.absoluteRect(),widget.absoluteRect()):
+                    if core.VRect.tuple.intersects(w.absoluteRect(),widget.absoluteRect()):
                         self.logger.info("Intersected")
                         repaint_queue.append(w)
                 self.logger.info("repaint queue: %s" % str(repaint_queue))
