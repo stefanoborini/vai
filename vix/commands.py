@@ -368,3 +368,44 @@ class DeleteToEndOfWordCommand(object):
         document = self._buffer.document()
         cursor.toPos(self._pos)
         document.replaceFromMemento(self._pos[0], self._line_memento)
+
+class InsertLineAfterCommand(object):
+    def __init__(self, buffer, text):
+        self._buffer = buffer
+        self._text = text
+        self._pos = None
+
+    def execute(self):
+        document = self._buffer.document()
+        cursor = self._buffer.documentCursor()
+
+        self._pos = cursor.pos()
+        document.insertLine(self._pos[0]+1, self._text)
+        cursor.toLineNext()
+        return CommandResult(True, None)
+
+    def undo(self):
+        document = self._buffer.document()
+        cursor = self._buffer.documentCursor()
+        document.deleteLine(self._pos[0]+1)
+        cursor.toPos(self._pos)
+
+class InsertLineCommand(object):
+    def __init__(self, buffer, text):
+        self._buffer = buffer
+        self._text = text
+        self._pos = None
+
+    def execute(self):
+        document = self._buffer.document()
+        cursor = self._buffer.documentCursor()
+
+        self._pos = cursor.pos()
+        document.insertLine(self._pos[0], self._text)
+        return CommandResult(True, None)
+
+    def undo(self):
+        document = self._buffer.document()
+        cursor = self._buffer.documentCursor()
+        document.deleteLine(self._pos[0])
+        cursor.toPos(self._pos)
