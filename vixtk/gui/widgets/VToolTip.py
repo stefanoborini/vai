@@ -1,9 +1,7 @@
 from .VLabel import VLabel
 from ..VPainter import VPainter
 from ..VPalette import VPalette
-from ..VApplication import VApplication
 from ... import core
-import logging
 
 class VToolTip(VLabel):
     @staticmethod

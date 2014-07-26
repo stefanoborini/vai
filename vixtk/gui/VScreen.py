@@ -1,7 +1,5 @@
 from . import VColor
-from .. import core
 from ..consts import Index
-import itertools
 import curses
 import select
 import sys
@@ -31,7 +29,6 @@ class VScreen(object):
         self.logger = logging.getLogger(self.__class__.__name__)
         if hasattr(self, "debug"):
             self.logger.setLevel(self.debug)
-            self.logger.log(level, "Debugging enabled for "+str(self.__class__.__name__))
         else:
             self.logger.setLevel(logging.CRITICAL+1)
 
@@ -273,7 +270,6 @@ class VScreenArea(object):
         self.logger = logging.getLogger(self.__class__.__name__)
         if hasattr(self, "debug"):
             self.logger.setLevel(self.debug)
-            self.logger.log(level, "Debugging enabled for "+str(cls.__name__))
         else:
             self.logger.setLevel(logging.CRITICAL+1)
 
