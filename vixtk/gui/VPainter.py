@@ -1,4 +1,3 @@
-from .. import core
 from ..consts import Index
 
 class VPainter:
