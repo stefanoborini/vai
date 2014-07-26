@@ -73,8 +73,9 @@ class EditAreaController(core.VObject):
                 command = commands.InsertStringCommand(self._buffer, text)
 
         if command is not None:
-            self._buffer.commandHistory().append(command)
-            command.execute()
+            result = command.execute()
+            if result.success:
+                self._buffer.commandHistory().append(command)
             self._edit_area.ensureCursorVisible()
 
         event.accept()
