@@ -8,8 +8,9 @@
   DELETE_MODE,
   SEARCH_FORWARD_MODE,
   SEARCH_BACKWARD_MODE,
-  GO_MODE
-) = list(range(11))
+  GO_MODE,
+  YANK_MODE
+) = list(range(12))
 
 ( UP,
   DOWN,

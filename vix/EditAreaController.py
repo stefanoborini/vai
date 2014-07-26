@@ -43,6 +43,9 @@ class EditAreaController(core.VObject):
         elif self._editor_model.mode == flags.GO_MODE:
             self._handleEventGoMode(event)
 
+        elif self._editor_model.mode == flags.YANK_MODE:
+            self._handleEventYankMode(event)
+
     def setModels(self, buffer, editor_model):
         self._buffer = buffer
         self._editor_model = editor_model
@@ -99,6 +102,11 @@ class EditAreaController(core.VObject):
 
         if event.key() == vixtk.Key.Key_D and event.modifiers() == 0:
             self._editor_model.mode = flags.DELETE_MODE
+            event.accept()
+            return
+
+        if event.key() == vixtk.Key.Key_Y and event.modifiers() == 0:
+            self._editor_model.mode = flags.YANK_MODE
             event.accept()
             return
 
@@ -176,7 +184,12 @@ class EditAreaController(core.VObject):
             command = commands.JoinWithNextLineCommand(self._buffer)
         elif event.key() == vixtk.Key.Key_D and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
             command = commands.DeleteToEndOfLineCommand(self._buffer)
-
+        elif event.key() == vixtk.Key.Key_P:
+            if self._editor_model.clipboard is not None:
+                if event.modifiers() == 0:
+                    command = commands.InsertLineAfterCommand(self._buffer, self._editor_model.clipboard)
+                elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+                    command = commands.InsertLineCommand(self._buffer, self._editor_model.clipboard)
         if command is not None:
             result = command.execute()
             if result.success:
@@ -195,6 +208,7 @@ class EditAreaController(core.VObject):
             result = command.execute()
             if result.success:
                 self._buffer.commandHistory().append(command)
+                self._editor_model.clipboard = result.info[2]
             self._edit_area.ensureCursorVisible()
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
@@ -206,6 +220,24 @@ class EditAreaController(core.VObject):
             if result.success:
                 self._buffer.commandHistory().append(command)
             self._edit_area.ensureCursorVisible()
+            self._editor_model.mode = flags.COMMAND_MODE
+            event.accept()
+            return
+
+        # Reset if we don't recognize it.
+        self._editor_model.mode = flags.COMMAND_MODE
+        event.accept()
+        return
+
+    def _handleEventYankMode(self, event):
+        if event.key() == vixtk.Key.Key_Escape:
+            self._editor_model.mode = flags.COMMAND_MODE
+            event.accept()
+            return
+
+        if event.key() == vixtk.Key.Key_Y:
+            cursor_pos = self._buffer.documentCursor().pos()
+            self._editor_model.clipboard = self._buffer.document().lineText(cursor_pos[0])
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
