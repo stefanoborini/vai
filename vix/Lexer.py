@@ -1,7 +1,8 @@
 import pygments
 import pygments.lexers
-import logging
+from .SymbolLookupDb import SymbolLookupDb
 from .models.TextDocument import CharMeta
+import pygments.token
 
 class Lexer:
     def __init__(self):
@@ -22,10 +23,12 @@ class Lexer:
         self._document.beginTransaction()
         current_line = 1
         current_col = 1
-
+        SymbolLookupDb.clear()
         # Skip the space token
         for token in tokens[1:]:
             ttype, token_string = token
+            if ttype in [pygments.token.Name, pygments.token.Name.Class, pygments.token.Name.Function] :
+                SymbolLookupDb.add(token_string)
 
             token_lines = token_string.splitlines(True)
             for token_line in token_lines:

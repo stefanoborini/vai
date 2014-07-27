@@ -31,7 +31,7 @@ class Alignment:
     AlignBottom  = 0x40
     AlignVCenter = 0x80
     AlignCenter  = AlignHCenter|AlignVCenter
-    
+
 class Key:
     Key_Escape    = 0x01000000
     Key_Tab       = 0x01000001
