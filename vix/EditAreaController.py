@@ -1,9 +1,10 @@
 import vixtk
+import os
 from vixtk import core
+import logging
 from . import flags
 from . import Search
 from . import commands
-import logging
 from .SymbolLookupDb import SymbolLookupDb
 
 DIRECTIONAL_KEYS = [ vixtk.Key.Key_Up,
@@ -21,8 +22,6 @@ class EditAreaController(core.VObject):
         self._buffer = None
         self._editor_model = None
         self._edit_area = edit_area
-        self._symbol_db = SymbolLookupDb()
-        self._symbol_db.add("handleKeyEvent")
 
 
     def handleKeyEvent(self, event):
@@ -55,7 +54,6 @@ class EditAreaController(core.VObject):
         self._editor_model = editor_model
 
     # Private
-
     def _handleEventInsertMode(self, event):
         command = None
         document = self._buffer.document()
@@ -78,9 +76,9 @@ class EditAreaController(core.VObject):
                     if prefix[1] is None:
                         text = " "*4
                     else:
-                        lookup = self._symbol_db.lookup(prefix[0])
-                        if len(lookup) == 1 and lookup[0] != '':
-                            text = lookup[0]
+                        lookup = [x for x in SymbolLookupDb.lookup(prefix[0]) if x != '']
+                        if len(lookup) >= 1:
+                            text = os.path.commonprefix(lookup)
                         else:
                             text = " "*4
             else:
