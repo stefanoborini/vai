@@ -39,6 +39,5 @@ def _composePostfix(d, tab=0):
     for k, v in d.items():
         for postfix in _composePostfix(v, tab+1):
             ret.append(k+postfix)
-            print(ret)
     
     return ret    
