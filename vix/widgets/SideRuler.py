@@ -19,23 +19,21 @@ class SideRuler(gui.VWidget):
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
-            bg_color = gui.VGlobalColor.blue
+            painter.bg_color = gui.VGlobalColor.blue
 
             if current > self._num_rows:
-                painter.drawText( (0, i), "~".ljust(num_digits)+" "+border,
-                                fg_color=gui.VGlobalColor.blue,
-                )
+                painter.fg_color = gui.VGlobalColor.blue
+                painter.drawText( (0, i), "~".ljust(num_digits)+" "+border)
                 continue
 
             badge = self._badges.get(current)
             if badge is not None:
                 badge_mark = badge.marker
-                bg_color = badge.bg_color
-
+                painter.bg_color = badge.bg_color
+            painter.fg_color = gui.VGlobalColor.yellow
             painter.drawText( (0, i),
                               str(current).rjust(num_digits) + badge_mark + border,
-                              fg_color=gui.VGlobalColor.yellow,
-                              bg_color=bg_color)
+                              )
 
 
     def setNumRows(self, num_rows):
