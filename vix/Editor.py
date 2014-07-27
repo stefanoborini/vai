@@ -1,6 +1,7 @@
 from vixtk import gui, core
 import os
 
+import re
 from .SideRulerController import SideRulerController
 from . import widgets
 from .StatusBarController import StatusBarController
@@ -202,13 +203,9 @@ class Editor(gui.VWidget):
     def _showInfoHoverBoxIfNeeded(self, document_pos):
         badge = self._side_ruler.badge(document_pos[0])
         if badge is not None:
-            self._status_bar.setMessage(badge.description, 3000)
-            #self._info_hover_box.resize((1,len(badge.description)))
-            #self._info_hover_box.move((0, self._edit_area.visualCursorPos()[1]+1))
-            #self._info_hover_box.show()
+            gui.VToolTip.showText((0, document_pos[0]-self.buffers().current().editAreaModel().documentPosAtTop()[0]+1),badge.description)
         else:
-            self._status_bar.setMessage(None)
-            #self._info_hover_box.hide()
+            gui.VToolTip.hide()
 
 
     def _bufferChanged(self, old_buffer, new_buffer):
