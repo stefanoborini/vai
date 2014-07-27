@@ -80,7 +80,7 @@ class EditAreaController(core.VObject):
                         if len(lookup) >= 1:
                             text = os.path.commonprefix(lookup)
                         else:
-                            text = " "*4
+                            text = ''
             else:
                 text = event.text()
 
