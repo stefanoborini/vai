@@ -3,11 +3,27 @@ import os
 import logging
 import curses
 
-class FocusPolicy(object):
+class FocusPolicy:
     NoFocus = 0
     StrongFocus = 11
 
-class Key(object):
+class Orientation:
+    Horizontal = 1
+    Vertical = 2
+
+class LineStyle:
+    NoLine = 0
+    Full   = 1
+
+class CornerCapStyle:
+    NoCap = 0
+    Plus = 1
+
+class LineCapStyle:
+    NoCap = 0
+    Plus  = 1
+
+class Key:
     Key_Escape    = 0x01000000
     Key_Tab       = 0x01000001
     Key_Backtab   = 0x01000002
@@ -154,7 +170,7 @@ class Key(object):
     NonPrintableMask = 0x01000000
     Mask             = 0x01FFFFFF
 
-class KeyModifier(object):
+class KeyModifier:
     NoModifier      = 0x00000000
     ShiftModifier   = 0x02000000
     ControlModifier = 0x04000000
