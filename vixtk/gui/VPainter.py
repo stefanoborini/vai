@@ -69,7 +69,7 @@ class VPainter:
     def erase(self):
         self.eraseRect(self._widget.rect())
 
-    def setColors(self, pos, colors):
+    def recolor(self, pos, colors):
         self._widget.screenArea().setColors(pos, colors)
 
 

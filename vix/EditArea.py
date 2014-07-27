@@ -93,7 +93,7 @@ class EditArea(gui.VWidget):
                     if colors[pos] == (None, None):
                         colors[pos] = (gui.VGlobalColor.red, None)
 
-            painter.setColors((0, visual_line_num), colors[pos_at_top[1]-1:])
+            painter.recolor((0, visual_line_num), colors[pos_at_top[1]-1:])
 
         self._setVisualCursorPos((cursor_pos[1]-pos_at_top[1], cursor_pos[0]-pos_at_top[0] ))
 

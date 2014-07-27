@@ -243,19 +243,10 @@ class VWidget(core.VObject):
         #    self._layout.apply()
 
         size = self.size()
-        if self.isEnabled():
-            if self.isActive():
-                color_group = VPalette.ColorGroup.Active
-            else:
-                color_group = VPalette.ColorGroup.Inactive
-        else:
-            color_group = VPalette.ColorGroup.Disabled
-
-        fg, bg = self.colors(color_group)
 
         string = ' '*size[Index.SIZE_WIDTH]
         for i in range(0, size[Index.SIZE_HEIGHT]):
-            painter.drawText( (0, i), string, fg, bg)
+            painter.drawText( (0, i), string)
 
     def focusInEvent(self, event):
         self.logger.info("FocusIn event")
