@@ -4,6 +4,7 @@ from . import flags
 from . import Search
 from . import commands
 import logging
+from .SymbolLookupDb import SymbolLookupDb
 
 DIRECTIONAL_KEYS = [ vixtk.Key.Key_Up,
                      vixtk.Key.Key_Down,
@@ -20,6 +21,9 @@ class EditAreaController(core.VObject):
         self._buffer = None
         self._editor_model = None
         self._edit_area = edit_area
+        self._symbol_db = SymbolLookupDb()
+        self._symbol_db.add("handleKeyEvent")
+
 
     def handleKeyEvent(self, event):
         if not self._hasModels():
@@ -54,6 +58,8 @@ class EditAreaController(core.VObject):
 
     def _handleEventInsertMode(self, event):
         command = None
+        document = self._buffer.document()
+        cursor = self._buffer.documentCursor()
 
         if event.key() == vixtk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
@@ -65,7 +71,18 @@ class EditAreaController(core.VObject):
             command = commands.BreakLineCommand(self._buffer)
         else:
             if event.key() == vixtk.Key.Key_Tab:
-                text = " "*4
+                if cursor.pos()[1] == 1:
+                    text = " "*4
+                else:
+                    prefix = document.wordAt( (cursor.pos()[0], cursor.pos()[1]-1))
+                    if prefix[1] is None:
+                        text = " "*4
+                    else:
+                        lookup = self._symbol_db.lookup(prefix[0])
+                        if len(lookup) == 1 and lookup[0] != '':
+                            text = lookup[0]
+                        else:
+                            text = " "*4
             else:
                 text = event.text()
 

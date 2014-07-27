@@ -185,6 +185,11 @@ class TextDocument(core.VObject):
         self.charMetaInfoDeleted.emit(pos)
 
     def wordAt(self, pos, split_func=None):
+        """
+        find the full word at a given document position.
+        Returns a tuple with the full word and the document column where the
+        word starts
+        """
         self._checkPos(pos)
 
         if split_func == None:
