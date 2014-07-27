@@ -1,5 +1,5 @@
 import unittest
-from vixtk import gui, test
+from vixtk import gui, test, core
 
 class TestVPalette(unittest.TestCase):
     def setUp(self):
@@ -9,6 +9,7 @@ class TestVPalette(unittest.TestCase):
     def tearDown(self):
         del self.screen
         self.app.exit()
+        core.VCoreApplication.vApp = None
         del self.app
 
     def testPalette(self):
