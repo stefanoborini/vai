@@ -20,6 +20,32 @@ class TestVPainter(unittest.TestCase):
         painter.drawText((10,10), "hello")
         self.assertEqual(self.screen.stringAt(10, 10, 5), "hello")
 
+    def testDrawTextFormatted(self):
+        w = gui.VWidget()
+        w.resize((40,40))
+        painter = gui.VPainter(w)
+        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignLeft)
+        print(self.screen)
+        self.assertEqual(self.screen.stringAt(10, 11, 11), "hello      ")
+        self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
+        self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
+        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignHCenter)
+        self.assertEqual(self.screen.stringAt(10, 11, 11), "   hello   ")
+        self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
+        self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
+        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignRight)
+        self.assertEqual(self.screen.stringAt(10, 11, 11), "      hello")
+        self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
+        self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
+        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignVCenter)
+        self.assertEqual(self.screen.stringAt(10, 11, 11), "           ")
+        self.assertEqual(self.screen.stringAt(10, 12, 11), "hello      ")
+        self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
+        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignBottom)
+        self.assertEqual(self.screen.stringAt(10, 11, 11), "           ")
+        self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
+        self.assertEqual(self.screen.stringAt(10, 13, 11), "hello      ")
+
     def testDrawLineHorizontal(self):
         w = gui.VWidget()
         w.resize((40,40))
@@ -39,14 +65,25 @@ class TestVPainter(unittest.TestCase):
         self.assertEqual(self.screen.stringAt(10,14,1), "+")
 
 
+    def testFillRect(self):
+        w = gui.VWidget()
+        w.resize((40,40))
+        painter = gui.VPainter(w)
+        painter.fillRect((10,10,5,5))
+        self.assertEqual(self.screen.stringAt(10,10,5), "+---+")
+        self.assertEqual(self.screen.stringAt(10,11,5), "|   |")
+        self.assertEqual(self.screen.stringAt(10,12,5), "|   |")
+        self.assertEqual(self.screen.stringAt(10,13,5), "|   |")
+        self.assertEqual(self.screen.stringAt(10,14,5), "+---+")
+
     def testDrawRect(self):
         w = gui.VWidget()
         w.resize((40,40))
         painter = gui.VPainter(w)
         painter.drawRect((10,10,5,5))
         self.assertEqual(self.screen.stringAt(10,10,5), "+---+")
-        self.assertEqual(self.screen.stringAt(10,11,5), "|   |")
-        self.assertEqual(self.screen.stringAt(10,12,5), "|   |")
-        self.assertEqual(self.screen.stringAt(10,13,5), "|   |")
+        self.assertEqual(self.screen.stringAt(10,11,5), "|...|")
+        self.assertEqual(self.screen.stringAt(10,12,5), "|...|")
+        self.assertEqual(self.screen.stringAt(10,13,5), "|...|")
         self.assertEqual(self.screen.stringAt(10,14,5), "+---+")
 

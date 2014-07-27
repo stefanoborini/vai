@@ -23,6 +23,15 @@ class LineCapStyle:
     NoCap = 0
     Plus  = 1
 
+class Alignment:
+    AlignLeft    =  0x1
+    AlignRight   =  0x2
+    AlignHCenter =  0x4
+    AlignTop     = 0x20
+    AlignBottom  = 0x40
+    AlignVCenter = 0x80
+    AlignCenter  = AlignHCenter|AlignVCenter
+    
 class Key:
     Key_Escape    = 0x01000000
     Key_Tab       = 0x01000001
