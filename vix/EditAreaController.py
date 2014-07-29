@@ -40,6 +40,9 @@ class EditAreaController(core.VObject):
         elif self._editor_model.mode == flags.COMMAND_MODE:
             self._handleEventCommandMode(event)
 
+        elif self._editor_model.mode == flags.REPLACE_MODE:
+            self._handleEventReplaceMode(event)
+
         elif self._editor_model.mode == flags.DELETE_MODE:
             self._handleEventDeleteMode(event)
 
@@ -182,6 +185,10 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
+        if event.key() == vixtk.Key.Key_R:
+            self._editor_model.mode = flags.REPLACE_MODE
+            event.accept()
+            return
 
         # Command operations
         command = None
@@ -275,6 +282,17 @@ class EditAreaController(core.VObject):
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
+
+    def _handleEventReplaceMode(self, event):
+        if vixtk.isKeyCodePrintable(event.key()):
+            command = commands.ReplaceSingleCharCommand(self._buffer, event.text())
+            result = command.execute()
+            if result.success:
+                self._buffer.commandHistory().append(command)
+            self._edit_area.ensureCursorVisible()
+
+        self._editor_model.mode = flags.COMMAND_MODE
+        event.accept()
 
     # Private
 
