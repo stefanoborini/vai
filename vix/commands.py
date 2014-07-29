@@ -409,3 +409,25 @@ class InsertLineCommand(object):
         cursor = self._buffer.documentCursor()
         document.deleteLine(self._pos[0])
         cursor.toPos(self._pos)
+
+class ReplaceSingleCharCommand:
+    def __init__(self, buffer, char):
+        self._buffer = buffer
+        self._char = char
+        self._pos = None
+        self._line_memento = None
+
+    def execute(self):
+        document = self._buffer.document()
+        cursor = self._buffer.documentCursor()
+
+        self._pos = cursor.pos()
+        self._line_memento = document.lineMemento(self._pos[0])
+        deleted = document.replaceChars(self._pos, 1, self._char)
+        return CommandResult(True, deleted)
+
+    def undo(self):
+        cursor = self._buffer.documentCursor()
+        document = self._buffer.document()
+        cursor.toPos(self._pos)
+        document.replaceFromMemento(self._pos[0], self._line_memento)
