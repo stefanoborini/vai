@@ -19,15 +19,15 @@ class Lexer:
         # everything up to the first token, meaning that we lose the potentially
         # empty first lines and mess up the matching. With the space, we force
         # the lexer to process the initial \n. and we just skip the space token
-        tokens = list(pygments.lex(" "+self._document.documentText(), pygments.lexers.PythonLexer()))
+        tokens = pygments.lexers.PythonLexer(stripnl=False, stripall=False).get_tokens(self._document.documentText())
         self._document.beginTransaction()
         current_line = 1
         current_col = 1
         SymbolLookupDb.clear()
         # Skip the space token
-        for token in tokens[1:]:
+        for token in tokens:
             ttype, token_string = token
-            if ttype in [pygments.token.Name, pygments.token.Name.Class, pygments.token.Name.Function] :
+            if ttype in [pygments.token.Name, pygments.token.Name.Class, pygments.token.Name.Function]:
                 SymbolLookupDb.add(token_string)
 
             token_lines = token_string.splitlines(True)
