@@ -397,7 +397,7 @@ class TextDocument(core.VObject):
         self._checkPos(pos)
         if how_many < 0:
             raise ValueError("Negative how_many passed")
-            
+
         line_number, char_number = pos
         line_index = line_number - 1
         char_index = char_number - 1
@@ -440,12 +440,52 @@ class TextDocument(core.VObject):
         self.contentChanged.emit()
         return (deleted_text, deleted_char_meta)
 
-    def replaceChars(self, pos, length, string):
+    def replaceChars(self, pos, how_many, string):
         self._checkPos(pos)
+        if how_many < 0:
+            raise ValueError("Negative how_many passed")
+
         line_number, char_number = pos
         line_index = line_number - 1
         char_index = char_number - 1
-        pass
+        line_length = self.lineLength(line_number)
+
+        #  0 1 2 3 4 5
+        # 'h e l l o \n'  line_length = 6
+        #   |       |
+        #   |       char_index+how_many = 5. how_many = 4
+        #   char_index = 1
+        if char_index+how_many > line_length-1:
+            how_many = line_length-char_index-1
+
+        contents = self._contents.pop(line_index)
+        text = contents[TEXT_INDEX]
+        line_meta = contents[LINE_META_INDEX]
+
+        new_text = text[:char_index] + string + text[char_index+how_many:]
+        deleted_text = text[char_index:char_index+how_many]
+
+        new_eol_meta = []
+        if not _hasEOL(new_text):
+            new_eol_meta = [None]
+
+        char_meta = contents[CHAR_META_INDEX]
+        deleted_char_meta = {}
+        for key, values in char_meta.items():
+            char_meta[key] = values[:char_index] + [None]*len(string) + values[char_index+how_many:] + new_eol_meta
+            deleted_char_meta[key] = values[char_index:char_index+how_many]
+
+        self._contents.insert(line_index, ( line_meta,
+                                            char_meta,
+                                            new_text
+                                        )
+                                )
+
+        self._setModified(True)
+        self.lineMetaInfoChanged.emit(line_number)
+        self.lineChanged.emit(line_number)
+        self.contentChanged.emit()
+        return (deleted_text, deleted_char_meta)
 
     # Input Output
 

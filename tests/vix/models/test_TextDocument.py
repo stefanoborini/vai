@@ -229,9 +229,9 @@ class TestTextDocument(unittest.TestCase):
 
     def testDeleteChars(self):
         doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
-        
+
         self.assertRaises(ValueError, lambda : doc.deleteChars((1,3), -1))
-        
+
         d = doc.deleteChars( (1,3), 1)
         self.assertEqual(doc.lineText(1), 'helo\n')
         self.assertEqual(d[0], 'l')
@@ -255,6 +255,12 @@ class TestTextDocument(unittest.TestCase):
     def testReplaceChars(self):
         doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
         doc.replaceChars( (1,3), 1, "hello")
+
+        self.assertEqual(doc.lineText(1), 'hehellolo\n')
+
+        doc.replaceChars( (1,1), 1, "c")
+
+        self.assertEqual(doc.lineText(1), 'cehellolo\n')
 
     def testSave(self):
         path = fixtures.tempFile("testSave")
