@@ -230,7 +230,9 @@ class TextDocument(core.VObject):
         self.contentChanged.emit()
 
     def insertLine(self, line_number, text, line_meta=None, char_meta=None):
-        self._checkLineNumber(line_number)
+        if not (1 <= line_number <= self.numLines()+1):
+            raise IndexError("Invalid insertion line %d" % line_number)
+
         line_index = line_number - 1
         line_meta = {} if line_meta is None else line_meta
         char_meta = {} if char_meta is None else char_meta

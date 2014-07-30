@@ -142,7 +142,14 @@ class TestTextDocument(unittest.TestCase):
 
     def testInsertLine(self):
         doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        self.assertEqual(doc.numLines(), 2)
         doc.insertLine(1,"babau")
+        self.assertEqual(doc.numLines(), 3)
+
+        self.assertRaises(IndexError, lambda : doc.insertLine(6,"say what again")
+
+        doc.insertLine(4,"say what again")
+        self.assertEqual(doc.numLines(), 4)
 
     def testDeleteLine(self):
         doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
