@@ -1,11 +1,11 @@
 from vixtk import gui, core
 import os
+import re
 
 from .SideRulerController import SideRulerController
 from . import widgets
 from .StatusBarController import StatusBarController
 from .CommandBarController import CommandBarController
-from .InfoHoverBox import InfoHoverBox
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
 from .Lexer import Lexer
@@ -30,7 +30,6 @@ class Editor(gui.VWidget):
         self._createCommandBar()
         self._createSideRuler()
         self._createEditArea()
-        self._createInfoHoverBox()
 
         self._initBackupTimer()
 
@@ -105,11 +104,6 @@ class Editor(gui.VWidget):
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar)
         self._edit_area_event_filter.setModels(self._editor_model, self._buffers)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
-
-    def _createInfoHoverBox(self):
-        self._info_hover_box = InfoHoverBox(parent=self)
-        self._info_hover_box.resize((0,0))
-        self._info_hover_box.hide()
 
     def _initBackupTimer(self):
         self._backup_timer = core.VTimer()
