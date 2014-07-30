@@ -7,17 +7,16 @@ class VToolTip(VLabel):
     @classmethod
     def showText(cls, pos, text):
         if cls._instance is None:
-            tip = VToolTip(text, parent=None)
-            tip.resize(tip.minimumSize())
-            tip.move(pos)
-            tip.show()
-            cls._instance = tip
-        return
+            cls._instance = VToolTip(text, parent=None)
+        cls._instance.setText(text)
+        cls._instance.resize((len(text),1))
+        cls._instance.move(pos)
+        cls._instance.show()
     @classmethod
     def hide(cls):
         if cls._instance is not None:
             VLabel.hide(cls._instance)
-            cls._instance = None
+        cls._instance = None
 
     def paintEvent(self, event):
         painter = VPainter(self)
