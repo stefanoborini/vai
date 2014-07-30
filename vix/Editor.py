@@ -1,8 +1,6 @@
 from vixtk import gui, core
 import os
 
-import re
-import sys
 from .SideRulerController import SideRulerController
 from . import widgets
 from .StatusBarController import StatusBarController
