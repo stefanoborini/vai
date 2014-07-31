@@ -402,6 +402,7 @@ class InsertLineCommand(object):
 
         self._pos = cursor.pos()
         document.insertLine(self._pos[0], self._text)
+        cursor.toPos((self._pos[0], 1))
         return CommandResult(True, None)
 
     def undo(self):
