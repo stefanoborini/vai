@@ -25,17 +25,9 @@ class _KeyEventThread(threading.Thread):
         self._event_available_flag = event_available_flag
 
     def run(self):
-        last_event = (None, time.time())
         while not self.stop_event.is_set():
             try:
                 c = self._screen.getKeyCode()
-
-                # Compensate for multikeys events that ncurses provides,
-                # Otherwise we would not be able to distinguish a single escape
-                # from an escape sequence
-                if last_event[0] == c and time.time()-last_event[1] < 0.04:
-                    continue
-                last_event = (c, time.time())
 
                 event = events.VKeyEvent.fromNativeKeyCode(c)
                 if event is not None:
