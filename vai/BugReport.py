@@ -1,13 +1,13 @@
 import contextlib
 
 def report():
-    print("Apologies. Vix has crashed.")
+    print("Apologies. Vai has crashed.")
     print("---------------------------")
-    with contextlib.closing(open("vix_crashreport.out")) as f:
+    with contextlib.closing(open("vai_crashreport.out")) as f:
         print(f.read())
 
     print("---------------------------")
-    print("The traceback has been saved in vix_crashreport.out")
+    print("The traceback has been saved in vai_crashreport.out")
 
     #print("Would you like to send a bug report to the development team?")
     #print("The bug report will not contain information about your document content.")

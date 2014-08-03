@@ -1,7 +1,7 @@
 import unittest
-from vixtk import gui, core, test
+from vaitk import gui, core, test
 
-from vixtk.gui.VScreen import VScreenArea
+from vaitk.gui.VScreen import VScreenArea
 
 class TestVScreenArea(unittest.TestCase):
     @unittest.skip

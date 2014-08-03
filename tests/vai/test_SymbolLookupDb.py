@@ -1,5 +1,5 @@
 import unittest
-from vix.SymbolLookupDb import SymbolLookupDb
+from vai.SymbolLookupDb import SymbolLookupDb
 
 class TestSymbolLookupDb(unittest.TestCase):
     def testLookup(self):

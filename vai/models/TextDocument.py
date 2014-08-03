@@ -2,7 +2,7 @@ import re
 import time
 import copy
 import os
-from vixtk import core
+from vaitk import core
 import contextlib
 from .TextDocumentCursor import TextDocumentCursor
 

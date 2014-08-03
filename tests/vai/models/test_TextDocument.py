@@ -1,8 +1,8 @@
 import os
 import unittest
 import time
-from vix.models.TextDocument import TextDocument
-from vix.models.TextDocument import _withEOL, _withoutEOL
+from vai.models.TextDocument import TextDocument
+from vai.models.TextDocument import _withEOL, _withoutEOL
 from tests import fixtures
 
 class TestTextDocument(unittest.TestCase):

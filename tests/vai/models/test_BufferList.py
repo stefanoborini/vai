@@ -1,6 +1,6 @@
 import unittest
-from vix.models.Buffer import Buffer
-from vix.models.BufferList import BufferList
+from vai.models.Buffer import Buffer
+from vai.models.BufferList import BufferList
 from unittest.mock import Mock
 
 class TestBufferList(unittest.TestCase):

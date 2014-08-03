@@ -1,2 +1,2 @@
-VIX is a console-based IDE similar to VIM
+Vai is a console-based IDE similar to Vim
 

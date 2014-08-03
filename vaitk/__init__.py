@@ -189,7 +189,7 @@ class KeyModifier:
 
     Mask            = 0x3F000000
 
-def nativeToVixKeyCode(native_key_code):
+def nativeToVaiKeyCode(native_key_code):
     key_mapper = {
       1                    : Key.Key_A | KeyModifier.ControlModifier,
       2                    : Key.Key_B | KeyModifier.ControlModifier,
@@ -328,7 +328,7 @@ def nativeToVixKeyCode(native_key_code):
 def isKeyCodePrintable(key_code):
     return ((key_code & Key.NonPrintableMask) == 0)
 
-def vixKeyCodeToText(key_code):
+def vaiKeyCodeToText(key_code):
     if not isKeyCodePrintable(key_code):
         return ''
 

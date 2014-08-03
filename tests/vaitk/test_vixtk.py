@@ -1,19 +1,19 @@
 import unittest
-import vixtk
+import vaitk
 
-class TestVixTk(unittest.TestCase):
-    def testNativeToVixKeyCode(self):
-        self.assertEqual(vixtk.nativeToVixKeyCode(ord('a')), vixtk.Key.Key_A)
-        self.assertEqual(vixtk.nativeToVixKeyCode(ord('A')), vixtk.Key.Key_A | vixtk.KeyModifier.ShiftModifier)
+class TestVaiTk(unittest.TestCase):
+    def testNativeToVaiKeyCode(self):
+        self.assertEqual(vaitk.nativeToVaiKeyCode(ord('a')), vaitk.Key.Key_A)
+        self.assertEqual(vaitk.nativeToVaiKeyCode(ord('A')), vaitk.Key.Key_A | vaitk.KeyModifier.ShiftModifier)
 
     def testIsKeyCodePrintable(self):
-        self.assertTrue(vixtk.isKeyCodePrintable(vixtk.Key.Key_A))
-        self.assertTrue(vixtk.isKeyCodePrintable(vixtk.Key.Key_A|vixtk.KeyModifier.ShiftModifier))
-        self.assertFalse(vixtk.isKeyCodePrintable(vixtk.Key.Key_Escape))
+        self.assertTrue(vaitk.isKeyCodePrintable(vaitk.Key.Key_A))
+        self.assertTrue(vaitk.isKeyCodePrintable(vaitk.Key.Key_A|vaitk.KeyModifier.ShiftModifier))
+        self.assertFalse(vaitk.isKeyCodePrintable(vaitk.Key.Key_Escape))
 
-    def testVixKeyCodeToText(self):
-        self.assertEqual(vixtk.vixKeyCodeToText(vixtk.Key.Key_A), 'a')
-        self.assertEqual(vixtk.vixKeyCodeToText(vixtk.Key.Key_Escape), '')
+    def testVaiKeyCodeToText(self):
+        self.assertEqual(vaitk.vaiKeyCodeToText(vaitk.Key.Key_A), 'a')
+        self.assertEqual(vaitk.vaiKeyCodeToText(vaitk.Key.Key_Escape), '')
 
 if __name__ == '__main__':
     unittest.main()

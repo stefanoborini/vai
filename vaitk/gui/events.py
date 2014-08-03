@@ -1,4 +1,4 @@
-from .. import Key, KeyModifier, nativeToVixKeyCode, vixKeyCodeToText
+from .. import Key, KeyModifier, nativeToVaiKeyCode, vaiKeyCodeToText
 from ..core import VEvent
 
 class VKeyEvent(VEvent):
@@ -17,11 +17,11 @@ class VKeyEvent(VEvent):
         return self._key_code & KeyModifier.Mask
 
     def text(self):
-        return vixKeyCodeToText(self._key_code)
+        return vaiKeyCodeToText(self._key_code)
 
     @staticmethod
     def fromNativeKeyCode(native_key_code):
-        key_code = nativeToVixKeyCode(native_key_code)
+        key_code = nativeToVaiKeyCode(native_key_code)
         if key_code is None:
             return None
         return VKeyEvent(key_code)

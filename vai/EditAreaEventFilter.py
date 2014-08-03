@@ -1,5 +1,5 @@
-import vixtk
-from vixtk import core, gui
+import vaitk
+from vaitk import core, gui
 
 from . import flags
 import logging
@@ -24,29 +24,29 @@ class EditAreaEventFilter(core.VObject):
         if self._editor_model.mode != flags.COMMAND_MODE:
             return False
 
-        if event.key() == vixtk.Key.Key_Colon:
+        if event.key() == vaitk.Key.Key_Colon:
             self._editor_model.mode = flags.COMMAND_INPUT_MODE
             self._command_bar.setMode(flags.COMMAND_INPUT_MODE)
             self._command_bar.setFocus()
             return True
 
-        if event.key() == vixtk.Key.Key_Slash:
+        if event.key() == vaitk.Key.Key_Slash:
             self._editor_model.mode = flags.SEARCH_FORWARD_MODE
             self._command_bar.setMode(flags.SEARCH_FORWARD_MODE)
             self._command_bar.setFocus()
             return True
 
-        if event.key() == vixtk.Key.Key_Question:
+        if event.key() == vaitk.Key.Key_Question:
             self._editor_model.mode = flags.SEARCH_BACKWARD_MODE
             self._command_bar.setMode(flags.SEARCH_BACKWARD_MODE)
             self._command_bar.setFocus()
             return True
 
-        if event.key() == vixtk.Key.Key_N and event.modifiers() & vixtk.KeyModifier.ControlModifier:
+        if event.key() == vaitk.Key.Key_N and event.modifiers() & vaitk.KeyModifier.ControlModifier:
             self._buffer_list.selectNext()
             return True
 
-        if event.key() == vixtk.Key.Key_P and event.modifiers() & vixtk.KeyModifier.ControlModifier:
+        if event.key() == vaitk.Key.Key_P and event.modifiers() & vaitk.KeyModifier.ControlModifier:
             self._buffer_list.selectPrev()
             return True
 

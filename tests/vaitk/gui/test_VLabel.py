@@ -1,5 +1,5 @@
 import unittest
-from vixtk import gui, test
+from vaitk import gui, test
 
 class TestVLabel(unittest.TestCase):
     def setUp(self):

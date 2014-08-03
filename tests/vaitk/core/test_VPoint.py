@@ -1,5 +1,5 @@
 import unittest
-from vixtk import core
+from vaitk import core
 
 class testVPoint(unittest.TestCase):
     def testVPoint(self):

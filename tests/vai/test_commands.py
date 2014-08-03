@@ -1,8 +1,8 @@
 import unittest
-from vix.models.Buffer import Buffer
-from vix.models.TextDocument import TextDocument, LineMeta
-from vix.models.EditAreaModel import EditAreaModel
-from vix import commands
+from vai.models.Buffer import Buffer
+from vai.models.TextDocument import TextDocument, LineMeta
+from vai.models.EditAreaModel import EditAreaModel
+from vai import commands
 from tests import fixtures
 
 

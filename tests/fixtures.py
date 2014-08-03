@@ -1,8 +1,8 @@
 import inspect
 import os
-from vix.models import Buffer
-from vix.models import EditAreaModel
-from vix.models import TextDocument
+from vai.models import Buffer
+from vai.models import EditAreaModel
+from vai.models import TextDocument
 
 def get(name, dirname="fixtures"):
     frames = inspect.getouterframes(inspect.currentframe())

@@ -1,5 +1,5 @@
-import vixtk
-from vixtk import gui, core, utils
+import vaitk
+from vaitk import gui, core, utils
 from .EditAreaController import EditAreaController
 from . import flags
 from .models.TextDocument import CharMeta
@@ -40,7 +40,7 @@ class EditArea(gui.VWidget):
         self._buffer = None
         self._editor_model = None
         self._visual_cursor_pos = (0,0)
-        self.setFocusPolicy(vixtk.FocusPolicy.StrongFocus)
+        self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
 
         self.cursorPositionChanged = core.VSignal(self)
 
@@ -223,14 +223,14 @@ class EditArea(gui.VWidget):
 
         key = event.key()
 
-        direction = { vixtk.Key.Key_Up:       flags.UP,
-                      vixtk.Key.Key_Down:     flags.DOWN,
-                      vixtk.Key.Key_Left:     flags.LEFT,
-                      vixtk.Key.Key_Right:    flags.RIGHT,
-                      vixtk.Key.Key_PageUp:   flags.PAGE_UP,
-                      vixtk.Key.Key_PageDown: flags.PAGE_DOWN,
-                      vixtk.Key.Key_Home:     flags.HOME,
-                      vixtk.Key.Key_End:      flags.END,
+        direction = { vaitk.Key.Key_Up:       flags.UP,
+                      vaitk.Key.Key_Down:     flags.DOWN,
+                      vaitk.Key.Key_Left:     flags.LEFT,
+                      vaitk.Key.Key_Right:    flags.RIGHT,
+                      vaitk.Key.Key_PageUp:   flags.PAGE_UP,
+                      vaitk.Key.Key_PageDown: flags.PAGE_DOWN,
+                      vaitk.Key.Key_Home:     flags.HOME,
+                      vaitk.Key.Key_End:      flags.END,
                     }[key]
 
         self.moveCursor(direction)

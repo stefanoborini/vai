@@ -1,7 +1,7 @@
 import unittest
 from .. import fixtures
-from vix import flags
-from vix import Search
+from vai import flags
+from vai import Search
 
 class TestSearch(unittest.TestCase):
     def testSearch(self):

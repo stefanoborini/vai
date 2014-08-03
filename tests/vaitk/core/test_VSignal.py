@@ -1,4 +1,4 @@
-from vixtk import core
+from vaitk import core
 import unittest
 
 class TestVSignal(unittest.TestCase):

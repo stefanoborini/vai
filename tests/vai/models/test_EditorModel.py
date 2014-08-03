@@ -1,7 +1,7 @@
 import unittest
-from vixtk.test import VSignalSpy
-from vix.models.EditorModel import EditorModel
-from vix import flags
+from vaitk.test import VSignalSpy
+from vai.models.EditorModel import EditorModel
+from vai import flags
 
 class TestEditorModel(unittest.TestCase):
     def setUp(self):

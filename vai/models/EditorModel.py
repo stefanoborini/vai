@@ -1,4 +1,4 @@
-from vixtk import core
+from vaitk import core
 from .. import flags
 
 class EditorModel(core.VObject):
@@ -27,11 +27,11 @@ class EditorModel(core.VObject):
     def current_search(self, search):
         assert(len(search) == 2)
         self._current_search = search
-    
+
     @property
     def clipboard(self):
         return self._clipboard
-        
+
     @clipboard.setter
     def clipboard(self, text):
         self._clipboard = text

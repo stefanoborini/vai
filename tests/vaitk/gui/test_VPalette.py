@@ -1,5 +1,5 @@
 import unittest
-from vixtk import gui, test, core
+from vaitk import gui, test, core
 
 class TestVPalette(unittest.TestCase):
     def setUp(self):

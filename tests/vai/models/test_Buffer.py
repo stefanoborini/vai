@@ -1,8 +1,8 @@
 import unittest
-from vix.models.TextDocument import TextDocument
-from vix.models.TextDocumentCursor import TextDocumentCursor
-from vix.models.EditAreaModel import EditAreaModel
-from vix.models.Buffer import Buffer
+from vai.models.TextDocument import TextDocument
+from vai.models.TextDocumentCursor import TextDocumentCursor
+from vai.models.EditAreaModel import EditAreaModel
+from vai.models.Buffer import Buffer
 from unittest.mock import Mock
 
 class TestBuffer(unittest.TestCase):

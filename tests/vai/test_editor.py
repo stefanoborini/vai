@@ -1,6 +1,6 @@
 import unittest
-from vixtk import gui, test, core
-from vix import Editor
+from vaitk import gui, test, core
+from vai import Editor
 
 class TestEditor(unittest.TestCase):
     def setUp(self):

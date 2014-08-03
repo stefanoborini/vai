@@ -1,5 +1,5 @@
 import unittest
-from vixtk import gui
+from vaitk import gui
 
 class TestVColor(unittest.TestCase):
     def testVColor(self):

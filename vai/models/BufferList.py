@@ -1,4 +1,4 @@
-from vixtk import core
+from vaitk import core
 
 class BufferList(core.VObject):
     def __init__(self):

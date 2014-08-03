@@ -1,5 +1,5 @@
 import unittest
-from vixtk import utils
+from vaitk import utils
 
 class TestUtils(unittest.TestCase):
 

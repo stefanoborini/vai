@@ -1,6 +1,6 @@
 import unittest
-from vixtk import gui, test, core
-import vixtk
+from vaitk import gui, test, core
+import vaitk
 
 class TestVPainter(unittest.TestCase):
     def setUp(self):
@@ -24,24 +24,24 @@ class TestVPainter(unittest.TestCase):
         w = gui.VWidget()
         w.resize((40,40))
         painter = gui.VPainter(w)
-        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignLeft)
+        painter.drawText((10,11,11,3), "hello", align=vaitk.Alignment.AlignLeft)
         print(self.screen)
         self.assertEqual(self.screen.stringAt(10, 11, 11), "hello      ")
         self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
         self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
-        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignHCenter)
+        painter.drawText((10,11,11,3), "hello", align=vaitk.Alignment.AlignHCenter)
         self.assertEqual(self.screen.stringAt(10, 11, 11), "   hello   ")
         self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
         self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
-        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignRight)
+        painter.drawText((10,11,11,3), "hello", align=vaitk.Alignment.AlignRight)
         self.assertEqual(self.screen.stringAt(10, 11, 11), "      hello")
         self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
         self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
-        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignVCenter)
+        painter.drawText((10,11,11,3), "hello", align=vaitk.Alignment.AlignVCenter)
         self.assertEqual(self.screen.stringAt(10, 11, 11), "           ")
         self.assertEqual(self.screen.stringAt(10, 12, 11), "hello      ")
         self.assertEqual(self.screen.stringAt(10, 13, 11), "           ")
-        painter.drawText((10,11,11,3), "hello", align=vixtk.Alignment.AlignBottom)
+        painter.drawText((10,11,11,3), "hello", align=vaitk.Alignment.AlignBottom)
         self.assertEqual(self.screen.stringAt(10, 11, 11), "           ")
         self.assertEqual(self.screen.stringAt(10, 12, 11), "           ")
         self.assertEqual(self.screen.stringAt(10, 13, 11), "hello      ")
@@ -50,14 +50,14 @@ class TestVPainter(unittest.TestCase):
         w = gui.VWidget()
         w.resize((40,40))
         painter = gui.VPainter(w)
-        painter.drawLine((10,10), 5, vixtk.Orientation.Horizontal)
+        painter.drawLine((10,10), 5, vaitk.Orientation.Horizontal)
         self.assertEqual(self.screen.stringAt(10,10,5), "+---+")
 
     def testDrawLineVertical(self):
         w = gui.VWidget()
         w.resize((40,40))
         painter = gui.VPainter(w)
-        painter.drawLine((10,10), 5, vixtk.Orientation.Vertical)
+        painter.drawLine((10,10), 5, vaitk.Orientation.Vertical)
         self.assertEqual(self.screen.stringAt(10,10,1), "+")
         self.assertEqual(self.screen.stringAt(10,11,1), "|")
         self.assertEqual(self.screen.stringAt(10,12,1), "|")

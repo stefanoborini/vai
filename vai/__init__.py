@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 __version__ = "1.0"
 
-from vixtk import core, gui
+from vaitk import core, gui
 from . import Editor
 from . import BugReport
 import sys
@@ -15,7 +15,7 @@ def main():
     parser.add_argument("--pdb", help="Enable debugging with pdb in case of crash.", action="store_true")
     parser.add_argument("--noreport", help="Skip request for bug reporting.", action="store_true")
     parser.add_argument("--version", '-v', help="Print the version number.", action="version",
-                                           version='vix {0}'.format(__version__))
+                                           version='vai {0}'.format(__version__))
     args = parser.parse_args()
 
     try:
@@ -50,7 +50,7 @@ def main():
 
         app.resetScreen()
 
-        with contextlib.closing(open("vix_crashreport.out", "w")) as f:
+        with contextlib.closing(open("vai_crashreport.out", "w")) as f:
             f.write(traceback.format_exc())
 
         if args.pdb:
