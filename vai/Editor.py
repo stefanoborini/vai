@@ -186,6 +186,7 @@ class Editor(gui.VWidget):
         document = self._buffers.current().document()
         try:
             document.save()
+            self._status_bar.setMessage("Saved %s" % document.filename(), 3000)
         except Exception as e:
             self._status_bar.setMessage("Error! Cannot save %s. %s" % (document.filename(), str(e)), 3000)
             return
