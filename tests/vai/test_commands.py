@@ -8,7 +8,8 @@ from tests import fixtures
 
 class TestCommands(unittest.TestCase):
     def setUp(self):
-        self.document = TextDocument(fixtures.get("basic_python.py"))
+        self.document = TextDocument()
+        self.document.open(fixtures.get("basic_python.py"))
         self.edit_area_model = EditAreaModel()
         self.buffer = Buffer(self.document, self.edit_area_model)
 
