@@ -1,6 +1,6 @@
 import unittest
-from vixtk import test, gui, core
-from vix import widgets
+from vaitk import test, gui, core
+from vai import widgets
 
 class StatusBarTest(unittest.TestCase):
     def setUp(self):

@@ -1,5 +1,5 @@
 import unittest
-from vixtk import core
+from vaitk import core
 
 class TestVObject(unittest.TestCase):
     def testInstantiation(self):

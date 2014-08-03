@@ -1,4 +1,4 @@
-from vixtk import core
+from vaitk import core
 
 class TextDocumentCursor(core.VObject):
     def __init__(self, text_document):

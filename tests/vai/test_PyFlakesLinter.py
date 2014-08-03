@@ -2,9 +2,9 @@ import unittest
 import os
 import inspect
 import sys
-from vixtk import test, gui, core
-from vix import PyFlakesLinter
-from vix.models import TextDocument
+from vaitk import test, gui, core
+from vai import PyFlakesLinter
+from vai.models import TextDocument
 from tests import fixtures
 
 class PyFlakesLinterTest(unittest.TestCase):

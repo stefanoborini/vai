@@ -1,4 +1,4 @@
-from vixtk import gui, core, utils
+from vaitk import gui, core, utils
 import math
 import logging
 

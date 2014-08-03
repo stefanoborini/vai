@@ -2,9 +2,9 @@ import unittest
 import os
 import inspect
 import sys
-from vixtk import test, gui, core
-from vix import Lexer
-from vix.models import TextDocument
+from vaitk import test, gui, core
+from vai import Lexer
+from vai.models import TextDocument
 from pygments import token
 from tests import fixtures
 

@@ -1,7 +1,7 @@
 import unittest
-from vixtk import test, gui, core
-from vix.widgets import CommandBar
-from vix import flags
+from vaitk import test, gui, core
+from vai.widgets import CommandBar
+from vai import flags
 
 class CommandBarTest(unittest.TestCase):
     def setUp(self):

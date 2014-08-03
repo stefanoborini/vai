@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import Mock
-from vixtk import gui, test, core
-from vix.EditAreaController import EditAreaController
-from vix.EditArea import EditArea
-from vix.models.EditorModel import EditorModel
-from vix.models.Buffer import Buffer
-from vixtk.gui import events
-import vixtk
-from vix import flags
+from vaitk import gui, test, core
+from vai.EditAreaController import EditAreaController
+from vai.EditArea import EditArea
+from vai.models.EditorModel import EditorModel
+from vai.models.Buffer import Buffer
+from vaitk.gui import events
+import vaitk
+from vai import flags
 
 class TestEditAreaController(unittest.TestCase):
     def setUp(self):
@@ -20,7 +20,7 @@ class TestEditAreaController(unittest.TestCase):
     def testEditAreaController(self):
         controller = EditAreaController(self.mock_edit_area)
         controller.setModels(self.mock_buffer, self.mock_editor_model)
-        event = events.VKeyEvent(vixtk.Key.Key_D)
+        event = events.VKeyEvent(vaitk.Key.Key_D)
         controller.handleKeyEvent(event)
         self.assertTrue(self.mock_editor_model.mode.__set__.called)
         self.assertEqual(self.mock_editor_model.mode.call_args[0][0], flags.DELETE_MODE)
@@ -28,7 +28,7 @@ class TestEditAreaController(unittest.TestCase):
 
         self.mock_editor_model.mode.reset_mock()
         self.mock_editor_model.mode.return_value = flags.DELETE_MODE
-        event = events.VKeyEvent(vixtk.Key.Key_Q)
+        event = events.VKeyEvent(vaitk.Key.Key_Q)
         controller.handleKeyEvent(event)
         self.assertTrue(self.mock_editor_model.mode.__set__.called)
         self.assertEqual(self.mock_editor_model.mode.call_args[0][0], flags.COMMAND_MODE)

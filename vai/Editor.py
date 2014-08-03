@@ -1,4 +1,4 @@
-from vixtk import gui, core
+from vaitk import gui, core
 import os
 
 from .SideRulerController import SideRulerController
@@ -189,8 +189,8 @@ class Editor(gui.VWidget):
         except Exception as e:
             self._status_bar.setMessage("Error! Cannot save %s. %s" % (document.filename(), str(e)), 3000)
             return
-            
-        
+
+
         for line_num in range(1, document.numLines()+1):
             document.deleteLineMeta(line_num, LineMeta.Change)
 

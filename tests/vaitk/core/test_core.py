@@ -1,5 +1,5 @@
 import unittest
-from vixtk import core
+from vaitk import core
 
 if __name__ == '__main__':
     unittest.main()

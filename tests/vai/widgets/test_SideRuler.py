@@ -1,6 +1,6 @@
 import unittest
-from vixtk import test, gui, core
-from vix.widgets import SideRuler
+from vaitk import test, gui, core
+from vai.widgets import SideRuler
 
 class SideRulerTest(unittest.TestCase):
     def setUp(self):

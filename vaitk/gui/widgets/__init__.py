@@ -1,5 +1,5 @@
 from ... import core
-from ... import Key, KeyModifier, nativeToVixKeyCode, vixKeyCodeToText
+from ... import Key, KeyModifier, nativeToVaiKeyCode, vaiKeyCodeToText
 import logging
 import sys
 import os

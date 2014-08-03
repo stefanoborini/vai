@@ -1,5 +1,5 @@
 import unittest
-from vixtk import core
+from vaitk import core
 
 class TestVRect(unittest.TestCase):
     def testVRect(self):
@@ -53,5 +53,5 @@ class TestVRect(unittest.TestCase):
         self.assertEqual(core.VRect.tuple.y((2,3,4,5)), 3)
         self.assertEqual(core.VRect.tuple.width((2,3,4,5)), 4)
         self.assertEqual(core.VRect.tuple.height((2,3,4,5)), 5)
-        
+
 

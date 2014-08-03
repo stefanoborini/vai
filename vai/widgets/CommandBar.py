@@ -1,5 +1,5 @@
-from vixtk import gui, core
-import vixtk
+from vaitk import gui, core
+import vaitk
 from .. import flags
 
 class CommandBar(gui.VWidget):
@@ -36,10 +36,10 @@ class CommandBar(gui.VWidget):
 
     def eventFilter(self, event):
         if isinstance(event, gui.VKeyEvent):
-            if event.key() == vixtk.Key.Key_Escape:
+            if event.key() == vaitk.Key.Key_Escape:
                 self.escapePressed.emit()
                 return True
-            elif event.key() == vixtk.Key.Key_Backspace and len(self.commandText()) == 0:
+            elif event.key() == vaitk.Key.Key_Backspace and len(self.commandText()) == 0:
                 self.escapePressed.emit()
                 return True
         return False

@@ -1,7 +1,7 @@
 from .LineBadge import LineBadge
 from .LinterResult import LinterResult
 from .models.TextDocument import LineMeta
-from vixtk import gui
+from vaitk import gui
 
 class SideRulerController:
     def __init__(self, side_ruler):

@@ -4,7 +4,7 @@ import logging
 
 class VObject:
     """
-    Base class for all objects in VixTk.
+    Base class for all objects in VaiTk.
     Provides methods for the object hierarchy traversal.
 
     A derived class can set the class variable debug to True to enable

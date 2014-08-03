@@ -1,18 +1,18 @@
-import vixtk
-from vixtk import core
+import vaitk
+from vaitk import core
 from . import flags
 from . import Search
 from . import commands
 import logging
 
-DIRECTIONAL_KEYS = [ vixtk.Key.Key_Up,
-                     vixtk.Key.Key_Down,
-                     vixtk.Key.Key_Left,
-                     vixtk.Key.Key_Right,
-                     vixtk.Key.Key_PageUp,
-                     vixtk.Key.Key_PageDown,
-                     vixtk.Key.Key_Home,
-                     vixtk.Key.Key_End,
+DIRECTIONAL_KEYS = [ vaitk.Key.Key_Up,
+                     vaitk.Key.Key_Down,
+                     vaitk.Key.Key_Left,
+                     vaitk.Key.Key_Right,
+                     vaitk.Key.Key_PageUp,
+                     vaitk.Key.Key_PageDown,
+                     vaitk.Key.Key_Home,
+                     vaitk.Key.Key_End,
                      ]
 
 class EditAreaController(core.VObject):
@@ -52,14 +52,14 @@ class EditAreaController(core.VObject):
     def _handleEventInsertMode(self, event):
         command = None
 
-        if event.key() == vixtk.Key.Key_Escape:
+        if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
-        elif event.key() == vixtk.Key.Key_Backspace:
+        elif event.key() == vaitk.Key.Key_Backspace:
             command = commands.DeleteSingleCharCommand(self._buffer)
-        elif event.key() == vixtk.Key.Key_Return:
+        elif event.key() == vaitk.Key.Key_Return:
             command = commands.BreakLineCommand(self._buffer)
         else:
-            if event.key() == vixtk.Key.Key_Tab:
+            if event.key() == vaitk.Key.Key_Tab:
                 text = " "*4
             else:
                 text = event.text()
@@ -76,17 +76,17 @@ class EditAreaController(core.VObject):
     def _handleEventCommandMode(self, event):
         # FIXME This code sucks. We need better handling of the state machine
         # No commands. only movement and no-command operations
-        if event.key() == vixtk.Key.Key_I:
-            if event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+        if event.key() == vaitk.Key.Key_I:
+            if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._buffer.documentCursor().toLineBeginning()
             self._editor_model.mode = flags.INSERT_MODE
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_G:
+        if event.key() == vaitk.Key.Key_G:
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.GO_MODE
-            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._buffer.documentCursor().toLastLine()
                 self._buffer.editAreaModel().setDocumentPosAtTop((self._buffer.documentCursor().pos()[0]-self._edit_area.height()+1,1))
                 self._editor_model.mode = flags.COMMAND_MODE
@@ -94,34 +94,34 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_D and event.modifiers() == 0:
+        if event.key() == vaitk.Key.Key_D and event.modifiers() == 0:
             self._editor_model.mode = flags.DELETE_MODE
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_Dollar:
+        if event.key() == vaitk.Key.Key_Dollar:
             self._edit_area.moveCursor(flags.END)
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_AsciiCircum:
+        if event.key() == vaitk.Key.Key_AsciiCircum:
             self._edit_area.moveCursor(flags.HOME)
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_U:
+        if event.key() == vaitk.Key.Key_U:
             if len(self._buffer.commandHistory()):
                 command = self._buffer.commandHistory().pop()
                 command.undo()
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_A:
+        if event.key() == vaitk.Key.Key_A:
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.INSERT_MODE
                 self._edit_area.moveCursor(flags.LEFT)
 
-            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._editor_model.mode = flags.INSERT_MODE
                 self._edit_area.moveCursor(flags.END)
             else:
@@ -129,13 +129,13 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_N:
+        if event.key() == vaitk.Key.Key_N:
             if event.modifiers() == 0:
                 if self._editor_model.current_search is not None:
                     Search.find(self._buffer, self._editor_model.current_search)
                 event.accept()
                 return
-            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 if self._editor_model.current_search is not None:
                     Search.find(self._buffer, self._editor_model.current_search, backwards=True)
                 event.accept()
@@ -144,19 +144,19 @@ class EditAreaController(core.VObject):
         # Command operations
         command = None
 
-        if event.key() == vixtk.Key.Key_X and event.modifiers() == 0:
+        if event.key() == vaitk.Key.Key_X and event.modifiers() == 0:
             command = commands.DeleteSingleCharAfterCommand(self._buffer)
 
-        elif event.key() == vixtk.Key.Key_O:
+        elif event.key() == vaitk.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.INSERT_MODE
                 command = commands.NewLineAfterCommand(self._buffer)
-            elif event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._editor_model.mode = flags.INSERT_MODE
                 command = commands.NewLineCommand(self._buffer)
-        elif event.key() == vixtk.Key.Key_J and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+        elif event.key() == vaitk.Key.Key_J and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
             command = commands.JoinWithNextLineCommand(self._buffer)
-        elif event.key() == vixtk.Key.Key_D and event.modifiers() & vixtk.KeyModifier.ShiftModifier:
+        elif event.key() == vaitk.Key.Key_D and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
             command = commands.DeleteToEndOfLineCommand(self._buffer)
 
         if command is not None:
@@ -166,12 +166,12 @@ class EditAreaController(core.VObject):
             event.accept()
 
     def _handleEventDeleteMode(self, event):
-        if event.key() == vixtk.Key.Key_Escape:
+        if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_D:
+        if event.key() == vaitk.Key.Key_D:
             command = commands.DeleteLineAtCursorCommand(self._buffer)
             result = command.execute()
             if result.success:
@@ -186,12 +186,12 @@ class EditAreaController(core.VObject):
             return
 
     def _handleEventGoMode(self, event):
-        if event.key() == vixtk.Key.Key_Escape:
+        if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
 
-        if event.key() == vixtk.Key.Key_G:
+        if event.key() == vaitk.Key.Key_G:
             self._buffer.editAreaModel().setDocumentPosAtTop((1,1))
             self._buffer.documentCursor().toFirstLine()
             self._editor_model.mode = flags.COMMAND_MODE

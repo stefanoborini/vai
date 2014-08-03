@@ -2,10 +2,10 @@ import os
 import sys
 import inspect
 import unittest
-from vixtk.test import VSignalSpy
-from vix.models.TextDocument import TextDocument
-from vix.models.TextDocumentCursor import TextDocumentCursor
-from vix import flags
+from vaitk.test import VSignalSpy
+from vai.models.TextDocument import TextDocument
+from vai.models.TextDocumentCursor import TextDocumentCursor
+from vai import flags
 from tests import fixtures
 
 class TestTextDocumentCursor(unittest.TestCase):
