@@ -23,14 +23,14 @@ with codecs.open('DESCRIPTION.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name = "vix",
-    version = find_version("vix", "__init__.py"),
+    name = "vai",
+    version = find_version("vai", "__init__.py"),
     author = "Stefano Borini",
     author_email = "stefano.borini@gmail.com",
-    description = "VIX is a console-based IDE similar to VIM",
+    description = "VAI is a console-based IDE similar to VIM",
     license = "BSD",
     keywords = "editor",
-    url="https://github.com/stefanoborini/vix",
+    url="https://github.com/stefanoborini/vai",
     packages=find_packages(exclude=["contrib", "docs", "tests*"]),
     long_description=long_description,
     classifiers=[
@@ -43,7 +43,7 @@ setup(
     install_requires = ['pygments', "pylint", 'pyflakes'],
     entry_points={
         'console_scripts': [
-            'vix=vix:main',
+            'vai=vai:main',
         ],
     },
 )
