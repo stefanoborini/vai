@@ -1,5 +1,5 @@
 # Vai
-[![build status](https://travis-ci.org/stefanoborini/vai.svg?branch=master)](https://travis-ci.org/stefanoborini/vai.svg?branch=master)
+[![build status](https://travis-ci.org/stefanoborini/vai.svg?branch=master)](https://travis-ci.org/stefanoborini/vai)
 [![Downloads](https://pypip.in/download/vai/badge.png)](https://pypi.python.org/pypi/vai/)
 [![Supported Python versions](https://pypip.in/py_versions/vai/badge.png)](https://pypi.python.org/pypi/vai/)
 [![Latest Version](https://pypip.in/version/vai/badge.png)](https://pypi.python.org/pypi/vai/)
