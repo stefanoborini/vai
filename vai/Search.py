@@ -32,7 +32,7 @@ def find(buffer, text, direction):
     document = buffer.document()
     cursor = buffer.documentCursor()
 
-    pos = cursor.pos()
+    pos = cursor.pos
 
     current_line, current_col = pos
 

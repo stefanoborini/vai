@@ -11,19 +11,13 @@ class TestTextDocumentCursor(unittest.TestCase):
 
     def testPos(self):
         cursor = TextDocumentCursor(self.doc)
-        self.assertEqual(cursor.pos(), (1,1))
+        self.assertEqual(cursor.pos, (1,1))
         cursor.toPos( (1,4) )
-        self.assertEqual(cursor.pos(), (1,4))
+        self.assertEqual(cursor.pos, (1,4))
 
     def testTextDocument(self):
         cursor = TextDocumentCursor(self.doc)
         self.assertEqual(cursor.textDocument(), self.doc)
-
-    def testLineText(self):
-        cursor = TextDocumentCursor(self.doc)
-        self.assertEqual(cursor.lineText(), 'hello\n')
-        cursor.toPos( (1,4) )
-        self.assertEqual(cursor.lineText(), 'hello\n')
 
     def testToPos(self):
         cursor = TextDocumentCursor(self.doc)
@@ -74,78 +68,25 @@ class TestTextDocumentCursor(unittest.TestCase):
         cursor = TextDocumentCursor(self.doc)
         cursor.toPos((1,4))
         cursor.toLineBeginning()
-        self.assertEqual(cursor.pos(), (1,1))
+        self.assertEqual(cursor.pos, (1,1))
 
     def testToLineEnd(self):
         cursor = TextDocumentCursor(self.doc)
         cursor.toPos((1,4))
         cursor.toLineEnd()
-        self.assertEqual(cursor.pos(), (1,6))
+        self.assertEqual(cursor.pos, (1,6))
 
     def testToFirstLine(self):
         cursor = TextDocumentCursor(self.doc)
         cursor.toPos((2,4))
         cursor.toFirstLine()
-        self.assertEqual(cursor.pos(), (1,1))
+        self.assertEqual(cursor.pos, (1,1))
 
     def testToLastLine(self):
         cursor = TextDocumentCursor(self.doc)
         cursor.toPos((1,4))
         cursor.toLastLine()
-        self.assertEqual(cursor.pos(), (2,1))
-
-    def testLineLength(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        self.assertEqual(cursor.lineLength(), 6)
-
-    def testNewLineAfter(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.newLineAfter()
-
-    def testNewLine(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.newLine()
-
-    def testDeleteLine(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.deleteLine()
-
-    def testBreakLine(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.breakLine()
-
-    def testJoinWithNextLine(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.joinWithNextLine()
-
-    def testInsertSingleChar(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.insertSingleChar('h')
-
-    def testDeleteSingleCharAfter(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.deleteSingleCharAfter()
-
-    def testDeleteSingleChar(self):
-        cursor = TextDocumentCursor(self.doc)
-        cursor.toPos((1,4))
-        cursor.deleteSingleChar()
-
-    """
-    def updateLineMeta(self, meta_dict):
-    def lineMeta(self):
-    def updateCharMeta(self, line_number, meta_dict): pass
-    def charMeta(self): pass
-    def replace(self, length, replace):
-    """
+        self.assertEqual(cursor.pos, (2,1))
 
 if __name__ == '__main__':
     unittest.main()
