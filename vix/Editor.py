@@ -1,6 +1,5 @@
 from vixtk import gui, core
 import os
-import re
 
 from .SideRulerController import SideRulerController
 from . import widgets
@@ -59,11 +58,16 @@ class Editor(gui.VWidget):
                     return
 
         current_buffer = self._buffers.current()
+        new_buffer = Buffer(TextDocument(), EditAreaModel())
+
         try:
-            new_buffer = Buffer(TextDocument(filename), EditAreaModel())
-        except Exception:
-            new_buffer = Buffer(TextDocument(), EditAreaModel())
+            new_buffer.document().open(filename)
+        except FileNotFoundError:
+            new_buffer.document().setFilename(filename)
             self._status_bar.setMessage("%s [New file]" % filename, 3000)
+        except Exception as e:
+            new_buffer.document().setFilename(filename)
+            self._status_bar.setMessage("%s [Error: %s]" % (filename, str(e)), 3000)
 
         if current_buffer.isEmpty() and not current_buffer.isModified():
             self._buffers.replaceAndSelect(current_buffer, new_buffer)
@@ -179,11 +183,16 @@ class Editor(gui.VWidget):
         logging.info("Saving file")
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
-        self._buffers.current().document().save()
         document = self._buffers.current().document()
+        try:
+            document.save()
+        except Exception as e:
+            self._status_bar.setMessage("Error! Cannot save %s. %s" % (document.filename(), str(e)), 3000)
+            return
+            
+        
         for line_num in range(1, document.numLines()+1):
             document.deleteLineMeta(line_num, LineMeta.Change)
-        self._status_bar.setMessage("Saved %s" % self._buffers.current().document().filename(), 3000)
 
     def _doBackup(self):
         logging.info("Saving backup file")
