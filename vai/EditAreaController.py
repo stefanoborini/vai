@@ -113,7 +113,12 @@ class EditAreaController(core.VObject):
                 self._editor_model.mode = flags.GO_MODE
             elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._buffer.documentCursor().toLastLine()
-                self._buffer.editAreaModel().setDocumentPosAtTop((max(1, self._buffer.documentCursor().pos()[0]-self._edit_area.height()+1),1))
+                self._buffer.editAreaModel().document_pos_at_top = (max(1,
+                                                                        self._buffer.documentCursor().pos()[0]
+                                                                      - self._edit_area.height()
+                                                                      + 1),
+                                                                    1
+                                                                   )
                 self._editor_model.mode = flags.COMMAND_MODE
 
             event.accept()
@@ -277,7 +282,7 @@ class EditAreaController(core.VObject):
             return
 
         if event.key() == vaitk.Key.Key_G:
-            self._buffer.editAreaModel().setDocumentPosAtTop((1,1))
+            self._buffer.editAreaModel().document_pos_at_top = (1,1)
             self._buffer.documentCursor().toFirstLine()
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()

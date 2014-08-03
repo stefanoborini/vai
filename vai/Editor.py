@@ -205,7 +205,7 @@ class Editor(gui.VWidget):
     def _showInfoHoverBoxIfNeeded(self, document_pos):
         badge = self._side_ruler.badge(document_pos[0])
         if badge is not None:
-            gui.VToolTip.showText((0, document_pos[0]-self.buffers().current().editAreaModel().documentPosAtTop()[0]+1),badge.description)
+            gui.VToolTip.showText((0, document_pos[0]-self.buffers().current().editAreaModel().document_pos_at_top[0]+1),badge.description)
         else:
             gui.VToolTip.hide()
 

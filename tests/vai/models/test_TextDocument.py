@@ -16,7 +16,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.documentText(), '\n')
 
     def testInitFromEmptyFile(self):
-        doc = TextDocument(fixtures.get("empty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("empty_file.txt"))
 
         self.assertTrue(doc.isEmpty())
         self.assertEqual(doc.filename(), fixtures.get("empty_file.txt"))
@@ -25,7 +26,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.documentText(), '\n')
 
     def testInitFromNonEmptyFile(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
 
         self.assertFalse(doc.isEmpty())
         self.assertEqual(doc.filename(), fixtures.get("basic_nonempty_file.txt"))
@@ -45,8 +47,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertTrue(doc.isEmpty())
 
     def testLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
-        print(doc.documentText())
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
 
@@ -55,37 +57,44 @@ class TestTextDocument(unittest.TestCase):
         self.assertRaises(IndexError, lambda : doc.lineText(5))
 
     def testHasLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertTrue(doc.hasLine(1))
         self.assertFalse(doc.hasLine(20))
 
     def testLineLength(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(doc.lineLength(1), 6)
         self.assertEqual(doc.lineLength(2), 13)
 
-        doc = TextDocument(fixtures.get("empty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("empty_file.txt"))
         self.assertEqual(doc.lineLength(1), 1)
 
     def testDocumentMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(type(doc.documentMeta()), dict)
 
     def testUpdateDocumentMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.updateDocumentMeta({"Hello": 5})
         self.assertEqual(type(doc.documentMeta()), dict)
         self.assertEqual(doc.documentMeta()["Hello"], 5)
 
     def testDeleteDocumentMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.updateDocumentMeta({"Hello": 5})
         self.assertEqual(doc.documentMeta()["Hello"], 5)
         doc.deleteDocumentMeta("Hello")
         self.assertNotIn("Hello", doc.documentMeta())
 
     def testLastModified(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         last_modified = doc.lastModified()
         self.assertEqual(doc.lastModified(), last_modified)
         time.sleep(0.1)
@@ -93,12 +102,14 @@ class TestTextDocument(unittest.TestCase):
         self.assertNotEqual(doc.lastModified(), last_modified)
 
     def testLineMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(type(doc.lineMeta(1)), dict)
         self.assertRaises(IndexError, lambda : doc.lineMeta(20))
 
     def testUpdateLineMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.updateLineMeta(1, {"hello": 5})
         self.assertEqual(type(doc.lineMeta(1)), dict)
         self.assertEqual(doc.lineMeta(1)["hello"], 5)
@@ -106,7 +117,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertRaises(IndexError, lambda : doc.updateLineMeta(20, {}))
 
     def testDeleteLineMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.updateLineMeta(1, {"hello": 5})
         self.assertEqual(doc.lineMeta(1)["hello"], 5)
 
@@ -116,43 +128,50 @@ class TestTextDocument(unittest.TestCase):
         self.assertRaises(IndexError, lambda : doc.deleteLineMeta(20, "hello"))
 
     def testCharMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.updateCharMeta((1,1), {"Hello": [1]})
         self.assertEqual(len(doc.charMeta((1,1))["Hello"]), len(doc.lineText(1)))
         self.assertEqual(doc.charMeta((1,1))["Hello"], [1, None, None, None, None, None])
 
     def testUpdateCharMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.updateCharMeta( (1, 3), { "foo" : ["a", "a"],
                                       "bar" : ['b', None, 'b'],
                                     }
                           )
 
     def testDeleteCharMeta(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.deleteCharMeta( (1, 3), 2, ['foo', 'bar'])
 
     def testNewLineAfter(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.newLineAfter(1)
 
     def testNewLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.newLine(1)
 
     def testInsertLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(doc.numLines(), 2)
         doc.insertLine(1,"babau")
         self.assertEqual(doc.numLines(), 3)
 
-        self.assertRaises(IndexError, lambda : doc.insertLine(6,"say what again")
+        self.assertRaises(IndexError, lambda : doc.insertLine(6,"say what again"))
 
         doc.insertLine(4,"say what again")
         self.assertEqual(doc.numLines(), 4)
 
     def testDeleteLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
 
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
@@ -178,7 +197,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertTrue(doc.isModified())
 
     def testDeleteLine2(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
 
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
@@ -204,15 +224,18 @@ class TestTextDocument(unittest.TestCase):
         self.assertTrue(doc.isModified())
 
     def testReplaceLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.replaceLine(1, "babau")
 
     def testBreakLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.breakLine((1,3))
 
     def testJoinWithNextLine(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.joinWithNextLine(1)
         self.assertEqual(doc.numLines(), 1)
         self.assertEqual(doc.lineText(1), 'hellohow are you?\n')
@@ -223,7 +246,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.lineText(1), 'hellohow are you?\n')
 
     def testJoinWithNextLine2(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.joinWithNextLine(2)
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
@@ -231,11 +255,13 @@ class TestTextDocument(unittest.TestCase):
         self.assertFalse(doc.isModified())
 
     def testInsertChars(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.insertChars( (1,3), "babau")
 
     def testDeleteChars(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
 
         self.assertRaises(ValueError, lambda : doc.deleteChars((1,3), -1))
 
@@ -260,7 +286,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(d[0], '')
 
     def testReplaceChars(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.replaceChars( (1,3), 1, "hello")
 
         self.assertEqual(doc.lineText(1), 'hehellolo\n')
@@ -271,7 +298,8 @@ class TestTextDocument(unittest.TestCase):
 
     def testSave(self):
         path = fixtures.tempFile("testSave")
-        doc = TextDocument(path)
+        doc = TextDocument()
+        doc.setFilename(path)
         doc.save()
         self.assertTrue(os.path.exists(path))
 
@@ -285,15 +313,18 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.filename(), path)
 
     def testSaveAs(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.saveAs("foo")
 
     def createCursor(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.createCursor()
 
     def registerCursor(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         cursor = TextDocumentCursor(doc)
 
     def testWithEOL(self):
@@ -308,7 +339,8 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(_withoutEOL("\n"), "")
 
     def testWordAt(self):
-        doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(doc.wordAt((2,6)), ('are', 5))
 
 if __name__ == '__main__':

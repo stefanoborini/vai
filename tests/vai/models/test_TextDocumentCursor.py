@@ -1,17 +1,13 @@
-import os
-import sys
-import inspect
 import unittest
-from vaitk.test import VSignalSpy
 from vai.models.TextDocument import TextDocument
 from vai.models.TextDocumentCursor import TextDocumentCursor
-from vai import flags
 from tests import fixtures
 
 class TestTextDocumentCursor(unittest.TestCase):
 
     def setUp(self):
-        self.doc = TextDocument(fixtures.get("basic_nonempty_file.txt"))
+        self.doc = TextDocument()
+        self.doc.open(fixtures.get("basic_nonempty_file.txt"))
 
     def testPos(self):
         cursor = TextDocumentCursor(self.doc)

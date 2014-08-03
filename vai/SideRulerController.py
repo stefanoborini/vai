@@ -33,7 +33,7 @@ class SideRulerController:
 
     def updateTopRow(self, *args):
         if self._edit_area_model:
-            top_pos = self._edit_area_model.documentPosAtTop()
+            top_pos = self._edit_area_model.document_pos_at_top
             self._side_ruler.setTopRow(top_pos[0])
 
     def updateNumRows(self, *args):
