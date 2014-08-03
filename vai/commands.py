@@ -14,7 +14,7 @@ class NewLineCommand(object):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
 
         current_text = document.lineText(self._pos[0])
         current_indent = len(current_text) - len(current_text.lstrip(' '))
@@ -41,7 +41,7 @@ class NewLineAfterCommand(object):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         current_text = document.lineText(self._pos[0])
         current_indent = len(current_text) - len(current_text.lstrip(' '))
 
@@ -69,9 +69,9 @@ class DeleteLineAtCursorCommand(object):
             return CommandResult(success=False, info=None)
 
         cursor = self._buffer.documentCursor()
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
 
-        if cursor.pos()[0] == document.numLines():
+        if cursor.pos[0] == document.numLines():
             # Last line. Move the cursor up
             if not cursor.toLinePrev():
                 # It's also the first line. Go at the beginning
@@ -82,8 +82,8 @@ class DeleteLineAtCursorCommand(object):
 
         # Deleted line, now we check the length of what comes up from below.
         # and set the cursor at the end of the line, if needed
-        if document.lineLength(cursor.pos()[0]) < cursor.pos()[1]:
-            cursor.toPos( (cursor.pos()[0], document.lineLength(cursor.pos()[0])))
+        if document.lineLength(cursor.pos[0]) < cursor.pos[1]:
+            cursor.toPos( (cursor.pos[0], document.lineLength(cursor.pos[0])))
 
         return CommandResult(success=True, info=self._line_memento)
 
@@ -104,7 +104,7 @@ class DeleteSingleCharCommand(object):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        pos = cursor.pos()
+        pos = cursor.pos
         if pos == (1,1):
             return CommandResult(success=False, info=None)
 
@@ -118,7 +118,7 @@ class DeleteSingleCharCommand(object):
             else:
                 return CommandResult(False, None)
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         self._line_memento = document.lineMemento(self._pos[0])
 
         line_meta = document.lineMeta(self._pos[0])
@@ -170,10 +170,10 @@ class DeleteSingleCharAfterCommand(object):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
 
-        if cursor.pos()[1] == document.lineLength(cursor.pos()[0]):
+        if cursor.pos[1] == document.lineLength(cursor.pos[0]):
             return CommandResult(success=False, info=None)
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         self._line_memento = document.lineMemento(self._pos[0])
 
         line_meta = document.lineMeta(self._pos[0])
@@ -200,7 +200,7 @@ class BreakLineCommand(object):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         if self._pos[1] == document.lineLength(self._pos[0]):
             command = NewLineAfterCommand(self._buffer)
             result = command.execute()
@@ -254,7 +254,7 @@ class JoinWithNextLineCommand(object):
     def execute(self):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
-        pos = cursor.pos()
+        pos = cursor.pos
         if pos[0] == document.numLines():
             return CommandResult(success=False, info=None)
 
@@ -288,12 +288,12 @@ class InsertStringCommand(object):
     def execute(self):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         self._line_memento = document.lineMemento(self._pos[0])
 
         line_meta = document.lineMeta(self._pos[0])
         if not LineMeta.Change in line_meta:
-            self._buffer.documentCursor().updateLineMeta({LineMeta.Change: "modified"})
+            document.updateLineMeta(self._pos[0], {LineMeta.Change: "modified"})
 
         document.insertChars(self._pos, self._string)
         cursor.toPos( (self._pos[0], self._pos[1]+len(self._string)) )
@@ -313,7 +313,7 @@ class DeleteToEndOfLineCommand(object):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         self._line_memento = document.lineMemento(self._pos[0])
 
         line_meta = document.lineMeta(self._pos[0])
@@ -341,7 +341,7 @@ class DeleteToEndOfWordCommand(object):
         cursor = self._buffer.documentCursor()
         document = self._buffer.document()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         self._line_memento = document.lineMemento(self._pos[0])
 
         line_meta = document.lineMeta(self._pos[0])
@@ -379,7 +379,7 @@ class InsertLineAfterCommand(object):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         document.insertLine(self._pos[0]+1, self._text)
         cursor.toLineNext()
         return CommandResult(True, None)
@@ -400,7 +400,7 @@ class InsertLineCommand(object):
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         document.insertLine(self._pos[0], self._text)
         cursor.toPos((self._pos[0], 1))
         return CommandResult(True, None)
@@ -422,7 +422,7 @@ class ReplaceSingleCharCommand:
         document = self._buffer.document()
         cursor = self._buffer.documentCursor()
 
-        self._pos = cursor.pos()
+        self._pos = cursor.pos
         self._line_memento = document.lineMemento(self._pos[0])
         deleted = document.replaceChars(self._pos, 1, self._char)
         return CommandResult(True, deleted)

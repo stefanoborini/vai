@@ -12,14 +12,9 @@ class TextDocumentCursor(core.VObject):
     def textDocument(self):
         return self._text_document
 
-    def lineText(self):
-        return self._text_document.lineText(self._pos[0])
-
+    @property
     def pos(self):
         return self._pos
-
-    def isValid(self):
-        return self._text_document.isValidPos(self._pos)
 
     def toPos(self, pos):
         """
@@ -35,11 +30,14 @@ class TextDocumentCursor(core.VObject):
         self.positionChanged.emit(self._pos)
         return True
 
+    def isValid(self):
+        return self._text_document.isValidPos(self._pos)
+
     def toLine(self, line_number):
         if not self.isValid():
             column = 1
         else:
-            column = self.pos()[1]
+            column = self.pos[1]
 
         if not self._text_document.isValidLine(line_number):
             return False
@@ -148,84 +146,5 @@ class TextDocumentCursor(core.VObject):
         self._pos = (self._text_document.numLines(), 1)
         self._optimistic_column = 0
         self.positionChanged.emit(self._pos)
-        return True
-
-    def lineLength(self):
-        return self._text_document.lineLength(self._pos[0])
-
-    def updateLineMeta(self, meta_dict):
-        self._text_document.updateLineMeta(self._pos[0], meta_dict)
-
-    def lineMeta(self):
-        return self._text_document.lineMeta(self._pos[0])
-
-    def updateCharMeta(self, line_number, meta_dict): pass
-    def charMeta(self): pass
-
-    def newLineAfter(self):
-        if not self.isValid():
-            return False
-        self._text_document.newLineAfter(self._pos[0])
-
-    def newLine(self):
-        if not self.isValid():
-            return False
-        self._text_document.newLine(self._pos[0])
-        return True
-
-    def deleteLine(self):
-        if not self.isValid():
-            return False
-        current_line = self._pos[0]
-        if current_line == self._text_document.numLines():
-            self.toLinePrev()
-        self._text_document.deleteLine(current_line)
-        return True
-
-    def insertSingleChar(self, char):
-        if not self.isValid():
-            return False
-        self._text_document.insertChars(self._pos, char)
-        self.toCharNext()
-        return True
-
-    def deleteSingleChar(self):
-        if self.toCharPrev():
-            deleted = self._text_document.deleteChars(self._pos, 1)
-            return deleted
-        return None
-
-    def deleteSingleCharAfter(self):
-        if not self.isValid():
-            return None
-
-        current_column = self._pos[1]
-        if current_column == self._text_document.lineLength(self._pos[0]):
-            if self.toCharPrev():
-                deleted = self._text_document.deleteChars( (self._pos[0], current_column), 1)
-            else:
-                deleted = None
-        else:
-            deleted = self._text_document.deleteChars( (self._pos[0], current_column), 1)
-
-        return deleted
-
-    def replace(self, length, replace):
-        pass
-
-    def breakLine(self):
-        if not self.isValid():
-            return False
-
-        self._text_document.breakLine(self._pos)
-        self._pos = (self._pos[0]+1, 1)
-        self._optimistic_column = self._pos[1]
-        self.positionChanged.emit(self._pos)
-        return True
-
-    def joinWithNextLine(self):
-        if not self.isValid():
-            return False
-        self._text_document.joinWithNextLine(self._pos[0])
         return True
 

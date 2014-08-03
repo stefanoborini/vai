@@ -72,10 +72,10 @@ class EditAreaController(core.VObject):
             command = commands.BreakLineCommand(self._buffer)
         else:
             if event.key() == vaitk.Key.Key_Tab:
-                if cursor.pos()[1] == 1:
+                if cursor.pos[1] == 1:
                     text = " "*4
                 else:
-                    prefix = document.wordAt( (cursor.pos()[0], cursor.pos()[1]-1))
+                    prefix = document.wordAt( (cursor.pos[0], cursor.pos[1]-1))
                     if prefix[1] is None:
                         text = " "*4
                     else:
@@ -114,7 +114,7 @@ class EditAreaController(core.VObject):
             elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._buffer.documentCursor().toLastLine()
                 self._buffer.editAreaModel().document_pos_at_top = (max(1,
-                                                                        self._buffer.documentCursor().pos()[0]
+                                                                        self._buffer.documentCursor().pos[0]
                                                                       - self._edit_area.height()
                                                                       + 1),
                                                                     1
@@ -181,7 +181,7 @@ class EditAreaController(core.VObject):
             return
 
         if event.key() == vaitk.Key.Key_Asterisk:
-            word_at, word_pos = self._buffer.document().wordAt(self._buffer.documentCursor().pos())
+            word_at, word_pos = self._buffer.document().wordAt(self._buffer.documentCursor().pos)
             if word_pos is not None:
                 self._editor_model.current_search = (word_at, flags.FORWARD)
 
@@ -264,7 +264,7 @@ class EditAreaController(core.VObject):
             return
 
         if event.key() == vaitk.Key.Key_Y:
-            cursor_pos = self._buffer.documentCursor().pos()
+            cursor_pos = self._buffer.documentCursor().pos
             self._editor_model.clipboard = self._buffer.document().lineText(cursor_pos[0])
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()

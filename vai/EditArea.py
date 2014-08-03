@@ -54,7 +54,7 @@ class EditArea(gui.VWidget):
         w, h = self.size()
         pos_at_top = self._buffer.editAreaModel().document_pos_at_top
         visible_line_interval = (pos_at_top[0], pos_at_top[0]+h)
-        cursor_pos = self._buffer.documentCursor().pos()
+        cursor_pos = self._buffer.documentCursor().pos
         document = self._buffer.document()
 
         painter = gui.VPainter(self)
@@ -185,7 +185,7 @@ class EditArea(gui.VWidget):
         # then it should scroll one line.
         # In all other cases (horizontal, and vertical distant) it should jump.
 
-        doc_cursor_pos = self._buffer.documentCursor().pos()
+        doc_cursor_pos = self._buffer.documentCursor().pos
         top_pos = self._buffer.editAreaModel().document_pos_at_top
 
         new_top_pos = top_pos
