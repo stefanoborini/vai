@@ -17,13 +17,3 @@ class EditAreaModel(core.VObject):
 
         self._document_pos_at_top = doc_pos
         self.documentPosChanged.emit()
-
-    # deprecated
-    def documentPosAtTop(self):
-        return self._document_pos_at_top
-
-    # deprecated
-    def setDocumentPosAtTop(self, doc_pos):
-        self._document_pos_at_top = doc_pos
-        self.documentPosChanged.emit()
-
