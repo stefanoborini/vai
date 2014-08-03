@@ -1,6 +1,7 @@
 import re
 import time
 import copy
+import os
 from vixtk import core
 import contextlib
 from .TextDocumentCursor import TextDocumentCursor
@@ -30,19 +31,16 @@ class TextDocument(core.VObject):
 
     class MissingFilenameException(Exception): pass
 
-    def __init__(self, filename=None):
+    def __init__(self):
         self._initSignals()
 
         self._document_meta = {}
 
-        if filename:
-            self.load(filename)
-        else:
-            self._contents = [ ({}, {}, EOL) ]
-            self._document_meta[DocumentMeta.Filename] = None
-            self._document_meta[DocumentMeta.Modified] = False
-            self._document_meta[DocumentMeta.LastModified] = time.time()
-            self._cursors = []
+        self._contents = [ ({}, {}, EOL) ]
+        self._document_meta[DocumentMeta.Filename] = None
+        self._document_meta[DocumentMeta.Modified] = False
+        self._document_meta[DocumentMeta.LastModified] = time.time()
+        self._cursors = []
 
 
     # Query routines
@@ -76,6 +74,9 @@ class TextDocument(core.VObject):
 
     def filename(self):
         return self._document_meta[DocumentMeta.Filename]
+
+    def setFilename(self, filename):
+        self._document_meta[DocumentMeta.Filename] = filename
 
     def numLines(self):
         return len(self._contents)
@@ -491,22 +492,21 @@ class TextDocument(core.VObject):
 
     # Input Output
 
-    def load(self, filename):
+    def open(self, filename):
+        contents = []
+        with contextlib.closing(open(filename,'r')) as f:
+            for textline in f:
+                contents.append(({}, {}, _withEOL(textline)))
+
+        if len(contents) == 0:
+            contents.append(({}, {}, EOL))
+
         self._document_meta[DocumentMeta.Filename] = filename
-        self._cursors = []
-        self._contents = []
-        try:
-            with contextlib.closing(open(filename,'r')) as f:
-                for textline in f:
-                    self._contents.append(({}, {}, _withEOL(textline)))
-        except:
-            pass
-
-        if len(self._contents) == 0:
-            self._contents.append(({}, {}, EOL))
-
         self._document_meta[DocumentMeta.Modified] = False
         self._document_meta[DocumentMeta.LastModified] = time.time()
+        self._contents = contents
+        self._cursors = []
+
         self.contentChanged.emit()
         self.modifiedChanged.emit(False)
         self.filenameChanged.emit(filename)
