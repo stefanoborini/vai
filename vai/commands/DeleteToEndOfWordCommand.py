@@ -23,13 +23,13 @@ class DeleteToEndOfWordCommand(BufferCommand):
         else:
             # Get the next spacer from the current position.
             # It's the first of this list comprehension, if available
-            spacer_indexes = [ pos for pos, c in enumerate(text) if (pos > pos[1]-1 and c in DeleteToEndOfWordCommand.SPACERS)]
+            spacer_indexes = [ p for p, c in enumerate(text) if (p > pos[1]-1 and c in DeleteToEndOfWordCommand.SPACERS)]
             if len(spacer_indexes) == 0:
                 remove_count = document.lineLength(pos[0])-pos[1]
             else:
                 remove_count = (spacer_indexes[0]+1) - pos[1]
 
-        deleted = document.deleteChars(self._pos, remove_count)
+        deleted = document.deleteChars(pos, remove_count)
         return CommandResult(success=True, info=deleted)
 
 
