@@ -177,6 +177,13 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.document.numLines(), 6)
         self.assertEqual(cursor.pos, (3,1))
 
+        cursor.toPos((1,1))
+        command = commands.BreakLineCommand(self.buffer)
+        result = command.execute()
+        self.assertTrue(result.success)
+        self.assertEqual(self.document.lineText(1), '\n')
+        self.assertEqual(self.document.lineText(2), '\n')
+
         # FIXME test undo
 
     def testJoinWithNextLineCommand(self):
