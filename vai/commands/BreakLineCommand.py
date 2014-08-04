@@ -1,5 +1,6 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
+from .NewLineCommand import NewLineCommand
 from ..models.TextDocument import LineMeta
 
 class BreakLineCommand(BufferCommand):
@@ -25,12 +26,12 @@ class BreakLineCommand(BufferCommand):
             cursor.toPos((pos[0]+1, 1))
             return result
 
-        self.saveDocumentMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
+        self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         current_text = document.lineText(pos[0])
         current_indent = len(current_text) - len(current_text.lstrip(' '))
 
-        document.breakLine(self._pos)
+        document.breakLine(pos)
         document.insertChars( (pos[0]+1, 1), ' '*current_indent )
         cursor.toPos((pos[0]+1, current_indent+1))
 
