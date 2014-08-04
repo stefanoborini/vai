@@ -3,6 +3,11 @@ from .TextDocumentCursor import TextDocumentCursor
 from .EditAreaModel import EditAreaModel
 
 class Buffer:
+    """
+    Represents an editable buffer, and contains the document, the cursor
+    position, the command history, and all the state that is local to a
+    specific buffer.
+    """
     def __init__(self):
         self._document = TextDocument()
         self._document_cursor = TextDocumentCursor(self._document)
@@ -10,9 +15,15 @@ class Buffer:
         self._command_history = CommandHistory()
 
     def isEmpty(self):
+        """
+        Returns True if the document is empty
+        """
         return self._document.isEmpty()
 
     def isModified(self):
+        """
+        Returns True if the document is modified
+        """
         return self._document.isModified()
 
     @property

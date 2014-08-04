@@ -11,6 +11,10 @@ class BufferList(core.VObject):
     def buffers(self):
         return self._buffers
 
+    @property
+    def current(self):
+        return self._current
+
     def add(self, buffer):
         self._buffers.append(buffer)
         return buffer
@@ -38,10 +42,6 @@ class BufferList(core.VObject):
         self._buffers.remove(old_buffer)
         self._buffers.insert(index, new_buffer)
         return self.select(new_buffer)
-
-    @property
-    def current(self):
-        return self._current
 
     def selectNext(self):
         if self.current is None:
