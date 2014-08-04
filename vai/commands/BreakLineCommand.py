@@ -1,6 +1,7 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
 from .NewLineCommand import NewLineCommand
+from .NewLineAfterCommand import NewLineAfterCommand
 from ..models.TextDocument import LineMeta
 
 class BreakLineCommand(BufferCommand):
@@ -50,5 +51,5 @@ class BreakLineCommand(BufferCommand):
             return
 
         self.restoreDocumentMemento()
-        self._document.deleteLine(cursor.pos[0]+1)
+        self._document.deleteLine(self._cursor.pos[0]+1)
 
