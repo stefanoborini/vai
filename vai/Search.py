@@ -29,8 +29,8 @@ def findAll(document, search_text, line_interval=None, case_sensitive=True, word
     return match_pos
 
 def find(buffer, text, direction):
-    document = buffer.document()
-    cursor = buffer.documentCursor()
+    document = buffer.document
+    cursor = buffer.cursor
 
     pos = cursor.pos
 

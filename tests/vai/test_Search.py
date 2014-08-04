@@ -6,19 +6,19 @@ from vai import Search
 class TestSearch(unittest.TestCase):
     def testSearch(self):
         buffer = fixtures.buffer("real_case_editareacontroller.py")
-        self.assertEqual(buffer.documentCursor().pos, (1,1))
+        self.assertEqual(buffer.cursor.pos, (1,1))
         Search.find(buffer, 'Key', direction=flags.FORWARD)
-        self.assertEqual(buffer.documentCursor().pos, (8,28))
+        self.assertEqual(buffer.cursor.pos, (8,28))
         Search.find(buffer, 'Key', direction=flags.FORWARD)
-        self.assertEqual(buffer.documentCursor().pos, (8,32))
+        self.assertEqual(buffer.cursor.pos, (8,32))
         Search.find(buffer, 'Key', direction=flags.FORWARD)
-        self.assertEqual(buffer.documentCursor().pos, (9,28))
+        self.assertEqual(buffer.cursor.pos, (9,28))
         Search.find(buffer, 'Key', direction=flags.BACKWARD)
-        self.assertEqual(buffer.documentCursor().pos, (8,32))
+        self.assertEqual(buffer.cursor.pos, (8,32))
 
     def testFindAll(self):
         buffer = fixtures.buffer("real_case_editareacontroller.py")
-        doc = buffer.document()
+        doc = buffer.document
         all_finds = Search.findAll(doc, 'Key')
         self.assertEqual(len(all_finds), 65)
         self.assertEqual(all_finds[0], (8, 28, 31))

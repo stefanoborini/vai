@@ -11,9 +11,9 @@ def get(name, dirname="fixtures"):
             return os.path.join(os.path.dirname(frame_info[1]), dirname, name)
 
 def buffer(name):
-    doc = TextDocument.TextDocument()
-    doc.open(get(name))
-    return Buffer.Buffer(doc, EditAreaModel.EditAreaModel())
+    buf = Buffer.Buffer()
+    buf.document.open(get(name))
+    return buf
 
 def tempFile(name):
     path = get(name, "_test_")

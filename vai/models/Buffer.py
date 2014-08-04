@@ -1,11 +1,13 @@
+from .TextDocument import TextDocument
 from .TextDocumentCursor import TextDocumentCursor
+from .EditAreaModel import EditAreaModel
 
 class Buffer:
-    def __init__(self, document, edit_area_model):
-        self._document = document
+    def __init__(self):
+        self._document = TextDocument()
         self._document_cursor = TextDocumentCursor(self._document)
-        self._edit_area_model = edit_area_model
-        self._command_history = []
+        self._edit_area_model = EditAreaModel()
+        self._command_history = CommandHistory()
 
     def isEmpty(self):
         return self._document.isEmpty()
@@ -13,6 +15,7 @@ class Buffer:
     def isModified(self):
         return self._document.isModified()
 
+    @property
     def document(self):
         return self._document
 
@@ -20,17 +23,23 @@ class Buffer:
     def cursor(self):
         return self._document_cursor
 
-    def documentCursor(self):
-        return self._document_cursor
-
-    def editAreaModel(self):
+    @property
+    def edit_area_model(self):
         return self._edit_area_model
 
-    def commandHistory(self):
+    @property
+    def command_history(self):
         return self._command_history
 
-    def addCommandHistory(self, command):
-        self._command_history.append(command)
+class CommandHistory:
+    def __init__(self):
+        self._history = []
 
-    def popCommandHistory(self):
-        return self._command_history.pop()
+    def __len__(self):
+        return len(self._history)
+
+    def push(self, command):
+        self._history.append(command)
+
+    def pop(self):
+        return self._history.pop()

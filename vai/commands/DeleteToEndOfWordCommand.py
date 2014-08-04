@@ -6,8 +6,8 @@ class DeleteToEndOfWordCommand(BufferCommand):
     SPACERS = " {}[]().!@#$%^&*()=,"
 
     def execute(self):
-        cursor = self._buffer.documentCursor()
-        document = self._buffer.document()
+        cursor = self._buffer.cursor
+        document = self._buffer.document
 
         pos = cursor.pos
         self.saveCursorPos()

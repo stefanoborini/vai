@@ -1,8 +1,8 @@
 from vaitk import gui, core
 import os
 
-from .SideRulerController import SideRulerController
 from . import widgets
+from .SideRulerController import SideRulerController
 from .StatusBarController import StatusBarController
 from .CommandBarController import CommandBarController
 from .EditArea import EditArea
@@ -11,10 +11,9 @@ from .Lexer import Lexer
 from .PyFlakesLinter import PyFlakesLinter
 from . import flags
 from . import Search
-from .models.EditAreaModel import EditAreaModel
 from .models.Buffer import Buffer
 from .models.BufferList import BufferList
-from .models.TextDocument import TextDocument, LineMeta
+from .models.TextDocument import LineMeta
 from .models.EditorModel import EditorModel
 import logging
 
@@ -23,7 +22,7 @@ class Editor(gui.VWidget):
         super().__init__(parent=parent)
         self._editor_model = EditorModel()
         self._lexer = Lexer()
-        self._buffers = BufferList()
+        self._buffer_list = BufferList()
 
         self._createStatusBar()
         self._createCommandBar()
@@ -35,11 +34,12 @@ class Editor(gui.VWidget):
         self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
-        self._buffers.currentBufferChanged.connect(self._bufferChanged)
-        self._buffers.addAndSelect(Buffer(TextDocument(), EditAreaModel()))
+        self._buffer_list.currentBufferChanged.connect(self._bufferChanged)
+        self._buffer_list.addAndSelect(Buffer())
 
-    def buffers(self):
-        return self._buffers
+    @property
+    def buffer_list(self):
+        return self._buffer_list
 
     def show(self):
         super().show()
@@ -47,32 +47,32 @@ class Editor(gui.VWidget):
 
     def openFile(self, filename):
         if os.path.exists(filename) and os.path.isfile(filename):
-            for buffer in self._buffers.buffers():
-                if buffer.document().filename() is None:
+            for buffer in self.buffer_list.buffers:
+                if buffer.document.filename() is None:
                     continue
 
-                if os.path.samefile( os.path.abspath(os.path.realpath(buffer.document().filename())),
+                if os.path.samefile( os.path.abspath(os.path.realpath(buffer.document.filename())),
                     filename):
 
-                    self._buffers.select(buffer)
+                    self.buffer_list.select(buffer)
                     return
 
-        current_buffer = self._buffers.current()
-        new_buffer = Buffer(TextDocument(), EditAreaModel())
+        current_buffer = self.buffer_list.current
+        new_buffer = Buffer()
 
         try:
-            new_buffer.document().open(filename)
+            new_buffer.document.open(filename)
         except FileNotFoundError:
-            new_buffer.document().setFilename(filename)
+            new_buffer.document.setFilename(filename)
             self._status_bar.setMessage("%s [New file]" % filename, 3000)
         except Exception as e:
-            new_buffer.document().setFilename(filename)
+            new_buffer.document.setFilename(filename)
             self._status_bar.setMessage("%s [Error: %s]" % (filename, str(e)), 3000)
 
         if current_buffer.isEmpty() and not current_buffer.isModified():
-            self._buffers.replaceAndSelect(current_buffer, new_buffer)
+            self.buffer_list.replaceAndSelect(current_buffer, new_buffer)
         else:
-            self._buffers.addAndSelect(new_buffer)
+            self.buffer_list.addAndSelect(new_buffer)
 
         self._doLint()
 
@@ -106,7 +106,7 @@ class Editor(gui.VWidget):
         self._edit_area.setFocus()
 
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar)
-        self._edit_area_event_filter.setModels(self._editor_model, self._buffers)
+        self._edit_area_event_filter.setModels(self._editor_model, self.buffer_list)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
 
     def _initBackupTimer(self):
@@ -124,7 +124,7 @@ class Editor(gui.VWidget):
             if command_text == 'q!':
                 gui.VApplication.vApp.exit()
             elif command_text == 'q':
-                if any([b.isModified() for b in self._buffers.buffers()]):
+                if any([b.isModified() for b in self.buffer_list.buffers]):
                     self._status_bar.setMessage("Document has been modified. Use :q! to quit without saving or :qw to save and quit.", 3000)
                 else:
                     gui.VApplication.vApp.exit()
@@ -137,9 +137,9 @@ class Editor(gui.VWidget):
             elif command_text.startswith("e "):
                 self.openFile(command_text[2:])
             elif command_text.startswith("bp"):
-                self._buffers.selectPrev()
+                self.buffer_list.selectPrev()
             elif command_text.startswith("bn"):
-                self._buffers.selectNext()
+                self.buffer_list.selectNext()
         elif mode == flags.SEARCH_FORWARD_MODE:
             if command_text == '':
                 if self._editor_model.current_search is not None:
@@ -147,7 +147,7 @@ class Editor(gui.VWidget):
 
             if command_text != '':
                 self._editor_model.current_search = (command_text, flags.FORWARD)
-                Search.find(self._buffers.current(), command_text, flags.FORWARD)
+                Search.find(self.buffer_list.current, command_text, flags.FORWARD)
                 self._edit_area.ensureCursorVisible()
         elif mode == flags.SEARCH_BACKWARD_MODE:
             if command_text == '':
@@ -156,7 +156,7 @@ class Editor(gui.VWidget):
 
             if command_text != '':
                 self._editor_model.current_search = (command_text, flags.BACKWARD)
-                Search.find(self._buffers.current(), command_text, flags.BACKWARD)
+                Search.find(self.buffer_list.current, command_text, flags.BACKWARD)
                 self._edit_area.ensureCursorVisible()
 
         self._command_bar.clear()
@@ -170,7 +170,7 @@ class Editor(gui.VWidget):
         self._edit_area.setFocus()
 
     def _doLint(self):
-        document = self.buffers().current().document()
+        document = self.buffer_list.current.document
 
         linter1 = PyFlakesLinter(document)
         #linter2 = Linter.PyLintLinter()
@@ -183,7 +183,8 @@ class Editor(gui.VWidget):
         logging.info("Saving file")
         self._status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
-        document = self._buffers.current().document()
+        document = self.buffer_list.current.document
+
         try:
             document.save()
             self._status_bar.setMessage("Saved %s" % document.filename(), 3000)
@@ -204,19 +205,23 @@ class Editor(gui.VWidget):
         #self._status_bar.setTemporaryMessage("Backup saved", 3000)
 
     def _showInfoHoverBoxIfNeeded(self, document_pos):
+        current_buffer = self.buffer_list.current
+        pos_at_top = current_buffer.edit_area_model.document_pos_at_top
+
         badge = self._side_ruler.badge(document_pos[0])
+
         if badge is not None:
-            gui.VToolTip.showText((0, document_pos[0]-self.buffers().current().editAreaModel().document_pos_at_top[0]+1),badge.description)
+            gui.VToolTip.showText((0, document_pos[0]-pos_at_top[0]+1), badge.description)
         else:
             gui.VToolTip.hide()
 
 
     def _bufferChanged(self, old_buffer, new_buffer):
-        self._status_bar_controller.setModels(new_buffer.document(), new_buffer.documentCursor())
-        self._side_ruler_controller.setModel(new_buffer.document(),new_buffer.editAreaModel())
+        self._status_bar_controller.setModels(new_buffer.document, new_buffer.cursor)
+        self._side_ruler_controller.setModels(new_buffer.document, new_buffer.edit_area_model)
         self._edit_area.setModels(new_buffer, self._editor_model)
         if old_buffer:
-            old_buffer.documentCursor().positionChanged.disconnect(self._showInfoHoverBoxIfNeeded)
-        new_buffer.documentCursor().positionChanged.connect(self._showInfoHoverBoxIfNeeded)
-        self._lexer.setModel(new_buffer.document())
+            old_buffer.cursor.positionChanged.disconnect(self._showInfoHoverBoxIfNeeded)
+        new_buffer.cursor.positionChanged.connect(self._showInfoHoverBoxIfNeeded)
+        self._lexer.setModel(new_buffer.document)
 
