@@ -3,6 +3,12 @@ import os
 import codecs
 import re
 from setuptools import setup, find_packages
+import sys
+
+if '3.4' not in sys.version.split()[0]:
+    print("Needs python 3.4")
+    sys.exit(0)
+
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 def find_version(*file_paths):
@@ -41,7 +47,7 @@ setup(
         'Intended Audience :: Developers',
     ],
     test_suite = 'nose.collector',
-    install_requires = ['pygments', "pylint", 'pyflakes'],
+    install_requires = ['pygments==1.6', "pylint==1.3.0", 'pyflakes==0.8.1'],
     entry_points={
         'console_scripts': [
             'vai=vai:main',
