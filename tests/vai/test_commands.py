@@ -138,6 +138,13 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.buffer.documentCursor().pos, (1,9))
         self.assertEqual(self.document.numLines(), 3)
 
+    def testDeleteToEndOfWordCommand(self):
+        self.buffer.cursor.toPos((1,6))
+        command = commands.DeleteToEndOfWordCommand(self.buffer)
+        result = command.execute()
+        self.assertEqual(self.buffer.cursor.pos, (1,6))
+        self.assertEqual(self.document.lineText(1), "#!pyt\n")
+
     def testDeleteSingleCharAfterCommand(self):
         self.buffer.documentCursor().toPos((1,1))
         line = self.document.lineText(1)

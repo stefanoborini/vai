@@ -16,6 +16,10 @@ class Buffer:
     def document(self):
         return self._document
 
+    @property
+    def cursor(self):
+        return self._document_cursor
+
     def documentCursor(self):
         return self._document_cursor
 
