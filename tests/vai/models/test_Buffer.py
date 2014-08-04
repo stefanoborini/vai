@@ -9,12 +9,14 @@ class TestBuffer(unittest.TestCase):
     def setUp(self):
         self.document = Mock(spec=TextDocument)
         self.edit_area_model = Mock(spec=EditAreaModel)
-        self.buf = Buffer(self.document, self.edit_area_model)
+        self.buf = Buffer()
+        self.buf._document = self.document
+        self.buf._edit_area_model = self.edit_area_model
 
     def testBufferInit(self):
         b = self.buf
-        self.assertIsInstance(b,Buffer)
-        self.assertEqual(len(b.commandHistory()), 0)
+        self.assertIsInstance(b, Buffer)
+        self.assertEqual(len(b.command_history), 0)
 
     def testIsEmpty(self):
         b = self.buf
@@ -38,28 +40,28 @@ class TestBuffer(unittest.TestCase):
         command1 = command()
         command2 = command()
 
-        self.assertEqual(len(b.commandHistory()), 0)
-        b.addCommandHistory(command1)
-        b.addCommandHistory(command2)
+        self.assertEqual(len(b.command_history), 0)
+        b.command_history.push(command1)
+        b.command_history.push(command2)
 
-        self.assertEqual(len(b.commandHistory()), 2)
-        self.assertEqual(b.popCommandHistory(), command2)
-        self.assertEqual(len(b.commandHistory()), 1)
-        self.assertEqual(b.popCommandHistory(), command1)
-        self.assertEqual(len(b.commandHistory()), 0)
-        self.assertRaises(IndexError, lambda : b.popCommandHistory())
+        self.assertEqual(len(b.command_history), 2)
+        self.assertEqual(b.command_history.pop(), command2)
+        self.assertEqual(len(b.command_history), 1)
+        self.assertEqual(b.command_history.pop(), command1)
+        self.assertEqual(len(b.command_history), 0)
+        self.assertRaises(IndexError, lambda : b.command_history.pop())
 
     def testDocumentCursor(self):
         b = self.buf
-        self.assertIsInstance(b.documentCursor(), TextDocumentCursor)
+        self.assertIsInstance(b.cursor, TextDocumentCursor)
 
     def testDocument(self):
         b = self.buf
-        self.assertIsInstance(b.document(), TextDocument)
+        self.assertIsInstance(b.document, TextDocument)
 
     def testEditAreaModel(self):
         b = self.buf
-        self.assertIsInstance(b.editAreaModel(), EditAreaModel)
+        self.assertIsInstance(b.edit_area_model, EditAreaModel)
 
 
 

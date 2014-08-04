@@ -9,7 +9,7 @@ class SideRulerController:
         self._edit_area_model = None
         self._document = None
 
-    def setModel(self, document, edit_area_model):
+    def setModels(self, document, edit_area_model):
         if self._edit_area_model:
             self._edit_area_model.documentPosChanged.disconnect(self.updateTopRow)
 

@@ -2,8 +2,8 @@ class BufferCommand(object):
     MEMENTO_INSERT, MEMENTO_REPLACE = list(range(2))
     def __init__(self, buffer):
         self._buffer = buffer
-        self._document = buffer.document()
-        self._cursor = buffer.documentCursor()
+        self._document = buffer.document
+        self._cursor = buffer.cursor
 
         self._line_memento_data = []
         self._sub_command = None
