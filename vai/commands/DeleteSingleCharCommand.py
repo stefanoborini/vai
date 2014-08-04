@@ -25,7 +25,7 @@ class DeleteSingleCharCommand(BufferCommand):
                 return CommandResult(False, None)
 
         self.saveCursorPos()
-        self.saveLineMemento(pos[0])
+        self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         line_meta = document.lineMeta(pos[0])
         if not LineMeta.Change in line_meta:

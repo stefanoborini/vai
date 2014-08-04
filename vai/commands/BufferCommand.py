@@ -25,12 +25,15 @@ class BufferCommand(object):
     def restoreLineMemento(self):
         line_number, restore_strategy, memento = self._line_memento_data.pop()
 
-        if restore_strategy == MEMENTO_INSERT:
+        if restore_strategy == BufferCommand.MEMENTO_INSERT:
             self._document.insertFromMemento(line_number, memento)
-        elif restore_strategy == MEMENTO_REPLACE:
+        elif restore_strategy == BufferCommand.MEMENTO_REPLACE:
             self._document.replaceFromMemento(line_number, memento)
         else:
             raise Exception("Unknown restore mode for memento")
+
+    def lastSavedMemento(self):
+        return self._line_memento_data[-1]
 
     def undo(self):
         if self._sub_command is not None:

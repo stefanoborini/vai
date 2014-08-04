@@ -107,7 +107,7 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.buffer.documentCursor().pos, (1,1))
 
     def testDeleteLineAtCursorCommand4(self):
-        """Check if the cursor is placed at the beginning of line if next line is invalid"""
+        """Check if the cursor is placed at the end of line if next line is invalid"""
         self.buffer.documentCursor().toPos((1,6))
         command = commands.DeleteLineAtCursorCommand(self.buffer)
         command.execute()
