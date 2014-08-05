@@ -1,5 +1,6 @@
 from vaitk import core
 from .. import flags
+from .BufferList import BufferList
 
 class EditorModel(core.VObject):
     def __init__(self):
@@ -7,6 +8,7 @@ class EditorModel(core.VObject):
         self._mode = flags.COMMAND_MODE
         self._current_search = None
         self._clipboard = None
+        self._buffer_list = BufferList()
         self.modeChanged = core.VSignal(self)
 
     @property
@@ -35,3 +37,7 @@ class EditorModel(core.VObject):
     @clipboard.setter
     def clipboard(self, text):
         self._clipboard = text
+
+    @property
+    def buffer_list(self):
+        return self._buffer_list
