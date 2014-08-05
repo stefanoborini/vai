@@ -16,6 +16,8 @@ class TextDocumentCursor(core.VObject):
     def pos(self):
         return self._pos
 
+    # Note: not a setter, because we want to check success in a "soft" way.
+    # at least for now.
     def toPos(self, pos):
         """
         Move to a specific position if possible. Return True if the

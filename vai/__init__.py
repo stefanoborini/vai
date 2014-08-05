@@ -2,7 +2,7 @@
 __version__ = "1.2a"
 
 from vaitk import core, gui
-from . import Editor
+from . import EditorApp
 from . import BugReport
 import sys
 import io
@@ -19,13 +19,10 @@ def main():
     args = parser.parse_args()
 
     try:
-        app = gui.VApplication(sys.argv)
 
-        e = Editor.Editor()
+        app = EditorApp.EditorApp(sys.argv)
         if args.filename:
-            e.openFile(args.filename)
-
-        e.show()
+            app.openFile(args.filename)
 
         if args.profile:
             import cProfile
@@ -42,6 +39,7 @@ def main():
             ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
             ps.print_stats()
             print(s.getvalue())
+
         app.resetScreen()
 
     except Exception as e:

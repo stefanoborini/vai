@@ -19,11 +19,17 @@ class CommandBar(gui.VWidget):
         self._line_edit.installEventFilter(self)
         self._updateText()
 
-    def setMode(self, mode):
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, mode):
         self._mode = mode
         self._updateText()
 
-    def commandText(self):
+    @property
+    def command_text(self):
         return self._line_edit.text()
 
     def clear(self):
