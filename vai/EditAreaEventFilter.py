@@ -9,13 +9,13 @@ class EditAreaEventFilter(core.VObject):
     Event filter to detect the use of commandbar initiation
     keys, such as :, / and ?
     """
-    def __init__(self, command_bar):
+    def __init__(self, command_bar, editor_model):
         super().__init__()
-        self._editor_model = None
+        self._editor_model = editor_model
         self._command_bar = command_bar
 
     def eventFilter(self, event):
-        if not self._hasModel():
+        if self._editor_model is None:
             return False
 
         if not isinstance(event, gui.VKeyEvent):
@@ -52,13 +52,6 @@ class EditAreaEventFilter(core.VObject):
 
         return False
 
-    def setModels(self, editor_model, buffer_list):
+    def setModel(self, editor_model):
         self._editor_model = editor_model
-        self._buffer_list = buffer_list
-
-    # Private
-
-    def _hasModel(self):
-        return self._editor_model is not None and self._buffer_list is not None
-
 

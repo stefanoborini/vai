@@ -5,13 +5,10 @@ from . import widgets
 from .SideRulerController import SideRulerController
 from .StatusBarController import StatusBarController
 from .CommandBarController import CommandBarController
+from .EditorController import EditorController
+
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
-from .Lexer import Lexer
-from .PyFlakesLinter import PyFlakesLinter
-from . import flags
-from . import Search
-from . import models
 import logging
 
 
@@ -20,15 +17,12 @@ class Editor(gui.VWidget):
         super().__init__(parent=parent)
 
         self._model = editor_model
+        self._controller = EditorController(self, self._model)
 
         self._createStatusBar()
         self._createCommandBar()
         self._createSideRuler()
         self._createEditArea()
-
-        self._initBackupTimer()
-
-        self._controller = EditorController(self, self._model)
 
     @property
     def status_bar(self):
@@ -63,7 +57,7 @@ class Editor(gui.VWidget):
         self._command_bar = widgets.CommandBar(self)
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
-        self._command_bar_controller = CommandBarController(self._command_bar, self._controller)
+        self._command_bar_controller = CommandBarController(self._command_bar, self._controller, self._model)
 
     def _createSideRuler(self):
         self._side_ruler = widgets.SideRuler(self)
@@ -72,13 +66,12 @@ class Editor(gui.VWidget):
         self._side_ruler_controller = SideRulerController(self._side_ruler)
 
     def _createEditArea(self):
-        self._edit_area = EditArea(parent = self)
+        self._edit_area = EditArea(self._model, parent = self)
         self._edit_area.move( (4, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
 
-        self._edit_area_event_filter = EditAreaEventFilter(self._command_bar)
-        self._edit_area_event_filter.setModel(self._model)
+        self._edit_area_event_filter = EditAreaEventFilter(self._command_bar, self._model)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
 
     def _showInfoHoverBoxIfNeeded(self, document_pos):

@@ -1,9 +1,10 @@
 from vaitk import core
+from .Buffer import Buffer
 
 class BufferList(core.VObject):
     def __init__(self):
-        self._buffers = []
-        self._current = None
+        self._buffers = [Buffer()]
+        self._current = self._buffers[0]
 
         self.currentBufferChanged = core.VSignal(self)
 
@@ -18,6 +19,23 @@ class BufferList(core.VObject):
     def add(self, buffer):
         self._buffers.append(buffer)
         return buffer
+
+    def bufferForFilename(self, path):
+        for buffer in self._buffers:
+            if buffer.document.filename() is None:
+                continue
+
+            if os.path.samefile(
+                    os.path.abspath(
+                        os.path.realpath(
+                            buffer.document.filename()
+                        )
+                    ),
+                    path):
+
+                return buffer
+
+
 
     def select(self, buffer):
         if buffer not in self._buffers:

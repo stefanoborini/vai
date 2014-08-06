@@ -18,15 +18,11 @@ DIRECTIONAL_KEYS = [ vaitk.Key.Key_Up,
                      ]
 
 class EditAreaController(core.VObject):
-    def __init__(self, edit_area):
-        self._buffer = None
-        self._editor_model = None
+    def __init__(self, edit_area, editor_model):
         self._edit_area = edit_area
-
+        self._editor_model = editor_model
 
     def handleKeyEvent(self, event):
-        if not self._hasModels():
-            return
 
         if event.key() in DIRECTIONAL_KEYS:
             logging.info("Directional key")
@@ -52,24 +48,21 @@ class EditAreaController(core.VObject):
         elif self._editor_model.mode == flags.YANK_MODE:
             self._handleEventYankMode(event)
 
-    def setModels(self, buffer, editor_model):
-        self._buffer = buffer
-        self._editor_model = editor_model
-
     # Private
     def _handleEventInsertMode(self, event):
+        buffer = self._editor_model.buffer_list.current
         command = None
-        document = self._buffer.document
-        cursor = self._buffer.cursor
+        document = buffer.document
+        cursor = buffer.cursor
 
         if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
         elif event.key() == vaitk.Key.Key_Backspace:
-            command = commands.DeleteSingleCharCommand(self._buffer)
+            command = commands.DeleteSingleCharCommand(buffer)
         elif event.key() == vaitk.Key.Key_Delete:
-            command = commands.DeleteSingleCharAfterCommand(self._buffer)
+            command = commands.DeleteSingleCharAfterCommand(buffer)
         elif event.key() == vaitk.Key.Key_Return:
-            command = commands.BreakLineCommand(self._buffer)
+            command = commands.BreakLineCommand(buffer)
         else:
             if event.key() == vaitk.Key.Key_Tab:
                 if cursor.pos[1] == 1:
@@ -88,12 +81,12 @@ class EditAreaController(core.VObject):
                 text = event.text()
 
             if len(text) != 0:
-                command = commands.InsertStringCommand(self._buffer, text)
+                command = commands.InsertStringCommand(buffer, text)
 
         if command is not None:
             result = command.execute()
             if result.success:
-                self._buffer.command_history.push(command)
+                buffer.command_history.push(command)
             self._edit_area.ensureCursorVisible()
 
         event.accept()
@@ -101,9 +94,10 @@ class EditAreaController(core.VObject):
     def _handleEventCommandMode(self, event):
         # FIXME This code sucks. We need better handling of the state machine
         # No commands. only movement and no-command operations
+        buffer = self._editor_model.buffer_list.current
         if event.key() == vaitk.Key.Key_I:
             if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                self._buffer.cursor.toCharFirstNonBlank()
+                buffer.cursor.toCharFirstNonBlank()
             self._editor_model.mode = flags.INSERT_MODE
             event.accept()
             return
@@ -112,13 +106,13 @@ class EditAreaController(core.VObject):
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.GO_MODE
             elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                self._buffer.cursor.toLastLine()
-                self._buffer.edit_area_model.document_pos_at_top = (max(1,
-                                                                        self._buffer.cursor.pos[0]
-                                                                      - self._edit_area.height()
-                                                                      + 1),
-                                                                    1
-                                                                   )
+                buffer.cursor.toLastLine()
+                buffer.edit_area_model.document_pos_at_top = (max(1,
+                                                                    buffer.cursor.pos[0]
+                                                                  - self._edit_area.height()
+                                                                  + 1),
+                                                                 1
+                                                             )
                 self._editor_model.mode = flags.COMMAND_MODE
 
             event.accept()
@@ -146,7 +140,7 @@ class EditAreaController(core.VObject):
 
         if event.key() == vaitk.Key.Key_U:
             if len(self._buffer.command_history):
-                command = self._buffer.command_history.pop()
+                command = buffer.command_history.pop()
                 command.undo()
                 self._edit_area.ensureCursorVisible()
             event.accept()
@@ -175,17 +169,17 @@ class EditAreaController(core.VObject):
                 direction = {flags.FORWARD:flags.BACKWARD,
                              flags.BACKWARD: flags.FORWARD}[direction]
 
-            Search.find(self._buffer, text, direction)
+            Search.find(buffer, text, direction)
             self._edit_area.ensureCursorVisible()
             event.accept()
             return
 
         if event.key() == vaitk.Key.Key_Asterisk:
-            word_at, word_pos = self._buffer.document.wordAt(self._buffer.cursor.pos)
+            word_at, word_pos = buffer.document.wordAt(buffer.cursor.pos)
             if word_pos is not None:
                 self._editor_model.current_search = (word_at, flags.FORWARD)
 
-            Search.find(self._buffer, word_at, flags.FORWARD)
+            Search.find(buffer, word_at, flags.FORWARD)
             self._edit_area.ensureCursorVisible()
             event.accept()
             return
@@ -200,42 +194,43 @@ class EditAreaController(core.VObject):
 
         if (event.key() == vaitk.Key.Key_X and event.modifiers() == 0) or \
             event.key() == vaitk.Key.Key_Delete:
-            command = commands.DeleteSingleCharAfterCommand(self._buffer)
+            command = commands.DeleteSingleCharAfterCommand(buffer)
         elif event.key() == vaitk.Key.Key_O:
             if event.modifiers() == 0:
                 self._editor_model.mode = flags.INSERT_MODE
-                command = commands.NewLineAfterCommand(self._buffer)
+                command = commands.NewLineAfterCommand(buffer)
             elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
                 self._editor_model.mode = flags.INSERT_MODE
-                command = commands.NewLineCommand(self._buffer)
+                command = commands.NewLineCommand(buffer)
         elif event.key() == vaitk.Key.Key_J and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-            command = commands.JoinWithNextLineCommand(self._buffer)
+            command = commands.JoinWithNextLineCommand(buffer)
         elif event.key() == vaitk.Key.Key_D and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-            command = commands.DeleteToEndOfLineCommand(self._buffer)
+            command = commands.DeleteToEndOfLineCommand(buffer)
         elif event.key() == vaitk.Key.Key_P:
             if self._editor_model.clipboard is not None:
                 if event.modifiers() == 0:
-                    command = commands.InsertLineAfterCommand(self._buffer, self._editor_model.clipboard)
+                    command = commands.InsertLineAfterCommand(buffer, self._editor_model.clipboard)
                 elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                    command = commands.InsertLineCommand(self._buffer, self._editor_model.clipboard)
+                    command = commands.InsertLineCommand(buffer, self._editor_model.clipboard)
         if command is not None:
             result = command.execute()
             if result.success:
-                self._buffer.command_history.push(command)
+                buffer.command_history.push(command)
             self._edit_area.ensureCursorVisible()
             event.accept()
 
     def _handleEventDeleteMode(self, event):
+        buffer = self._editor_model.buffer_list.current
         if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
 
         if event.key() == vaitk.Key.Key_D:
-            command = commands.DeleteLineAtCursorCommand(self._buffer)
+            command = commands.DeleteLineAtCursorCommand(buffer)
             result = command.execute()
             if result.success:
-                self._buffer.command_history.push(command)
+                buffer.command_history.push(command)
                 self._editor_model.clipboard = result.info[2]
             self._edit_area.ensureCursorVisible()
             self._editor_model.mode = flags.COMMAND_MODE
@@ -243,10 +238,10 @@ class EditAreaController(core.VObject):
             return
 
         if event.key() == vaitk.Key.Key_W:
-            command = commands.DeleteToEndOfWordCommand(self._buffer)
+            command = commands.DeleteToEndOfWordCommand(buffer)
             result = command.execute()
             if result.success:
-                self._buffer.command_history.push(command)
+                buffer.command_history.push(command)
             self._edit_area.ensureCursorVisible()
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
@@ -258,6 +253,7 @@ class EditAreaController(core.VObject):
         return
 
     def _handleEventYankMode(self, event):
+        buffer = self._editor_model.buffer_list.current
         if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
@@ -265,7 +261,7 @@ class EditAreaController(core.VObject):
 
         if event.key() == vaitk.Key.Key_Y:
             cursor_pos = self._buffer.cursor.pos
-            self._editor_model.clipboard = self._buffer.document.lineText(cursor_pos[0])
+            self._editor_model.clipboard = buffer.document.lineText(cursor_pos[0])
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
@@ -276,21 +272,23 @@ class EditAreaController(core.VObject):
         return
 
     def _handleEventGoMode(self, event):
+        buffer = self._editor_model.buffer_list.current
         if event.key() == vaitk.Key.Key_Escape:
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
 
         if event.key() == vaitk.Key.Key_G:
-            self._buffer.edit_area_model.document_pos_at_top = (1,1)
-            self._buffer.cursor.toFirstLine()
+            buffer.edit_area_model.document_pos_at_top = (1,1)
+            buffer.cursor.toFirstLine()
             self._editor_model.mode = flags.COMMAND_MODE
             event.accept()
             return
 
     def _handleEventReplaceMode(self, event):
+        buffer = self._editor_model.buffer_list.current
         if vaitk.isKeyCodePrintable(event.key()):
-            command = commands.ReplaceSingleCharCommand(self._buffer, event.text())
+            command = commands.ReplaceSingleCharCommand(buffer, event.text())
             result = command.execute()
             if result.success:
                 self._buffer.command_history.push(command)
@@ -299,7 +297,3 @@ class EditAreaController(core.VObject):
         self._editor_model.mode = flags.COMMAND_MODE
         event.accept()
 
-    # Private
-
-    def _hasModels(self):
-        return self._buffer and self._editor_model

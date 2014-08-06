@@ -32,50 +32,43 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
-    def __init__(self, parent):
+    def __init__(self, editor_model, parent):
         super().__init__(parent)
+        self._editor_model = editor_model
 
-        self._controller = EditAreaController(self)
+        self._controller = EditAreaController(self, editor_model)
 
-        self._buffer = None
-        self._editor_model = None
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
 
         self.cursorPositionChanged = core.VSignal(self)
 
-    def setModels(self, buffer, editor_model):
-        self._buffer = buffer
-        self._editor_model = editor_model
-        self._controller.setModels(buffer, editor_model)
         self.update()
 
     def paintEvent(self, event):
+        buffer = self._editor_model.buffer_list.current
         w, h = self.size()
-        pos_at_top = self._buffer.edit_area_model.document_pos_at_top
+        pos_at_top = buffer.edit_area_model.document_pos_at_top
         visible_line_interval = (pos_at_top[0], pos_at_top[0]+h)
-        cursor_pos = self._buffer.cursor.pos
-        document = self._buffer.document
+        cursor_pos = buffer.cursor.pos
+        document = buffer.document
 
         painter = gui.VPainter(self)
         painter.erase()
 
-        if not self._hasModels():
-            return
-
         # Find the current hovered word to set highlighting
-        current_word, current_word_pos = self._buffer.document.wordAt(cursor_pos)
+        current_word, current_word_pos = document.wordAt(cursor_pos)
         word_entries = []
         if current_word_pos is not None:
             # find all the words only in the visible area
-            word_entries = Search.findAll(self._buffer.document,
+            word_entries = Search.findAll(document,
                                           current_word,
                                           line_interval=visible_line_interval,
                                           word=True)
 
 
         for visual_line_num, doc_line_num in enumerate(range(*visible_line_interval)):
-            if doc_line_num > self._buffer.document.numLines():
+            if doc_line_num > document.numLines():
                 continue
 
             # Get the relevant text
@@ -101,81 +94,71 @@ class EditArea(gui.VWidget):
         return self._visual_cursor_pos
 
     def scrollDown(self):
-        if not self._hasModels():
-            return
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
-        if top_pos[0] + self.height() > self._buffer.document.numLines():
+        buffer = self._editor_model.buffer_list.current
+        top_pos = buffer.edit_area_model.document_pos_at_top
+        if top_pos[0] + self.height() > buffer.document.numLines():
             return
         new_pos = (top_pos[0]+1, top_pos[1])
-        self._buffer.edit_area_model.document_pos_at_top = new_pos
+        buffer.edit_area_model.document_pos_at_top = new_pos
         self.update()
 
     def scrollUp(self):
-        if not self._hasModels():
-            return
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
+        buffer = self._editor_model.buffer_list.current
+        top_pos = buffer.edit_area_model.document_pos_at_top
         if top_pos[0] == 1:
             return
 
         new_pos = (top_pos[0]-1, top_pos[1])
-        self._buffer.edit_area_model.document_pos_at_top = new_pos
+        buffer.edit_area_model.document_pos_at_top = new_pos
         self.update()
 
     def scrollPageUp(self):
-        if not self._hasModels():
-            return
+        buffer = self._editor_model.buffer_list.current
 
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
+        top_pos = buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0]-self.height()+2, top_pos[1])
         if new_pos[0] < 1:
            new_pos = (1, top_pos[1])
 
-        self._buffer.edit_area_model.document_pos_at_top = new_pos
+        buffer.edit_area_model.document_pos_at_top = new_pos
         self.update()
 
     def scrollPageDown(self):
-        if not self._hasModels():
-            return
+        buffer = self._editor_model.buffer_list.current
 
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
+        top_pos = buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0]+self.height()-2, top_pos[1])
-        if new_pos[0] > self._buffer.document.numLines():
-            new_pos = (self._buffer.document.numLines(),  top_pos[1])
+        if new_pos[0] > buffer.document.numLines():
+            new_pos = (buffer.document.numLines(),  top_pos[1])
 
-        self._buffer.edit_area_model.document_pos_at_top = new_pos
+        buffer.edit_area_model.document_pos_at_top = new_pos
         self.update()
 
     def scrollPageLeft(self):
-        if not self._hasModels():
-            return
+        buffer = self._editor_model.buffer_list.current
 
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
+        top_pos = buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0], top_pos[1]-int(self.width()/2))
         if new_pos[1] < 1:
            new_pos = (top_pos[0], 1)
 
-        self._buffer.edit_area_model.document_pos_at_top = new_pos
+        buffer.edit_area_model.document_pos_at_top = new_pos
         self.update()
 
     def scrollPageRight(self):
-        if not self._hasModels():
-            return
+        buffer = self._editor_model.buffer_list.current
 
         top_pos = self._buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0], top_pos[1]+int(self.width()/2))
 
-        self._buffer.edit_area_model.document_pos_at_top = new_pos
+        buffer.edit_area_model.document_pos_at_top = new_pos
         self.update()
 
     def keyEvent(self, event):
-        if not self._hasModels():
-            return
         self._controller.handleKeyEvent(event)
         self.update()
 
     def focusInEvent(self, event):
-        if not self._hasModels():
-            return
         gui.VCursor.setPos(self.mapToGlobal((self._visual_cursor_pos[0], self._visual_cursor_pos[1])))
 
     def ensureCursorVisible(self):
@@ -185,8 +168,9 @@ class EditArea(gui.VWidget):
         # then it should scroll one line.
         # In all other cases (horizontal, and vertical distant) it should jump.
 
-        doc_cursor_pos = self._buffer.cursor.pos
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
+        buffer = self._editor_model.buffer_list.current
+        doc_cursor_pos = buffer.cursor.pos
+        top_pos = buffer.edit_area_model.document_pos_at_top
 
         new_top_pos = top_pos
         # Check and adjust the vertical positioning
@@ -209,16 +193,15 @@ class EditArea(gui.VWidget):
 
         #
         new_top_pos = ( max(1, new_top_pos[0]), new_top_pos[1])
-        self._buffer.edit_area_model.document_pos_at_top = new_top_pos
+        buffer.edit_area_model.document_pos_at_top = new_top_pos
         self.update()
 
 
     def handleDirectionalKey(self, event):
         # XXX move to controller?
-        if not self._hasModels():
-            return
+        buffer = self._editor_model.buffer_list.current
 
-        if self._buffer.document.isEmpty():
+        if buffer.document.isEmpty():
             return
 
         key = event.key()
@@ -236,7 +219,8 @@ class EditArea(gui.VWidget):
         self.moveCursor(direction)
 
     def moveCursor(self, direction):
-        doc_cursor = self._buffer.cursor
+        buffer = self._editor_model.buffer_list.current
+        doc_cursor = buffer.cursor
 
         if direction == flags.UP:
             if self._visual_cursor_pos[1] == 0:
@@ -260,17 +244,15 @@ class EditArea(gui.VWidget):
             doc_cursor.toLineBeginning()
         elif direction == flags.PAGE_UP:
             self.scrollPageUp()
-            doc_cursor.toLine(self._buffer.edit_area_model.document_pos_at_top[0])
+            doc_cursor.toLine(buffer.edit_area_model.document_pos_at_top[0])
         elif direction == flags.PAGE_DOWN:
             self.scrollPageDown()
-            doc_cursor.toLine(self._buffer.edit_area_model.document_pos_at_top[0])
+            doc_cursor.toLine(buffer.edit_area_model.document_pos_at_top[0])
         else:
             raise Exception("Unknown direction flag %s", str(direction))
 
     # Private
 
-    def _hasModels(self):
-        return self._buffer and self._editor_model
 
     def _setVisualCursorPos(self, cursor_pos):
         pos_x = utils.clamp(cursor_pos[0], 0, self.width()-1)
