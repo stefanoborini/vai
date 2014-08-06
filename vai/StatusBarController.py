@@ -3,7 +3,6 @@ class StatusBarController(object):
         self._status_bar = status_bar
         self._document = None
         self._document_cursor = None
-        self._edit_area_model = None
 
     def setModels(self, document, document_cursor):
         if self._document:
@@ -22,3 +21,4 @@ class StatusBarController(object):
 
         self._status_bar.setFilename(self._document.filename())
         self._status_bar.setFileChangedFlag(self._document.isModified())
+        self._status_bar.setPosition(self._document_cursor.pos)

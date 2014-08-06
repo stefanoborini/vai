@@ -32,11 +32,11 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
-    def __init__(self, editor_model, parent):
+    def __init__(self, parent):
         super().__init__(parent)
-        self._editor_model = editor_model
+        self._buffer = None
 
-        self._controller = EditAreaController(self, editor_model)
+        self._controller = EditAreaController(self)
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
@@ -45,16 +45,28 @@ class EditArea(gui.VWidget):
 
         self.update()
 
+    @property
+    def buffer(self):
+        return self._buffer
+
+    @buffer.setter
+    def buffer(self, buffer):
+        self._buffer = buffer
+        self._controller.buffer = buffer
+
     def paintEvent(self, event):
-        buffer = self._editor_model.buffer_list.current
+        painter = gui.VPainter(self)
+        painter.erase()
+
+        buffer = self._buffer
+        if buffer is None:
+            return
+
         w, h = self.size()
         pos_at_top = buffer.edit_area_model.document_pos_at_top
         visible_line_interval = (pos_at_top[0], pos_at_top[0]+h)
         cursor_pos = buffer.cursor.pos
         document = buffer.document
-
-        painter = gui.VPainter(self)
-        painter.erase()
 
         # Find the current hovered word to set highlighting
         current_word, current_word_pos = document.wordAt(cursor_pos)
@@ -94,7 +106,11 @@ class EditArea(gui.VWidget):
         return self._visual_cursor_pos
 
     def scrollDown(self):
-        buffer = self._editor_model.buffer_list.current
+        buffer = self._buffer
+
+        if buffer is None:
+            return
+
         top_pos = buffer.edit_area_model.document_pos_at_top
         if top_pos[0] + self.height() > buffer.document.numLines():
             return
@@ -103,7 +119,11 @@ class EditArea(gui.VWidget):
         self.update()
 
     def scrollUp(self):
-        buffer = self._editor_model.buffer_list.current
+        buffer = self._buffer
+
+        if buffer is None:
+            return
+
         top_pos = buffer.edit_area_model.document_pos_at_top
         if top_pos[0] == 1:
             return
@@ -113,7 +133,10 @@ class EditArea(gui.VWidget):
         self.update()
 
     def scrollPageUp(self):
-        buffer = self._editor_model.buffer_list.current
+        buffer = self._buffer
+
+        if buffer is None:
+            return
 
         top_pos = buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0]-self.height()+2, top_pos[1])
@@ -124,7 +147,10 @@ class EditArea(gui.VWidget):
         self.update()
 
     def scrollPageDown(self):
-        buffer = self._editor_model.buffer_list.current
+        buffer = self._buffer
+
+        if buffer is None:
+            return
 
         top_pos = buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0]+self.height()-2, top_pos[1])
@@ -137,6 +163,9 @@ class EditArea(gui.VWidget):
     def scrollPageLeft(self):
         buffer = self._editor_model.buffer_list.current
 
+        if buffer is None:
+            return
+
         top_pos = buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0], top_pos[1]-int(self.width()/2))
         if new_pos[1] < 1:
@@ -147,6 +176,9 @@ class EditArea(gui.VWidget):
 
     def scrollPageRight(self):
         buffer = self._editor_model.buffer_list.current
+
+        if buffer is None:
+            return
 
         top_pos = self._buffer.edit_area_model.document_pos_at_top
         new_pos = (top_pos[0], top_pos[1]+int(self.width()/2))
@@ -169,6 +201,10 @@ class EditArea(gui.VWidget):
         # In all other cases (horizontal, and vertical distant) it should jump.
 
         buffer = self._editor_model.buffer_list.current
+
+        if buffer is None:
+            return
+
         doc_cursor_pos = buffer.cursor.pos
         top_pos = buffer.edit_area_model.document_pos_at_top
 
@@ -201,6 +237,9 @@ class EditArea(gui.VWidget):
         # XXX move to controller?
         buffer = self._editor_model.buffer_list.current
 
+        if buffer is None:
+            return
+
         if buffer.document.isEmpty():
             return
 
@@ -220,6 +259,8 @@ class EditArea(gui.VWidget):
 
     def moveCursor(self, direction):
         buffer = self._editor_model.buffer_list.current
+        if buffer is None:
+            return
         doc_cursor = buffer.cursor
 
         if direction == flags.UP:
