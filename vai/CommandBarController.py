@@ -7,8 +7,7 @@ class CommandBarController:
         self._command_bar.returnPressed.connect(self._parseCommandBar)
         self._command_bar.escapePressed.connect(self._abortCommandBar)
 
-        self._editor_model.modeChanged.connect(self._command_bar.setMode)
-        self._editor_model.buffer_list.currentBufferChanged.connect(self._bufferChanged)
+        self._editor_model.modeChanged.connect(self._modeChanged)
 
     # Private
 
@@ -45,7 +44,11 @@ class CommandBarController:
         self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
-#QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):
+    def _modeChanged(self, *args):
+        self._command_bar.setMode(self._editor_model.mode)
+
+
+        #QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):
 #QQQSBO        self._status_bar_controller.setModels(new_buffer.document, new_buffer.cursor)
 #QQQSBO        self._side_ruler_controller.setModels(new_buffer.document, new_buffer.edit_area_model)
 #QQQSBO        self._edit_area.setModels(new_buffer, self._editor_model)

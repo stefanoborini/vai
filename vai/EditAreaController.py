@@ -23,9 +23,7 @@ class EditAreaController(core.VObject):
         self._editor_model = editor_model
 
     def handleKeyEvent(self, event):
-
         if event.key() in DIRECTIONAL_KEYS:
-            logging.info("Directional key")
             self._edit_area.handleDirectionalKey(event)
             event.accept()
             return

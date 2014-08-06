@@ -1,6 +1,6 @@
 from . import flags
 from . import Search
-from .PyFlakesLinter import PyFlakesLinter
+from . import linting
 from .Lexer import Lexer
 
 class EditorController:
@@ -91,7 +91,7 @@ class EditorController:
     def _doLint(self):
         document = self._model.buffer_list.current.document
 
-        linter1 = PyFlakesLinter(document)
+        linter1 = linting.PyFlakesLinter(document)
         info = linter1.runOnce()
 
         for line_num in range(1, document.numLines()+1):

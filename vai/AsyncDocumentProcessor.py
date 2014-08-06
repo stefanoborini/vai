@@ -1,3 +1,4 @@
+"""
 import process
 
 class AsyncDocumentProcessor:
@@ -10,4 +11,4 @@ class AsyncDocumentProcessor:
     def runOnce(self):
         raise NotImplementedError("AsyncDocumentProcess.runProcess() must be implemented")
 
-
+"""
