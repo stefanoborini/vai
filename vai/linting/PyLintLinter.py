@@ -1,11 +1,18 @@
+'''
 import tempfile
 import contextlib
 import io
 import logging
 import subprocess
 import os
+from ..AsyncDocumentProcessor import AsyncDocumentProcessor
 
 class PyLintLinter(AsyncDocumentProcessor):
+    """
+    Slow, but very accurate  Linter. We need async processing for this one to happen.
+    For now it is unused.
+    """
+
     def __init__(self, document, editor):
         super().__init__(document)
         self._editor = editor
@@ -49,4 +56,4 @@ class PyLintLinter(AsyncDocumentProcessor):
                 result.append(info)
         return result
 
-
+'''

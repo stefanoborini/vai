@@ -2,6 +2,7 @@ from .LinterResult import LinterResult
 import pyflakes.api
 
 class PyFlakesLinter:
+    """Fast, less accurate linter."""
     def __init__(self, document):
         self._document = document
 
@@ -13,6 +14,7 @@ class PyFlakesLinter:
         return reporter.errors()
 
 class Reporter:
+    """Wrap class to get events delivered for our consumption"""
     def __init__(self):
         self._errors = []
 

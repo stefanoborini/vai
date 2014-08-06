@@ -1,5 +1,5 @@
 from .LineBadge import LineBadge
-from .LinterResult import LinterResult
+from .linting import LinterResult
 from .models.TextDocument import LineMeta
 from vaitk import gui
 
@@ -43,23 +43,23 @@ class SideRulerController:
                 meta = self._document.lineMeta(line_num)
                 badge = None
 
-                linting = meta.get(LineMeta.LinterResult)
-                if linting is not None:
-                    if linting.level == LinterResult.Level.ERROR:
+                lint = meta.get(LineMeta.LinterResult)
+                if lint is not None:
+                    if lint.level == LinterResult.Level.ERROR:
                         badge = LineBadge(marker="E",
-                                          description=linting.message,
+                                          description=lint.message,
                                           fg_color=gui.VGlobalColor.yellow,
                                           bg_color=gui.VGlobalColor.red
                                 )
-                    elif linting.level == LinterResult.Level.WARNING:
+                    elif lint.level == LinterResult.Level.WARNING:
                         badge = LineBadge(marker="W",
-                                          description=linting.message,
+                                          description=lint.message,
                                           fg_color=gui.VGlobalColor.yellow,
                                           bg_color=gui.VGlobalColor.brown
                                 )
-                    elif linting.level == LinterResult.Level.INFO:
+                    elif lint.level == LinterResult.Level.INFO:
                         badge = LineBadge(marker="*",
-                                          description=linting.message,
+                                          description=lint.message,
                                           fg_color=gui.VGlobalColor.yellow,
                                           bg_color=gui.VGlobalColor.cyan
                                         )
