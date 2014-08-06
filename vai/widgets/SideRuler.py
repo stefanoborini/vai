@@ -47,9 +47,6 @@ class SideRuler(gui.VWidget):
     def minimumSize(self):
         return (self._lineNumberWidth(), 1)
 
-    def _lineNumberWidth(self):
-        return int(math.log10(self._num_rows))+1
-
     def addBadge(self, line, badge):
         self._badges[line] = badge
         self.update()
@@ -61,6 +58,12 @@ class SideRuler(gui.VWidget):
 
     def badge(self, line):
         return self._badges.get(line)
+
+    # Private
+
+    def _lineNumberWidth(self):
+        return int(math.log10(self._num_rows))+1
+
 
 def _computeLineValues(start, how_many, skip):
     result = []

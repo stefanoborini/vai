@@ -10,6 +10,8 @@ class CommandBarController:
         self._editor_model.modeChanged.connect(self._command_bar.setMode)
         self._editor_model.buffer_list.currentBufferChanged.connect(self._bufferChanged)
 
+    # Private
+
     def _parseCommandBar(self):
         command_text = self._command_bar.commandText().strip()
         mode = self._editor_model.mode
@@ -43,12 +45,12 @@ class CommandBarController:
         self._editor_model.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
-    def _bufferChanged(self, old_buffer, new_buffer):
-        self._status_bar_controller.setModels(new_buffer.document, new_buffer.cursor)
-        self._side_ruler_controller.setModels(new_buffer.document, new_buffer.edit_area_model)
-        self._edit_area.setModels(new_buffer, self._editor_model)
-        if old_buffer:
-            old_buffer.cursor.positionChanged.disconnect(self._showInfoHoverBoxIfNeeded)
-        new_buffer.cursor.positionChanged.connect(self._showInfoHoverBoxIfNeeded)
-        self._lexer.setModel(new_buffer.document)
+#QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):
+#QQQSBO        self._status_bar_controller.setModels(new_buffer.document, new_buffer.cursor)
+#QQQSBO        self._side_ruler_controller.setModels(new_buffer.document, new_buffer.edit_area_model)
+#QQQSBO        self._edit_area.setModels(new_buffer, self._editor_model)
+#QQQSBO        if old_buffer:
+#QQQSBO            old_buffer.cursor.positionChanged.disconnect(self._showInfoHoverBoxIfNeeded)
+#QQQSBO        new_buffer.cursor.positionChanged.connect(self._showInfoHoverBoxIfNeeded)
+#QQQSBO        self._lexer.setModel(new_buffer.document)
 

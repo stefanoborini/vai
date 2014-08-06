@@ -15,9 +15,6 @@ class EditAreaEventFilter(core.VObject):
         self._command_bar = command_bar
 
     def eventFilter(self, event):
-        if self._editor_model is None:
-            return False
-
         if not isinstance(event, gui.VKeyEvent):
             return False
 

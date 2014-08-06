@@ -15,17 +15,14 @@ class SideRulerController:
 
         if self._document:
             self._document.lineMetaInfoChanged.disconnect(self.updateBadges)
-            self._document.lineDeleted.disconnect(self.updateNumRows)
-            self._document.lineCreated.disconnect(self.updateNumRows)
+            self._document.contentChanged.disconnect(self.updateNumRows)
 
         self._edit_area_model = edit_area_model
         self._edit_area_model.documentPosChanged.connect(self.updateTopRow)
 
         self._document = document
         self._document.lineMetaInfoChanged.connect(self.updateBadges)
-        self._document.lineMetaInfoDeleted.connect(self.updateBadges)
         self._document.contentChanged.connect(self.updateNumRows)
-        self._document.contentChanged.connect(self.updateBadges)
 
         self.updateTopRow()
         self.updateNumRows()
