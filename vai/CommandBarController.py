@@ -1,16 +1,14 @@
 class CommandBarController:
-
-    def __init__(self, command_bar, editor_controller):
+    def __init__(self, command_bar, editor_controller, editor_model):
         self._command_bar = command_bar
         self._editor_controller = editor_controller
+        self._editor_model = editor_model
 
         self._command_bar.returnPressed.connect(self._parseCommandBar)
         self._command_bar.escapePressed.connect(self._abortCommandBar)
 
-        self._editor_model = editor_model
         self._editor_model.modeChanged.connect(self._command_bar.setMode)
-
-        self._buffer_list.currentBufferChanged.connect(self._bufferChanged)
+        self._editor_model.buffer_list.currentBufferChanged.connect(self._bufferChanged)
 
     def _parseCommandBar(self):
         command_text = self._command_bar.commandText().strip()

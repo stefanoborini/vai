@@ -28,6 +28,9 @@ class CommandBar(gui.VWidget):
         self._mode = mode
         self._updateText()
 
+    def setMode(self, mode):
+        self.mode = mode
+
     @property
     def command_text(self):
         return self._line_edit.text()
