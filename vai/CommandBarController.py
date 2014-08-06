@@ -1,21 +1,21 @@
 class CommandBarController:
-    def __init__(self, command_bar, editor_controller, editor_model):
+    def __init__(self, command_bar, editor_controller, edit_mode):
         self._command_bar = command_bar
         self._editor_controller = editor_controller
-        self._editor_model = editor_model
+        self._edit_mode = edit_mode
 
         self._command_bar.returnPressed.connect(self._parseCommandBar)
         self._command_bar.escapePressed.connect(self._abortCommandBar)
 
-        self._editor_model.modeChanged.connect(self._modeChanged)
+        self._edit_mode.changed.connect(self._modeChanged)
 
     # Private
 
     def _parseCommandBar(self):
         command_text = self._command_bar.commandText().strip()
-        mode = self._editor_model.mode
+        mode = self._edit_mode.mode
 
-        if mode == flags.COMMAND_INPUT_MODE:
+        if mode == EditMode.COMMAND_INPUT:
             if command_text == 'q!':
                 self._editor_controller.forceQuit()
             elif command_text == 'q':
@@ -30,22 +30,22 @@ class CommandBarController:
                 self._editor_controller.selectPrevBuffer()
             elif command_text.startswith("bn"):
                 self._editor_controller.selectNextBuffer()
-        elif mode == flags.SEARCH_FORWARD_MODE:
+        elif mode == EditMode.SEARCH_FORWARD:
                 self._editor_controller.searchForward(command_text)
-        elif mode == flags.SEARCH_BACKWARD_MODE:
+        elif mode == EditMode.SEARCH_BACKWARD:
                 self._editor_controller.searchBackward(command_text)
 
         self._command_bar.clear()
-        self._editor_model.mode = flags.COMMAND_MODE
+        self._edit_mode.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
     def _abortCommandBar(self):
         self._command_bar.clear()
-        self._editor_model.mode = flags.COMMAND_MODE
+        self._edit_mode.mode = flags.COMMAND_MODE
         self._edit_area.setFocus()
 
     def _modeChanged(self, *args):
-        self._command_bar.setMode(self._editor_model.mode)
+        self._command_bar.setMode(self._edit_mode.mode)
 
 
         #QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):

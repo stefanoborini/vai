@@ -1,6 +1,8 @@
 from vaitk import gui, core, utils
 import math
-import logging
+from collections import namedtuple
+
+LineBadge = namedtuple('LineBadge', ["marker", "description", "fg_color", "bg_color"])
 
 class SideRuler(gui.VWidget):
     def __init__(self, parent):
