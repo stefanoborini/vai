@@ -6,41 +6,48 @@ from vaitk import gui
 class SideRulerController:
     def __init__(self, side_ruler):
         self._side_ruler = side_ruler
-        self._edit_area_model = None
-        self._document = None
+        self._buffer = None
 
-    def setModels(self, document, edit_area_model):
-        if self._edit_area_model:
-            self._edit_area_model.documentPosChanged.disconnect(self.updateTopRow)
+    @property
+    def buffer(self):
+        return self._buffer
 
-        if self._document:
-            self._document.lineMetaInfoChanged.disconnect(self.updateBadges)
-            self._document.contentChanged.disconnect(self.updateNumRows)
+    @buffer.setter
+    def buffer(self, buffer):
+        if buffer is None:
+            raise Exception("Cannot set buffer to None")
 
-        self._edit_area_model = edit_area_model
-        self._edit_area_model.documentPosChanged.connect(self.updateTopRow)
+        if self._buffer:
+            self._buffer.edit_area_model.documentPosAtTopChanged.disconnect(self.updateTopRow)
+            self._buffer.document.lineMetaInfoChanged.disconnect(self.updateBadges)
+            self._buffer.document.contentChanged.disconnect(self.updateNumRows)
 
-        self._document = document
-        self._document.lineMetaInfoChanged.connect(self.updateBadges)
-        self._document.contentChanged.connect(self.updateNumRows)
+        self._buffer = buffer
 
+        # Set signals
+        self._buffer.edit_area_model.documentPosAtTopChanged.connect(self.updateTopRow)
+
+        self._buffer.document.lineMetaInfoChanged.connect(self.updateBadges)
+        self._buffer.document.contentChanged.connect(self.updateNumRows)
+
+        # Refresh
         self.updateTopRow()
         self.updateNumRows()
         self.updateBadges()
 
     def updateTopRow(self, *args):
-        if self._edit_area_model:
-            top_pos = self._edit_area_model.document_pos_at_top
+        if self._buffer:
+            top_pos = self._buffer.edit_area_model.document_pos_at_top
             self._side_ruler.setTopRow(top_pos[0])
 
     def updateNumRows(self, *args):
-        if self._document:
-            self._side_ruler.setNumRows(self._document.numLines())
+        if self._buffer:
+            self._side_ruler.setNumRows(self._buffer.document.numLines())
 
     def updateBadges(self, *args):
-        if self._document:
-            for line_num in range(1,self._document.numLines()+1):
-                meta = self._document.lineMeta(line_num)
+        if self._buffer:
+            for line_num in range(1,self._buffer.document.numLines()+1):
+                meta = self._buffer.document.lineMeta(line_num)
                 badge = None
 
                 lint = meta.get(LineMeta.LinterResult)

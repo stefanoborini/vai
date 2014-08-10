@@ -4,7 +4,7 @@ class EditAreaModel(core.VObject):
     def __init__(self):
         super().__init__()
         self._document_pos_at_top = (1,1)
-        self.documentPosChanged = core.VSignal(self)
+        self.documentPosAtTopChanged = core.VSignal(self)
 
     @property
     def document_pos_at_top(self):
@@ -16,4 +16,4 @@ class EditAreaModel(core.VObject):
             raise ValueError("document pos cannot be < 1")
 
         self._document_pos_at_top = doc_pos
-        self.documentPosChanged.emit()
+        self.documentPosAtTopChanged.emit()
