@@ -84,7 +84,7 @@ class EditorController:
         self._model.buffer_list.addAndSelect(Buffer())
 
     def setMode(self, mode):
-        self._model.mode = flags.COMMAND_MODE
+        self._model.edit_mode.setMode(EditMode.COMMAND)
 
     # Private
 

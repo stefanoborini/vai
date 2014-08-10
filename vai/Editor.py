@@ -17,10 +17,11 @@ class Editor(gui.VWidget):
         self._controller = controllers.EditorController(self, self._model)
 
         self._createStatusBar()
+        """
         self._createCommandBar()
         self._createSideRuler()
         self._createEditArea()
-
+        """
     @property
     def status_bar(self):
         return self._status_bar
@@ -39,7 +40,7 @@ class Editor(gui.VWidget):
 
     def show(self):
         super().show()
-        self._edit_area.setFocus()
+#        self._edit_area.setFocus()
 
     # Private
 
@@ -49,12 +50,14 @@ class Editor(gui.VWidget):
         self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setColors(gui.VGlobalColor.cyan, gui.VGlobalColor.blue)
         self._status_bar_controller = controllers.StatusBarController(self._status_bar)
+        self._status_bar_controller.buffer = self._model.buffer_list.current
 
+    """
     def _createCommandBar(self):
         self._command_bar = widgets.CommandBar(self)
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
-        self._command_bar_controller = controllers.CommandBarController(self._command_bar, self._controller, self._model)
+        self._command_bar_controller = controllers.CommandBarController(self._command_bar, self._controller, self._model.edit_mode)
 
     def _createSideRuler(self):
         self._side_ruler = widgets.SideRuler(self)
@@ -63,7 +66,7 @@ class Editor(gui.VWidget):
         self._side_ruler_controller = controllers.SideRulerController(self._side_ruler)
 
     def _createEditArea(self):
-        self._edit_area = EditArea(self._model, parent = self)
+        self._edit_area = EditArea(parent = self)
         self._edit_area.move( (4, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
@@ -81,4 +84,4 @@ class Editor(gui.VWidget):
             gui.VToolTip.showText((0, document_pos[0]-pos_at_top[0]+1), badge.description)
         else:
             gui.VToolTip.hide()
-
+    """
