@@ -1,6 +1,7 @@
 from vaitk import core
 from .. import flags
 from .BufferList import BufferList
+from .EditMode import EditMode
 
 class EditorModel(core.VObject):
     def __init__(self):

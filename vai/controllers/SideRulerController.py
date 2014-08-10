@@ -1,6 +1,6 @@
-from .widgets import LineBadge
-from .linting import LinterResult
-from .models.TextDocument import LineMeta
+from ..widgets import LineBadge
+from ..linting import LinterResult
+from ..models.TextDocument import LineMeta
 from vaitk import gui
 
 class SideRulerController:
