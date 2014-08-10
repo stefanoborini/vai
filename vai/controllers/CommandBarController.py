@@ -1,3 +1,5 @@
+from .. import models
+
 class CommandBarController:
     def __init__(self, command_bar, editor_controller, edit_mode):
         self._command_bar = command_bar
@@ -15,7 +17,7 @@ class CommandBarController:
         command_text = self._command_bar.commandText().strip()
         mode = self._edit_mode.mode
 
-        if mode == EditMode.COMMAND_INPUT:
+        if mode == models.EditMode.COMMAND_INPUT:
             if command_text == 'q!':
                 self._editor_controller.forceQuit()
             elif command_text == 'q':
@@ -30,9 +32,9 @@ class CommandBarController:
                 self._editor_controller.selectPrevBuffer()
             elif command_text.startswith("bn"):
                 self._editor_controller.selectNextBuffer()
-        elif mode == EditMode.SEARCH_FORWARD:
+        elif mode == models.EditMode.SEARCH_FORWARD:
                 self._editor_controller.searchForward(command_text)
-        elif mode == EditMode.SEARCH_BACKWARD:
+        elif mode == models.EditMode.SEARCH_BACKWARD:
                 self._editor_controller.searchBackward(command_text)
 
         self._command_bar.clear()

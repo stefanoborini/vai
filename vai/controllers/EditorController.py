@@ -1,7 +1,7 @@
-from . import flags
-from . import Search
-from . import linting
-from .Lexer import Lexer
+from .. import flags
+from .. import Search
+from .. import linting
+from ..Lexer import Lexer
 
 class EditorController:
     def __init__(self, editor, editor_model):

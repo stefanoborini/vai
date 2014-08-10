@@ -2,10 +2,10 @@ import vaitk
 import os
 from vaitk import core
 import logging
-from . import flags
-from . import Search
-from . import commands
-from .SymbolLookupDb import SymbolLookupDb
+from .. import flags
+from .. import Search
+from .. import commands
+from ..SymbolLookupDb import SymbolLookupDb
 
 DIRECTIONAL_KEYS = [ vaitk.Key.Key_Up,
                      vaitk.Key.Key_Down,

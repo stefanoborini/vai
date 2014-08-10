@@ -1,6 +1,6 @@
 import vaitk
 from vaitk import gui, core, utils
-from .EditAreaController import EditAreaController
+from . import controllers
 from . import flags
 from .models.TextDocument import CharMeta
 from . import Search
@@ -36,7 +36,7 @@ class EditArea(gui.VWidget):
         super().__init__(parent)
         self._buffer = None
 
-        self._controller = EditAreaController(self)
+        self._controller = controllers.EditAreaController(self)
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
