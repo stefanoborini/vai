@@ -1,24 +1,30 @@
 class StatusBarController(object):
     def __init__(self, status_bar):
         self._status_bar = status_bar
-        self._document = None
-        self._document_cursor = None
+        self._buffer = None
 
-    def setModels(self, document, document_cursor):
-        if self._document:
-            self._document.modifiedChanged.disconnect(self._status_bar.setFileChangedFlag)
-            self._document.filenameChanged.disconnect(self._status_bar.setFilename)
+    @property
+    def buffer(self):
+        return self._buffer
 
-        if self._document_cursor:
-            self._document_cursor.positionChanged.disconnect(self._status_bar.setPosition)
+    @buffer.setter
+    def buffer(self, buffer):
+        if buffer is None:
+            raise Exception("Cannot set buffer to None")
 
-        self._document = document
-        self._document.modifiedChanged.connect(self._status_bar.setFileChangedFlag)
-        self._document.filenameChanged.connect(self._status_bar.setFilename)
+        if self._buffer is not None:
+            self._buffer.document.modifiedChanged.disconnect(self._status_bar.setFileChangedFlag)
+            self._buffer.document.filenameChanged.disconnect(self._status_bar.setFilename)
+            self._buffer.cursor.positionChanged.disconnect(self._status_bar.setPosition)
 
-        self._document_cursor = document_cursor
-        self._document_cursor.positionChanged.connect(self._status_bar.setPosition)
+        self._buffer = buffer
 
-        self._status_bar.setFilename(self._document.filename())
-        self._status_bar.setFileChangedFlag(self._document.isModified())
-        self._status_bar.setPosition(self._document_cursor.pos)
+        # Connect the signals
+        self._buffer.document.modifiedChanged.connect(self._status_bar.setFileChangedFlag)
+        self._buffer.document.filenameChanged.connect(self._status_bar.setFilename)
+        self._buffer.cursor.positionChanged.connect(self._status_bar.setPosition)
+
+        # Update the widget
+        self._status_bar.setFilename(self._buffer.document.filename())
+        self._status_bar.setFileChangedFlag(self._buffer.document.isModified())
+        self._status_bar.setPosition(self._buffer.cursor.pos)
