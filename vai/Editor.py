@@ -17,11 +17,9 @@ class Editor(gui.VWidget):
         self._controller = controllers.EditorController(self, self._model)
 
         self._createStatusBar()
-        """
-        self._createCommandBar()
+        #self._createCommandBar()
         self._createSideRuler()
-        self._createEditArea()
-        """
+        #self._createEditArea()
     @property
     def status_bar(self):
         return self._status_bar
@@ -58,13 +56,16 @@ class Editor(gui.VWidget):
         self._command_bar.move( (0, self.height()-1) )
         self._command_bar.resize( (self.width(), 1) )
         self._command_bar_controller = controllers.CommandBarController(self._command_bar, self._controller, self._model.edit_mode)
+    """
 
     def _createSideRuler(self):
         self._side_ruler = widgets.SideRuler(self)
         self._side_ruler.move( (0, 0) )
         self._side_ruler.resize( (5, self.height()-2) )
         self._side_ruler_controller = controllers.SideRulerController(self._side_ruler)
+        self._side_ruler_controller.buffer = self._model.buffer_list.current
 
+    """
     def _createEditArea(self):
         self._edit_area = EditArea(parent = self)
         self._edit_area.move( (4, 0) )
