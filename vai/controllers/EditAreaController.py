@@ -329,17 +329,11 @@ class EditAreaController(core.VObject):
                 buffer.command_history.push(command)
             event.accept()
 
-
-"""
-"""
-"""
-"""
-"""
     def _handleEventDeleteMode(self, event):
         buffer = self._buffer
 
         if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
 
@@ -349,7 +343,6 @@ class EditAreaController(core.VObject):
             if result.success:
                 buffer.command_history.push(command)
                 self._global_state.clipboard = result.info[2]
-            self._ensureCursorVisible()
             self._global_state.mode = EditorMode.COMMAND
             event.accept()
             return
@@ -359,56 +352,49 @@ class EditAreaController(core.VObject):
             result = command.execute()
             if result.success:
                 buffer.command_history.push(command)
-            self._ensureCursorVisible()
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
 
         # Reset if we don't recognize it.
-        self._global_state.mode = EditorMode.COMMAND
+        self._global_state.editor_mode = EditorMode.COMMAND
         event.accept()
         return
 
-"""
-"""
     def _handleEventYankMode(self, event):
         buffer = self._buffer
 
         if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
 
         if event.key() == vaitk.Key.Key_Y:
-            cursor_pos = self._buffer.cursor.pos
+            cursor_pos = buffer.cursor.pos
             self._global_state.clipboard = buffer.document.lineText(cursor_pos[0])
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
 
         # Reset if we don't recognize it.
-        self._global_state.mode = EditorMode.COMMAND
+        self._global_state.editor_mode = EditorMode.COMMAND
         event.accept()
         return
 
-"""
-"""
     def _handleEventGoMode(self, event):
         buffer = self._buffer
 
         if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
 
         if event.key() == vaitk.Key.Key_G:
-            buffer.edit_area_model.document_pos_at_top = (1,1)
             buffer.cursor.toFirstLine()
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
-"""
-"""
+
     def _handleEventReplaceMode(self, event):
         buffer = self._buffer
 
@@ -417,8 +403,6 @@ class EditAreaController(core.VObject):
             result = command.execute()
             if result.success:
                 self._buffer.command_history.push(command)
-            self._ensureCursorVisible()
 
-        self._global_state.mode = EditorMode.COMMAND
+        self._global_state.editor_mode = EditorMode.COMMAND
         event.accept()
-"""
