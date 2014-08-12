@@ -1,6 +1,10 @@
 import re
 from . import flags
 
+class SearchDirection:
+    FORWARD = 1
+    BACKWARD = -1
+
 def findAll(document, search_text, line_interval=None, case_sensitive=True, word=False):
     """
     Find all occurrences of a given search text (evt. regexp text)
@@ -36,7 +40,7 @@ def find(buffer, text, direction):
 
     current_line, current_col = pos
 
-    if direction == flags.FORWARD:
+    if direction == SearchDirection.FORWARD:
         first_half, second_half = ((pos[0], document.numLines()+1), (1, pos[0]+1))
         find_routine = "find"
     else:
@@ -47,7 +51,7 @@ def find(buffer, text, direction):
     for line_num in range(*first_half):
         start, stop = (None, None)
         if line_num == current_line:
-            start, stop = (current_col, None) if direction == flags.FORWARD else (None, current_col)
+            start, stop = (current_col, None) if direction == SearchDirection.FORWARD else (None, current_col)
 
         index = getattr(document.lineText(line_num), find_routine)(text, start, stop)
         if index != -1 and index:
@@ -58,7 +62,7 @@ def find(buffer, text, direction):
     for line_num in range(*second_half):
         start, stop = (None, None)
         if line_num == current_line:
-            start, stop = (None, current_col) if direction == flags.FORWARD else (current_col, None)
+            start, stop = (None, current_col) if direction == SearchDirection.FORWARD else (current_col, None)
 
         index = getattr(document.lineText(line_num), find_routine)(text, start, stop)
 

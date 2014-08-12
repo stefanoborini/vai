@@ -10,16 +10,18 @@ import logging
 
 
 class Editor(gui.VWidget):
-    def __init__(self, editor_model, parent=None):
+    def __init__(self, global_state, buffer_list, parent=None):
         super().__init__(parent=parent)
 
-        self._model = editor_model
-        self._controller = controllers.EditorController(self, self._model)
+        self._global_state = global_state
+        self._buffer_list = buffer_list
+        self._controller = controllers.EditorController(self, self._global_state, self._buffer_list)
 
         self._createStatusBar()
         #self._createCommandBar()
         self._createSideRuler()
-        #self._createEditArea()
+        self._createEditArea()
+
     @property
     def status_bar(self):
         return self._status_bar
@@ -29,12 +31,12 @@ class Editor(gui.VWidget):
         return self._edit_area
 
     @property
-    def controller(self):
-        return self._controller
+    def status_bar_controller(self):
+        return self._status_bar_controller
 
     @property
-    def model(self):
-        return self._model
+    def controller(self):
+        return self._controller
 
     def show(self):
         super().show()
@@ -48,7 +50,7 @@ class Editor(gui.VWidget):
         self._status_bar.resize( (self.width(), 1) )
         self._status_bar.setColors(gui.VGlobalColor.cyan, gui.VGlobalColor.blue)
         self._status_bar_controller = controllers.StatusBarController(self._status_bar)
-        self._status_bar_controller.buffer = self._model.buffer_list.current
+        self._status_bar_controller.buffer = self._buffer_list.current
 
     """
     def _createCommandBar(self):
@@ -63,18 +65,18 @@ class Editor(gui.VWidget):
         self._side_ruler.move( (0, 0) )
         self._side_ruler.resize( (5, self.height()-2) )
         self._side_ruler_controller = controllers.SideRulerController(self._side_ruler)
-        self._side_ruler_controller.buffer = self._model.buffer_list.current
+        self._side_ruler_controller.buffer = self._buffer_list.current
 
-    """
     def _createEditArea(self):
-        self._edit_area = EditArea(parent = self)
+        self._edit_area = EditArea(self._global_state, parent = self)
         self._edit_area.move( (4, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
         self._edit_area.setFocus()
 
-        self._edit_area_event_filter = EditAreaEventFilter(self._command_bar, self._model)
-        self._edit_area.installEventFilter(self._edit_area_event_filter)
+        #self._edit_area_event_filter = EditAreaEventFilter(self._command_bar, self._global_state)
+        #self._edit_area.installEventFilter(self._edit_area_event_filter)
 
+    """
     def _showInfoHoverBoxIfNeeded(self, document_pos):
         current_buffer = self._model.buffer_list.current
         pos_at_top = current_buffer.edit_area_model.document_pos_at_top

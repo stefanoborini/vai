@@ -2,12 +2,21 @@ from .. import flags
 from .. import Search
 from .. import linting
 from ..Lexer import Lexer
+from ..models import Buffer
+from ..models.TextDocument import LineMeta
 
 class EditorController:
-    def __init__(self, editor, editor_model):
-        self._model = editor_model
+    def __init__(self, editor, global_state, buffer_list):
         self._editor = editor
+        self._global_state = global_state
+        self._buffer_list = buffer_list
         self._lexer = Lexer()
+
+        self._buffer_list.currentBufferChanged.connect(self._currentBufferChanged)
+
+    def _currentBufferChanged(self, *args):
+        self._editor.edit_area.buffer = self._buffer_list.current
+        self._editor.status_bar_controller.buffer = self._buffer_list.current
 
     def forceQuit(self):
         gui.VApplication.vApp.exit()
@@ -17,7 +26,7 @@ class EditorController:
         self._doLint()
 
     def tryQuit(self):
-        if any([b.isModified() for b in self._model.buffer_list.buffers]):
+        if any([b.isModified() for b in self._buffer_list.buffers]):
             self._editor.status_bar.setMessage("Document has been modified. " +
                                                "Use :q! to quit without saving " +
                                                "or :qw to save and quit.", 3000)
@@ -26,43 +35,43 @@ class EditorController:
 
     def searchForward(self, search_text):
         if search_text == '':
-            if self._model.current_search is not None:
-                search_text = self._model.current_search[0]
+            if self._global_state.current_search is not None:
+                search_text = self._global_state.current_search[0]
 
         if search_text != '':
-            self._model.current_search = (search_text, flags.FORWARD)
+            self._global_state.current_search = (search_text, flags.FORWARD)
             Search.find(self.buffer_list.current, search_text, flags.FORWARD)
             self._editor.edit_area.ensureCursorVisible()
 
     def searchBackward(self, search_text):
         if search_text == '':
-            if self._model.current_search is not None:
-                search_text = self._model.current_search[0]
+            if self._global_state.current_search is not None:
+                search_text = self._global_state.current_search[0]
 
         if search_text != '':
-            self._model.current_search = (search_text, flags.BACKWARD)
+            self._global_state.current_search = (search_text, flags.BACKWARD)
             Search.find(self.buffer_list.current, search_text, flags.BACKWARD)
             self._editor.edit_area.ensureCursorVisible()
 
     def selectPrevBuffer(self):
-        self._model.buffer_list.selectPrev()
+        self._buffer_list.selectPrev()
 
     def selectNextBuffer(self):
-        self._model.buffer_list.selectNext()
+        self._buffer_list.selectNext()
 
     def doSaveAndExit(self):
         self._doSave()
         gui.VApplication.vApp.exit()
 
     def openFile(self, filename):
-        buffer = bufferForFilename(filename)
+        buffer = self._buffer_list.bufferForFilename(filename)
         if buffer is not None:
-            self._model.buffer_list.select(buffer)
+            self._buffer_list.select(buffer)
             return
 
-        current_buffer = self._model.buffer_list.current
+        current_buffer = self._buffer_list.current
         new_buffer = Buffer()
-        status_bar = self.editor.status_bar
+        status_bar = self._editor.status_bar
 
         try:
             new_buffer.document.open(filename)
@@ -74,22 +83,22 @@ class EditorController:
             status_bar.setMessage("%s [Error: %s]" % (filename, str(e)), 3000)
 
         if current_buffer.isEmpty() and not current_buffer.isModified():
-            self.buffer_list.replaceAndSelect(current_buffer, new_buffer)
+            self._buffer_list.replaceAndSelect(current_buffer, new_buffer)
         else:
-            self.buffer_list.addAndSelect(new_buffer)
+            self._buffer_list.addAndSelect(new_buffer)
 
         self._doLint()
 
     def createEmptyBuffer(self):
-        self._model.buffer_list.addAndSelect(Buffer())
+        self._buffer_list.addAndSelect(Buffer())
 
     def setMode(self, mode):
-        self._model.edit_mode.setMode(EditMode.COMMAND)
+        self._global_state.edit_mode = EditMode.COMMAND
 
     # Private
 
     def _doLint(self):
-        document = self._model.buffer_list.current.document
+        document = self._buffer_list.current.document
 
         linter1 = linting.PyFlakesLinter(document)
         info = linter1.runOnce()
@@ -102,7 +111,7 @@ class EditorController:
 
     def _doSave(self):
         status_bar = self._editor.status_bar
-        document = self._model.buffer_list.current.document
+        document = self._buffer_list.current.document
 
         status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()

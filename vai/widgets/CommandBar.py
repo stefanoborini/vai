@@ -1,6 +1,6 @@
 import vaitk
 from vaitk import gui, core
-from ..models import EditMode
+from ..models import EditorMode
 
 class CommandBar(gui.VWidget):
     def __init__(self, parent=None):
@@ -8,7 +8,7 @@ class CommandBar(gui.VWidget):
         self.returnPressed = core.VSignal(self)
         self.escapePressed = core.VSignal(self)
 
-        self._mode = EditMode.COMMAND
+        self._mode = EditorMode.COMMAND
 
         self._state_label = gui.VLabel(parent=self)
         self._state_label.setGeometry((0,0,1,1))
@@ -36,7 +36,7 @@ class CommandBar(gui.VWidget):
         return self._line_edit.text()
 
     def clear(self):
-        self._mode = EditMode.COMMAND
+        self._mode = EditorMode.COMMAND
         self._line_edit.clear()
         self._updateText()
 
@@ -56,21 +56,21 @@ class CommandBar(gui.VWidget):
     # Private
 
     def _updateText(self):
-        if self._mode == EditMode.INSERT:
+        if self._mode == EditorMode.INSERT:
             text = "-- INSERT --"
-        elif self._mode == EditMode.COMMAND_INPUT:
+        elif self._mode == EditorMode.COMMAND_INPUT:
             text = ":"
-        elif self._mode == EditMode.REPLACE:
+        elif self._mode == EditorMode.REPLACE:
             text = "-- REPLACE --"
-        elif self._mode == EditMode.VISUAL_BLOCK:
+        elif self._mode == EditorMode.VISUAL_BLOCK:
             text = "-- VISUAL BLOCK --"
-        elif self._mode == EditMode.VISUAL_LINE:
+        elif self._mode == EditorMode.VISUAL_LINE:
             text = "-- VISUAL LINE --"
-        elif self._mode == EditMode.VISUAL:
+        elif self._mode == EditorMode.VISUAL:
             text = "-- VISUAL --"
-        elif self._mode == EditMode.SEARCH_FORWARD:
+        elif self._mode == EditorMode.SEARCH_FORWARD:
             text = "/"
-        elif self._mode == EditMode.SEARCH_BACKWARD:
+        elif self._mode == EditorMode.SEARCH_BACKWARD:
             text = "?"
         else:
             text = ""
