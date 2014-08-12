@@ -17,6 +17,7 @@ class EditorController:
     def _currentBufferChanged(self, *args):
         self._editor.edit_area.buffer = self._buffer_list.current
         self._editor.status_bar_controller.buffer = self._buffer_list.current
+        self._editor.side_ruler_controller.buffer = self._buffer_list.current
 
     def forceQuit(self):
         gui.VApplication.vApp.exit()

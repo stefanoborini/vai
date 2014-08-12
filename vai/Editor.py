@@ -35,6 +35,10 @@ class Editor(gui.VWidget):
         return self._status_bar_controller
 
     @property
+    def side_ruler_controller(self):
+        return self._side_ruler_controller
+
+    @property
     def controller(self):
         return self._controller
 

@@ -33,8 +33,13 @@ class EditAreaController(core.VObject):
         if buffer is None:
             raise Exception("Cannot set buffer to None")
 
+        if self._buffer is not None:
+            self._buffer.cursor.positionChanged.disconnect(self._cursorPositionChanged)
+            self._buffer.document.contentChanged.disconnect(self._documentContentChanged)
+
         self._buffer = buffer
         self._buffer.cursor.positionChanged.connect(self._cursorPositionChanged)
+        self._buffer.document.contentChanged.connect(self._documentContentChanged)
 
     def handleKeyEvent(self, event):
         if self._buffer is None:
@@ -46,6 +51,25 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
+        if self._global_state.mode == EditorMode.INSERT:
+            self._handleEventInsertMode(event)
+
+        elif self._global_state.mode == EditorMode.COMMAND:
+            self._handleEventCommandMode(event)
+
+        elif self._global_state.mode == EditorMode.REPLACE:
+            self._handleEventReplaceMode(event)
+
+        elif self._global_state.mode == EditorMode.DELETE:
+            self._handleEventDeleteMode(event)
+
+        elif self._global_state.mode == EditorMode.GO:
+            self._handleEventGoMode(event)
+
+        elif self._global_state.mode == EditorMode.YANK:
+            self._handleEventYankMode(event)
+
+        self._edit_area.update()
 
     def _handleDirectionalKey(self, event):
         buffer = self._buffer
@@ -70,162 +94,28 @@ class EditAreaController(core.VObject):
         doc_cursor = buffer.cursor
 
         if direction == MoveDirection.UP:
-#            if self._visual_cursor_pos[1] == 0:
-#                self.scrollUp()
             doc_cursor.toLinePrev()
         elif direction == MoveDirection.DOWN:
-#            if self._visual_cursor_pos[1] == self.height()-1:
-#                self.scrollDown()
             doc_cursor.toLineNext()
         elif direction == MoveDirection.LEFT:
-#            if self._visual_cursor_pos[0] == 0:
-#                self.scrollPageLeft()
             doc_cursor.toCharPrev()
         elif direction == MoveDirection.RIGHT:
-#            if self._visual_cursor_pos[0] == self.width()-1:
-#                self.scrollPageRight()
             doc_cursor.toCharNext()
         elif direction == MoveDirection.END:
             doc_cursor.toLineEnd()
         elif direction == MoveDirection.HOME:
             doc_cursor.toLineBeginning()
         elif direction == MoveDirection.PAGE_UP:
-#            self.scrollPageUp()
-            doc_cursor.toLine(buffer.edit_area_model.document_pos_at_top[0])
+            doc_cursor.toLine(max( buffer.edit_area_model.document_pos_at_top[0]-self._edit_area.height(),
+                                    1)
+                            )
         elif direction == MoveDirection.PAGE_DOWN:
-#            self.scrollPageDown()
-            doc_cursor.toLine(buffer.edit_area_model.document_pos_at_top[0])
+            doc_cursor.toLine( min( buffer.edit_area_model.document_pos_at_top[0]+self._edit_area.height(),
+                                    buffer.document.numLines()))
         else:
             raise Exception("Unknown direction flag %s", str(direction))
 
     def _cursorPositionChanged(self, *args):
-        print( "cursor position changed")
-
-
-
-
-
-
-
-"""
-        if self._global_state.mode == EditorMode.INSERT:
-            self._handleEventInsertMode(event)
-
-        elif self._global_state.mode == EditorMode.COMMAND:
-            self._handleEventCommandMode(event)
-
-        elif self._global_state.mode == EditorMode.REPLACE:
-            self._handleEventReplaceMode(event)
-
-        elif self._global_state.mode == EditorMode.DELETE:
-            self._handleEventDeleteMode(event)
-
-        elif self._global_state.mode == EditorMode.GO:
-            self._handleEventGoMode(event)
-
-        elif self._global_state.mode == EditorMode.YANK:
-            self._handleEventYankMode(event)
-
-        self._edit_area.update()
-"""
-"""
-    def scrollDown(self):
-        buffer = self._buffer
-
-        if buffer is None:
-            return
-
-        top_pos = buffer.edit_area_model.document_pos_at_top
-
-        if top_pos[0] + self.height() > buffer.document.numLines():
-            return
-
-        new_pos = (top_pos[0]+1, top_pos[1])
-        buffer.edit_area_model.document_pos_at_top = new_pos
-
-        self.update()
-
-"""
-"""
-    def scrollUp(self):
-        buffer = self._buffer
-
-        if buffer is None:
-            return
-
-        top_pos = buffer.edit_area_model.document_pos_at_top
-        if top_pos[0] == 1:
-            return
-
-        new_pos = (top_pos[0]-1, top_pos[1])
-        buffer.edit_area_model.document_pos_at_top = new_pos
-        self.update()
-
-"""
-"""
-    def scrollPageUp(self):
-        buffer = self._buffer
-
-        if buffer is None:
-            return
-
-        top_pos = buffer.edit_area_model.document_pos_at_top
-        new_pos = (top_pos[0]-self.height()+2, top_pos[1])
-        if new_pos[0] < 1:
-           new_pos = (1, top_pos[1])
-
-        buffer.edit_area_model.document_pos_at_top = new_pos
-        self.update()
-
-"""
-"""
-    def scrollPageDown(self):
-        buffer = self._buffer
-
-        if buffer is None:
-            return
-
-        top_pos = buffer.edit_area_model.document_pos_at_top
-        new_pos = (top_pos[0]+self.height()-2, top_pos[1])
-        if new_pos[0] > buffer.document.numLines():
-            new_pos = (buffer.document.numLines(),  top_pos[1])
-
-        buffer.edit_area_model.document_pos_at_top = new_pos
-        self.update()
-
-"""
-"""
-    def scrollPageLeft(self):
-        buffer = self._global_state.buffer_list.current
-
-        if buffer is None:
-            return
-
-        top_pos = buffer.edit_area_model.document_pos_at_top
-        new_pos = (top_pos[0], top_pos[1]-int(self.width()/2))
-        if new_pos[1] < 1:
-           new_pos = (top_pos[0], 1)
-
-        buffer.edit_area_model.document_pos_at_top = new_pos
-        self.update()
-
-"""
-"""
-    def scrollPageRight(self):
-        buffer = self._global_state.buffer_list.current
-
-        if buffer is None:
-            return
-
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
-        new_pos = (top_pos[0], top_pos[1]+int(self.width()/2))
-
-        buffer.edit_area_model.document_pos_at_top = new_pos
-        self.update()
-
-"""
-"""
-    def ensureCursorVisible(self):
         # There are multiple zones where the cursor can be, and the behavior is
         # different depending where the cursor is relative to the viewport area.
         # if the cursor is within 1 position above or below the visible area,
@@ -245,28 +135,34 @@ class EditAreaController(core.VObject):
         if doc_cursor_pos[0] == top_pos[0] - 1:
             # Cursor is just outside the top border, scroll one
             new_top_pos = (top_pos[0]-1, top_pos[1])
-        elif doc_cursor_pos[0] == top_pos[0] + self.height():
+        elif doc_cursor_pos[0] == top_pos[0] + self._edit_area.height():
             new_top_pos = (top_pos[0]+1, top_pos[1])
         elif doc_cursor_pos[0] < top_pos[0] - 1 \
-            or doc_cursor_pos[0] > top_pos[0] + self.height():
+            or doc_cursor_pos[0] > top_pos[0] + self._edit_area.height():
             # Cursor is far away. Put the line in the center
-            new_top_pos = (doc_cursor_pos[0]-int(self.height()/2), new_top_pos[1])
+            new_top_pos = (doc_cursor_pos[0]-int(self._edit_area.height()/2), new_top_pos[1])
 
         # Now check horizontal positioning. This is easier because
         # We never scroll 1
         if doc_cursor_pos[1] < top_pos[1] or \
-            doc_cursor_pos[1] > top_pos[1] + self.width():
-            new_top_pos = (new_top_pos[0], doc_cursor_pos[1] - int(self.width()/2))
+            doc_cursor_pos[1] > top_pos[1] + self._edit_area.width():
+            new_top_pos = (new_top_pos[0], doc_cursor_pos[1] - int(self._edit_area.width()/2))
 
         #
         new_top_pos = ( max(1, new_top_pos[0]), new_top_pos[1])
         buffer.edit_area_model.document_pos_at_top = new_top_pos
-        self.update()
+        self._edit_area.visual_cursor_pos = ( doc_cursor_pos[1]-new_top_pos[1],
+                                              doc_cursor_pos[0]-new_top_pos[0]
+                                              )
 
-"""
-"""
+        self._edit_area.update()
+
+    def _documentContentChanged(self, *args):
+        self._edit_area.update()
+
     # Private
 
+"""
     def _handleEventInsertMode(self, event):
         buffer = self._buffer
 
