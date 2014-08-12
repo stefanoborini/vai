@@ -1,3 +1,4 @@
+import os
 from vaitk import core
 from .Buffer import Buffer
 

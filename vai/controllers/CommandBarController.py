@@ -1,27 +1,28 @@
 from .. import models
 
 class CommandBarController:
-    def __init__(self, command_bar, editor_controller, edit_mode):
+    def __init__(self, command_bar, edit_area, editor_controller, global_state):
         self._command_bar = command_bar
+        self._edit_area = edit_area
         self._editor_controller = editor_controller
-        self._edit_mode = edit_mode
+        self._global_state = global_state
 
         self._command_bar.returnPressed.connect(self._parseCommandBar)
         self._command_bar.escapePressed.connect(self._abortCommandBar)
 
-        self._edit_mode.changed.connect(self._modeChanged)
+        self._global_state.editorModeChanged.connect(self._modeChanged)
 
     # Private
 
     def _parseCommandBar(self):
-        command_text = self._command_bar.commandText().strip()
-        mode = self._edit_mode.mode
+        command_text = self._command_bar.command_text
+        mode = self._global_state.editor_mode
 
-        if mode == models.EditMode.COMMAND_INPUT:
+        if mode == models.EditorMode.COMMAND_INPUT:
             if command_text == 'q!':
                 self._editor_controller.forceQuit()
             elif command_text == 'q':
-                self._editor_controller.quit()
+                self._editor_controller.tryQuit()
             elif command_text == "w":
                 self._editor_controller.doSave()
             elif command_text == "wq":
@@ -32,22 +33,22 @@ class CommandBarController:
                 self._editor_controller.selectPrevBuffer()
             elif command_text.startswith("bn"):
                 self._editor_controller.selectNextBuffer()
-        elif mode == models.EditMode.SEARCH_FORWARD:
+        elif mode == models.EditorMode.SEARCH_FORWARD:
                 self._editor_controller.searchForward(command_text)
-        elif mode == models.EditMode.SEARCH_BACKWARD:
+        elif mode == models.EditorMode.SEARCH_BACKWARD:
                 self._editor_controller.searchBackward(command_text)
 
         self._command_bar.clear()
-        self._edit_mode.mode = flags.COMMAND_MODE
+        self._global_state.editor_mode = models.EditorMode.COMMAND
         self._edit_area.setFocus()
 
     def _abortCommandBar(self):
         self._command_bar.clear()
-        self._edit_mode.mode = flags.COMMAND_MODE
+        self._global_state.editor_mode = models.EditorMode.COMMAND
         self._edit_area.setFocus()
 
     def _modeChanged(self, *args):
-        self._command_bar.setMode(self._edit_mode.mode)
+        self._command_bar.mode = self._global_state.editor_mode
 
 
         #QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):
