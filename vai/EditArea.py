@@ -40,10 +40,6 @@ class EditArea(gui.VWidget):
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
 
-        self.cursorPositionChanged = core.VSignal(self)
-
-        self.update()
-
     @property
     def buffer(self):
         return self._buffer
