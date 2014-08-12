@@ -35,8 +35,6 @@ class BufferList(core.VObject):
 
                 return buffer
 
-
-
     def select(self, buffer):
         if buffer not in self._buffers:
             raise Exception("Buffer not in BufferList")

@@ -1,8 +1,8 @@
 from .BufferList import BufferList
 from .Buffer import Buffer
 from .EditAreaModel import EditAreaModel
-from .EditorModel import EditorModel
+from .GlobalState import GlobalState
 from .TextDocumentCursor import TextDocumentCursor
 from .TextDocument import TextDocument
-from .EditMode import EditMode
+from .EditorMode import EditorMode
 

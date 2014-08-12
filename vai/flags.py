@@ -1,12 +1,10 @@
-( UP,
-  DOWN,
-  LEFT,
-  RIGHT,
-  HOME,
-  END,
-  PAGE_UP,
-  PAGE_DOWN
-) = list(range(8))
+class MoveDirection:
+    UP = 1
+    DOWN = 2
+    LEFT = 3
+    RIGHT = 4
+    HOME = 5
+    END = 6
+    PAGE_UP = 7
+    PAGE_DOWN = 8
 
-(FORWARD,
- BACKWARD) = list(range(2))
