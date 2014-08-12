@@ -95,8 +95,9 @@ class EditArea(gui.VWidget):
             # Get the relevant text
             line_text = document.lineText(doc_line_num)[pos_at_top[1]-1:]
             painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
-            """
+
             # Apply colors. First through the Lexer designation
+            """
             char_meta = document.charMeta( (doc_line_num,1))
             colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken, [])]
 
