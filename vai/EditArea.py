@@ -40,6 +40,7 @@ class EditArea(gui.VWidget):
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
 
+    # properties
     @property
     def buffer(self):
         return self._buffer
@@ -62,6 +63,8 @@ class EditArea(gui.VWidget):
         pos_y = utils.clamp(cursor_pos[1], 0, self.height()-1)
         self._visual_cursor_pos = (pos_x, pos_y)
         gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
+
+
 
     def paintEvent(self, event):
         painter = gui.VPainter(self)
@@ -97,9 +100,10 @@ class EditArea(gui.VWidget):
             painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
 
             # Apply colors. First through the Lexer designation
-            """
+            colors = [(None, None)]*len(line_text)
             char_meta = document.charMeta( (doc_line_num,1))
-            colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken, [])]
+            if CharMeta.LexerToken in char_meta:
+                colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken)]
 
             # Then, if there's a word, replace (None, None) entries with the highlight color
             word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]
@@ -108,7 +112,6 @@ class EditArea(gui.VWidget):
                     if colors[pos] == (None, None):
                         colors[pos] = (gui.VGlobalColor.red, None)
             painter.recolor((0, visual_line_num), colors[pos_at_top[1]-1:])
-            """
 
         self.visual_cursor_pos = (cursor_pos[1]-pos_at_top[1], cursor_pos[0]-pos_at_top[0])
 

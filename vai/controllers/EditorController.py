@@ -1,5 +1,4 @@
 from vaitk import core, gui
-from .. import flags
 from .. import Search
 from .. import linting
 from ..Lexer import Lexer
@@ -41,9 +40,8 @@ class EditorController:
                 search_text = self._global_state.current_search[0]
 
         if search_text != '':
-            self._global_state.current_search = (search_text, flags.FORWARD)
-            Search.find(self.buffer_list.current, search_text, flags.FORWARD)
-            self._editor.edit_area.ensureCursorVisible()
+            self._global_state.current_search = (search_text, Search.SearchDirection.FORWARD)
+            Search.find(self._buffer_list.current, search_text, Search.SearchDirection.FORWARD)
 
     def searchBackward(self, search_text):
         if search_text == '':
@@ -51,9 +49,8 @@ class EditorController:
                 search_text = self._global_state.current_search[0]
 
         if search_text != '':
-            self._global_state.current_search = (search_text, flags.BACKWARD)
-            Search.find(self.buffer_list.current, search_text, flags.BACKWARD)
-            self._editor.edit_area.ensureCursorVisible()
+            self._global_state.current_search = (search_text, Search.SearchDirection.BACKWARD)
+            Search.find(self._buffer_list.current, search_text, Search.SearchDirection.BACKWARD)
 
     def selectPrevBuffer(self):
         self._buffer_list.selectPrev()

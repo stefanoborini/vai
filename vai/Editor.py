@@ -30,6 +30,12 @@ class Editor(gui.VWidget):
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar, self._global_state, self._buffer_list)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
 
+    def show(self):
+        super().show()
+        self._edit_area.setFocus()
+
+    # properties
+
     @property
     def status_bar(self):
         return self._status_bar
@@ -49,10 +55,6 @@ class Editor(gui.VWidget):
     @property
     def controller(self):
         return self._controller
-
-    def show(self):
-        super().show()
-        self._edit_area.setFocus()
 
     # Private
 
