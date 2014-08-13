@@ -18,6 +18,7 @@ class EditorController:
         self._editor.edit_area.buffer = self._buffer_list.current
         self._editor.status_bar_controller.buffer = self._buffer_list.current
         self._editor.side_ruler_controller.buffer = self._buffer_list.current
+        self._editor.info_hover_box.buffer = self._buffer_list.current
 
     def forceQuit(self):
         gui.VApplication.vApp.exit()
