@@ -49,6 +49,9 @@ class StatusBar(gui.VLabel):
         else:
             filename = self._filename
 
+        if len(filename) > int(self.width()/2):
+            filename = "<"+filename[-int(self.width()/2):]
+
         if self._message == "":
             self.setText(utils.strformat([(0, filename),
                                           (len(filename)+1, '[+]' if self._file_changed_flag else '   '),
