@@ -4,8 +4,8 @@ from ..models.TextDocument import LineMeta
 
 class DeleteToEndOfLineCommand(BufferCommand):
     def execute(self):
-        cursor = self._buffer.documentCursor()
-        document = self._buffer.document()
+        cursor = self._buffer.cursor
+        document = self._buffer.document
         pos = cursor.pos
 
         self.saveCursorPos()
@@ -15,7 +15,7 @@ class DeleteToEndOfLineCommand(BufferCommand):
         if not LineMeta.Change in line_meta:
             document.updateLineMeta(pos[0], {LineMeta.Change: "modified"})
 
-        deleted = document.deleteChars(self._pos, document.lineLength(pos[0])-pos[1])
+        deleted = document.deleteChars(pos, document.lineLength(pos[0])-pos[1])
         cursor.toCharPrev()
         return CommandResult(success=True, info=deleted)
 

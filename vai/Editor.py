@@ -6,7 +6,7 @@ from . import controllers
 
 from .EditArea import EditArea
 from .EditAreaEventFilter import EditAreaEventFilter
-import logging
+from .InfoHoverBox import InfoHoverBox
 
 
 class Editor(gui.VWidget):
@@ -21,6 +21,7 @@ class Editor(gui.VWidget):
         self._createCommandBar()
         self._createSideRuler()
         self._createEditArea()
+        self._createInfoHoverBox()
 
         self._status_bar_controller = controllers.StatusBarController(self._status_bar)
         self._status_bar_controller.buffer = self._buffer_list.current
@@ -29,6 +30,7 @@ class Editor(gui.VWidget):
         self._command_bar_controller = controllers.CommandBarController(self._command_bar, self._edit_area, self._controller, self._global_state)
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar, self._global_state, self._buffer_list)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
+        self._info_hover_box.buffer = self._buffer_list.current
 
     def show(self):
         super().show()
@@ -56,6 +58,10 @@ class Editor(gui.VWidget):
     def controller(self):
         return self._controller
 
+    @property
+    def info_hover_box(self):
+        return self._info_hover_box
+
     # Private
 
     def _createStatusBar(self):
@@ -79,16 +85,6 @@ class Editor(gui.VWidget):
         self._edit_area.move( (4, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
 
+    def _createInfoHoverBox(self):
+        self._info_hover_box = InfoHoverBox(self)
 
-    """
-    def _showInfoHoverBoxIfNeeded(self, document_pos):
-        current_buffer = self._model.buffer_list.current
-        pos_at_top = current_buffer.edit_area_model.document_pos_at_top
-
-        badge = self._side_ruler.badge(document_pos[0])
-
-        if badge is not None:
-            gui.VToolTip.showText((0, document_pos[0]-pos_at_top[0]+1), badge.description)
-        else:
-            gui.VToolTip.hide()
-    """
