@@ -1,11 +1,19 @@
 from ..widgets import LineBadge
 from ..linting import LinterResult
 from ..models.TextDocument import LineMeta
+from ..models import Configuration
+from ..Utils import stringToColor
 from vaitk import gui
 
 class SideRulerController:
     def __init__(self, side_ruler):
         self._side_ruler = side_ruler
+        config = Configuration.instance()
+
+        self._side_ruler.setColors(stringToColor(config["colors.side_ruler.fg"]),
+                                   stringToColor(config["colors.side_ruler.bg"])
+                                  )
+
         self._buffer = None
 
     @property

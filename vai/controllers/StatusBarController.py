@@ -1,6 +1,13 @@
+from ..models import Configuration
+from ..Utils import stringToColor
+
 class StatusBarController(object):
     def __init__(self, status_bar):
         self._status_bar = status_bar
+        config = Configuration.instance()
+        self._status_bar.setColors(stringToColor(config["colors.status_bar.fg"]),
+                                   stringToColor(config["colors.status_bar.bg"])
+                                  )
         self._buffer = None
 
     @property
