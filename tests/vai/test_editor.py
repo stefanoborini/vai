@@ -1,6 +1,7 @@
 import unittest
 from vaitk import gui, test, core
 from vai import Editor
+from vai.models import BufferList, GlobalState
 
 class TestEditor(unittest.TestCase):
     def setUp(self):
@@ -14,7 +15,7 @@ class TestEditor(unittest.TestCase):
         del self.app
 
     def testEditor(self):
-        ed = Editor.Editor(None)
+        ed = Editor.Editor(GlobalState(), BufferList())
         self.app.processEvents()
         self.screen.dump()
 

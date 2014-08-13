@@ -1,10 +1,10 @@
 import unittest
 from unittest.mock import Mock
 from vaitk import gui, test, core
-from vai.EditAreaController import EditAreaController
+from vai.controllers import EditAreaController
 from vai.EditArea import EditArea
-from vai.models.EditorModel import EditorModel
-from vai.models.Buffer import Buffer
+from vai.models import GlobalState
+from vai.models import Buffer
 from vaitk.gui import events
 import vaitk
 from vai import flags

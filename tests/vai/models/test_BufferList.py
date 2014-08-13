@@ -1,21 +1,22 @@
 import unittest
-from vai.models.Buffer import Buffer
-from vai.models.BufferList import BufferList
+from vai.models import Buffer
+from vai.models import BufferList
 from unittest.mock import Mock
 
 class TestBufferList(unittest.TestCase):
     def testBufferInit(self):
 
         buffer_list = BufferList()
-        self.assertEqual(len(buffer_list.buffers), 0)
-        self.assertIsNone(buffer_list.current)
+        self.assertEqual(len(buffer_list.buffers), 1)
+        self.assertIsNotNone(buffer_list.current)
 
     def testAdd(self):
         b = Mock(spec=Buffer)
         blist = BufferList()
+
         self.assertEqual(blist.add(b), b)
 
-        self.assertEqual(len(blist.buffers), 1)
+        self.assertEqual(len(blist.buffers), 2)
 
     def testSelection(self):
         b1 = Mock(spec=Buffer)
@@ -23,7 +24,8 @@ class TestBufferList(unittest.TestCase):
         blist = BufferList()
 
         self.assertEqual(blist.add(b1), b1)
-        self.assertIsNone(blist.current)
+        self.assertIsNotNone(blist.current)
+        self.assertIsNot(blist.current, b1)
 
         self.assertEqual(blist.addAndSelect(b2), b2)
         self.assertEqual(blist.current, b2)
@@ -37,15 +39,9 @@ class TestBufferList(unittest.TestCase):
         b3 = Mock(spec=Buffer)
         blist = BufferList()
 
-        blist.add(b1)
+        blist.replaceAndSelect(blist.current, b1)
         blist.add(b2)
         blist.add(b3)
-
-        self.assertIsNone(blist.current)
-        self.assertIsNone(blist.selectPrev())
-        self.assertIsNone(blist.current)
-        self.assertIsNone(blist.selectNext())
-        self.assertIsNone(blist.current)
 
         blist.select(b2)
         self.assertEqual(blist.selectNext(), b3)
@@ -73,7 +69,7 @@ class TestBufferList(unittest.TestCase):
 
         blist.add(b1)
         blist.add(b2)
-        self.assertIsNone(blist.current)
+        self.assertIsNotNone(blist.current)
 
         self.assertEqual(blist.replaceAndSelect(b2, b3), b3)
         self.assertEqual(blist.current, b3)
