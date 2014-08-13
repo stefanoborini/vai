@@ -7,13 +7,13 @@ class TestSearch(unittest.TestCase):
     def testSearch(self):
         buffer = fixtures.buffer("real_case_editareacontroller.py")
         self.assertEqual(buffer.cursor.pos, (1,1))
-        Search.find(buffer, 'Key', direction=flags.FORWARD)
+        Search.find(buffer, 'Key', direction=Search.SearchDirection.FORWARD)
         self.assertEqual(buffer.cursor.pos, (8,28))
-        Search.find(buffer, 'Key', direction=flags.FORWARD)
+        Search.find(buffer, 'Key', direction=Search.SearchDirection.FORWARD)
         self.assertEqual(buffer.cursor.pos, (8,32))
-        Search.find(buffer, 'Key', direction=flags.FORWARD)
+        Search.find(buffer, 'Key', direction=Search.SearchDirection.FORWARD)
         self.assertEqual(buffer.cursor.pos, (9,28))
-        Search.find(buffer, 'Key', direction=flags.BACKWARD)
+        Search.find(buffer, 'Key', direction=Search.SearchDirection.BACKWARD)
         self.assertEqual(buffer.cursor.pos, (8,32))
 
     def testFindAll(self):

@@ -11,7 +11,7 @@ def get(name, dirname="fixtures"):
             return os.path.join(os.path.dirname(frame_info[1]), dirname, name)
 
 def buffer(name):
-    buf = Buffer.Buffer()
+    buf = Buffer()
     buf.document.open(get(name))
     return buf
 

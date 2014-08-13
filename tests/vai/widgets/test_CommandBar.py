@@ -1,7 +1,7 @@
 import unittest
 from vaitk import test, gui, core
 from vai.widgets import CommandBar
-from vai import flags
+from vai.models import EditorMode
 
 class CommandBarTest(unittest.TestCase):
     def setUp(self):
@@ -18,10 +18,10 @@ class CommandBarTest(unittest.TestCase):
         bar = CommandBar(parent=None)
         bar.setGeometry((0,0,100,1))
         bar.show()
-        bar.mode = flags.INSERT_MODE
+        bar.mode = EditorMode.INSERT
         self.app.processEvents()
         self.assertEqual(self.screen.stringAt(0,0,12),  "-- INSERT --")
-        bar.mode = flags.COMMAND_MODE
+        bar.mode = EditorMode.COMMAND
         self.app.processEvents()
         self.assertEqual(self.screen.stringAt(0,0,12),  "            ")
 
