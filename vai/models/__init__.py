@@ -5,4 +5,5 @@ from .GlobalState import GlobalState
 from .TextDocumentCursor import TextDocumentCursor
 from .TextDocument import TextDocument
 from .EditorMode import EditorMode
+from .Configuration import Configuration
 

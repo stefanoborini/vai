@@ -14,6 +14,7 @@ class SideRuler(gui.VWidget):
 
     def paintEvent(self, event):
         w, h = self.size()
+        current_fg, current_bg = self.currentColors()
         painter = gui.VPainter(self)
         painter.erase()
         num_digits = self._lineNumberWidth()
@@ -21,10 +22,10 @@ class SideRuler(gui.VWidget):
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
-            painter.bg_color = gui.VGlobalColor.blue
+            painter.bg_color = current_bg
 
             if current > self._num_rows:
-                painter.fg_color = gui.VGlobalColor.blue
+                painter.fg_color = current_fg
                 painter.drawText( (0, i), "~".ljust(num_digits)+" "+border)
                 continue
 
@@ -32,7 +33,7 @@ class SideRuler(gui.VWidget):
             if badge is not None:
                 badge_mark = badge.marker
                 painter.bg_color = badge.bg_color
-            painter.fg_color = gui.VGlobalColor.yellow
+            painter.fg_color = current_fg
             painter.drawText( (0, i),
                               str(current).rjust(num_digits) + badge_mark + border,
                               )
