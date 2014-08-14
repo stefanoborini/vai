@@ -8,7 +8,7 @@ class CommandBar(gui.VWidget):
         self.returnPressed = core.VSignal(self)
         self.escapePressed = core.VSignal(self)
 
-        self._mode = EditorMode.COMMAND
+        self._editor_mode = EditorMode.COMMAND
 
         self._state_label = gui.VLabel(parent=self)
         self._state_label.setGeometry((0,0,1,1))
@@ -20,23 +20,23 @@ class CommandBar(gui.VWidget):
         self._updateText()
 
     @property
-    def mode(self):
-        return self._mode
+    def editor_mode(self):
+        return self._editor_mode
 
-    @mode.setter
-    def mode(self, mode):
-        self._mode = mode
+    @editor_mode.setter
+    def editor_mode(self, editor_mode):
+        self._editor_mode = editor_mode
         self._updateText()
 
-    def setMode(self, mode):
-        self.mode = mode
+    def setEditorMode(self, editor_mode):
+        self.editor_mode = editor_mode
 
     @property
     def command_text(self):
         return self._line_edit.text().strip()
 
     def clear(self):
-        self._mode = EditorMode.COMMAND
+        self._editor_mode = EditorMode.COMMAND
         self._line_edit.clear()
         self._updateText()
 
@@ -56,21 +56,21 @@ class CommandBar(gui.VWidget):
     # Private
 
     def _updateText(self):
-        if self._mode == EditorMode.INSERT:
+        if self._editor_mode == EditorMode.INSERT:
             text = "-- INSERT --"
-        elif self._mode == EditorMode.COMMAND_INPUT:
+        elif self._editor_mode == EditorMode.COMMAND_INPUT:
             text = ":"
-        elif self._mode == EditorMode.REPLACE:
+        elif self._editor_mode == EditorMode.REPLACE:
             text = "-- REPLACE --"
-        elif self._mode == EditorMode.VISUAL_BLOCK:
+        elif self._editor_mode == EditorMode.VISUAL_BLOCK:
             text = "-- VISUAL BLOCK --"
-        elif self._mode == EditorMode.VISUAL_LINE:
+        elif self._editor_mode == EditorMode.VISUAL_LINE:
             text = "-- VISUAL LINE --"
-        elif self._mode == EditorMode.VISUAL:
+        elif self._editor_mode == EditorMode.VISUAL:
             text = "-- VISUAL --"
-        elif self._mode == EditorMode.SEARCH_FORWARD:
+        elif self._editor_mode == EditorMode.SEARCH_FORWARD:
             text = "/"
-        elif self._mode == EditorMode.SEARCH_BACKWARD:
+        elif self._editor_mode == EditorMode.SEARCH_BACKWARD:
             text = "?"
         else:
             text = ""
