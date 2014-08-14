@@ -8,7 +8,7 @@ class TestConfiguration(unittest.TestCase):
 
     def testDefaultInit(self):
         config = Configuration.instance()
-        self.assertEqual(config['colors.linter_tooltip.fg'], 'yellow')
+        self.assertEqual(config['colors.status_bar.fg'], 'cyan')
 
     def testInitFromFile(self):
 
@@ -16,7 +16,7 @@ class TestConfiguration(unittest.TestCase):
 
         config = Configuration.initFromFile(filename)
 
-        self.assertEqual(config['colors.linter_tooltip.fg'], 'red')
+        self.assertEqual(config['colors.status_bar.fg'], 'red')
 
 
 
