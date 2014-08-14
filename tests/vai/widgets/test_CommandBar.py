@@ -18,10 +18,10 @@ class CommandBarTest(unittest.TestCase):
         bar = CommandBar(parent=None)
         bar.setGeometry((0,0,100,1))
         bar.show()
-        bar.mode = EditorMode.INSERT
+        bar.editor_mode = EditorMode.INSERT
         self.app.processEvents()
         self.assertEqual(self.screen.stringAt(0,0,12),  "-- INSERT --")
-        bar.mode = EditorMode.COMMAND
+        bar.editor_mode = EditorMode.COMMAND
         self.app.processEvents()
         self.assertEqual(self.screen.stringAt(0,0,12),  "            ")
 
