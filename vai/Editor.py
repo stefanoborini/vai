@@ -24,13 +24,12 @@ class Editor(gui.VWidget):
         self._createInfoHoverBox()
 
         self._status_bar_controller = controllers.StatusBarController(self._status_bar)
-        self._status_bar_controller.buffer = self._buffer_list.current
         self._side_ruler_controller = controllers.SideRulerController(self._side_ruler)
-        self._side_ruler_controller.buffer = self._buffer_list.current
         self._command_bar_controller = controllers.CommandBarController(self._command_bar, self._edit_area, self._controller, self._global_state)
         self._edit_area_event_filter = EditAreaEventFilter(self._command_bar, self._global_state, self._buffer_list)
         self._edit_area.installEventFilter(self._edit_area_event_filter)
-        self._info_hover_box.buffer = self._buffer_list.current
+
+        self._controller.registerCurrentBuffer()
 
     def show(self):
         super().show()

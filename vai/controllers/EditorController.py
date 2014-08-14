@@ -2,7 +2,7 @@ from vaitk import core, gui
 from .. import Search
 from .. import linting
 from ..Lexer import Lexer
-from ..models import Buffer
+from ..models import Buffer, TextDocument
 from ..models.TextDocument import LineMeta
 
 class EditorController:
@@ -12,9 +12,9 @@ class EditorController:
         self._buffer_list = buffer_list
         self._lexer = Lexer()
 
-        self._buffer_list.currentBufferChanged.connect(self._currentBufferChanged)
+        self._buffer_list.currentBufferChanged.connect(self.registerCurrentBuffer)
 
-    def _currentBufferChanged(self, *args):
+    def registerCurrentBuffer(self, *args):
         self._editor.edit_area.buffer = self._buffer_list.current
         self._editor.status_bar_controller.buffer = self._buffer_list.current
         self._editor.side_ruler_controller.buffer = self._buffer_list.current
@@ -25,6 +25,10 @@ class EditorController:
 
     def doSave(self):
         self._doSave()
+        self._doLint()
+
+    def doSaveAs(self, filename):
+        self._doSave(filename)
         self._doLint()
 
     def tryQuit(self):
@@ -109,17 +113,27 @@ class EditorController:
         for i in info:
             document.updateLineMeta(i.line, {LineMeta.LinterResult: i})
 
-    def _doSave(self):
+    def _doSave(self, filename=None):
         status_bar = self._editor.status_bar
         document = self._buffer_list.current.document
+
+        if filename is not None and len(filename) == 0:
+            status_bar.setMessage("Error! Unspecified file name.", 3000)
+            return
 
         status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
 
         try:
-            document.save()
+            if filename:
+                document.saveAs(filename)
+            else:
+                document.save()
+        except TextDocument.MissingFilenameException:
+            status_bar.setMessage("Error! Cannot save unnamed file. Please specify a filename with :w filename", 3000)
+            return
         except Exception as e:
-            status_bar.setMessage("Error! Cannot save %s. %s" % (document.filename(), str(e)), 3000)
+            status_bar.setMessage("Error! Cannot save file. %s" % str(e), 3000)
             return
         else:
             status_bar.setMessage("Saved %s" % document.filename(), 3000)

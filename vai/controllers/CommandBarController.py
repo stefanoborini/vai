@@ -10,7 +10,7 @@ class CommandBarController:
         self._command_bar.returnPressed.connect(self._parseCommandBar)
         self._command_bar.escapePressed.connect(self._abortCommandBar)
 
-        self._global_state.editorModeChanged.connect(self._modeChanged)
+        self._global_state.editorModeChanged.connect(self._editorModeChanged)
 
     # Private
 
@@ -25,6 +25,8 @@ class CommandBarController:
                 self._editor_controller.tryQuit()
             elif command_text == "w":
                 self._editor_controller.doSave()
+            elif command_text.startswith("w "):
+                self._editor_controller.doSaveAs(command_text[2:])
             elif command_text == "wq":
                 self._editor_controller.doSaveAndExit()
             elif command_text.startswith("e "):
@@ -47,8 +49,8 @@ class CommandBarController:
         self._global_state.editor_mode = models.EditorMode.COMMAND
         self._edit_area.setFocus()
 
-    def _modeChanged(self, *args):
-        self._command_bar.mode = self._global_state.editor_mode
+    def _editorModeChanged(self, *args):
+        self._command_bar.editor_mode = self._global_state.editor_mode
 
 
         #QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):

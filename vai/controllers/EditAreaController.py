@@ -308,10 +308,10 @@ class EditAreaController(core.VObject):
             command = commands.DeleteSingleCharAfterCommand(buffer)
         elif event.key() == vaitk.Key.Key_O:
             if event.modifiers() == 0:
-                self._global_state.mode = EditorMode.INSERT
+                self._global_state.editor_mode = EditorMode.INSERT
                 command = commands.NewLineAfterCommand(buffer)
             elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                self._global_state.mode = EditorMode.INSERT
+                self._global_state.editor_mode = EditorMode.INSERT
                 command = commands.NewLineCommand(buffer)
         elif event.key() == vaitk.Key.Key_J and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
             command = commands.JoinWithNextLineCommand(buffer)
@@ -343,7 +343,7 @@ class EditAreaController(core.VObject):
             if result.success:
                 buffer.command_history.push(command)
                 self._global_state.clipboard = result.info[2]
-            self._global_state.mode = EditorMode.COMMAND
+            self._global_state.editor_mode = EditorMode.COMMAND
             event.accept()
             return
 
