@@ -1,5 +1,6 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
+from ..models.TextDocument import LineMeta
 
 class InsertLineCommand(BufferCommand):
     def __init__(self, buffer, text):
@@ -14,11 +15,12 @@ class InsertLineCommand(BufferCommand):
         self.saveCursorPos()
 
         document.insertLine(pos[0], self._text)
+        document.updateLineMeta(pos[0], {LineMeta.Change: "added"})
         cursor.toPos((pos[0], 1))
         return CommandResult(True, None)
 
     def undo(self):
-        document.deleteLine(self._saved_cursor_pos[0])
+        self._document.deleteLine(self._saved_cursor_pos[0])
         self.restoreCursorPos()
 
 
