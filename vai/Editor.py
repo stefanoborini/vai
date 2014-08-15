@@ -79,7 +79,7 @@ class Editor(gui.VWidget):
         self._side_ruler.resize( (5, self.height()-2) )
 
     def _createEditArea(self):
-        self._edit_area = EditArea(self._global_state, parent = self)
+        self._edit_area = EditArea(self._global_state, self._controller, parent = self)
         self._edit_area.move( (4, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
 

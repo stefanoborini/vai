@@ -19,10 +19,11 @@ DIRECTIONAL_KEYS = [ vaitk.Key.Key_Up,
                      ]
 
 class EditAreaController(core.VObject):
-    def __init__(self, edit_area, global_state):
+    def __init__(self, edit_area, global_state, editor_controller):
         self._edit_area = edit_area
         self._buffer = None
         self._global_state = global_state
+        self._editor_controller = editor_controller
 
     @property
     def buffer(self):
@@ -68,6 +69,9 @@ class EditAreaController(core.VObject):
 
         elif self._global_state.editor_mode == EditorMode.YANK:
             self._handleEventYankMode(event)
+
+        elif self._global_state.editor_mode == EditorMode.ZETA:
+            self._handleEventZetaMode(event)
 
         self._edit_area.update()
 
@@ -205,7 +209,8 @@ class EditAreaController(core.VObject):
         event.accept()
 
     def _handleEventCommandMode(self, event):
-        # FIXME This code sucks. We need better handling of the state machine
+        # FIXME This code sucks. We need better handling of the state machine.
+
         # No commands. only movement and no-command operations
         buffer = self._buffer
 
@@ -239,6 +244,11 @@ class EditAreaController(core.VObject):
 
         if event.key() == vaitk.Key.Key_Y and event.modifiers() == 0:
             self._global_state.editor_mode = EditorMode.YANK
+            event.accept()
+            return
+
+        if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+            self._global_state.editor_mode = EditorMode.ZETA
             event.accept()
             return
 
@@ -406,3 +416,16 @@ class EditAreaController(core.VObject):
 
         self._global_state.editor_mode = EditorMode.COMMAND
         event.accept()
+
+    def _handleEventZetaMode(self, event):
+        buffer = self._buffer
+
+        if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+            self._editor_controller.doSaveAndExit()
+            event.accept()
+            return
+
+        # Reset if we don't recognize it.
+        self._global_state.editor_mode = EditorMode.COMMAND
+        event.accept()
+        return
