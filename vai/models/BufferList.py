@@ -26,15 +26,22 @@ class BufferList(core.VObject):
             if buffer.document.filename() is None:
                 continue
 
-            if os.path.samefile(
-                    os.path.abspath(
-                        os.path.realpath(
-                            buffer.document.filename()
-                        )
-                    ),
-                    path):
-
+            
+            try:
+                if os.path.samefile(
+                        os.path.abspath(
+                            os.path.realpath(
+                                buffer.document.filename()
+                            )
+                        ), path):
+                    return buffer
+            except:
+                pass
+            
+            if path == buffer.document.filename():
                 return buffer
+        
+        return None
 
     def select(self, buffer):
         if buffer not in self._buffers:
