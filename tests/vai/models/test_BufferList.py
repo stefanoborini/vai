@@ -76,6 +76,17 @@ class TestBufferList(unittest.TestCase):
 
         self.assertNotIn(b2, blist.buffers)
 
+    def testBufferForFilename(self):
+        blist = BufferList()
+        b1 = Mock(spec=Buffer)
+        b2 = Mock(spec=Buffer)
+        b1.document.filename.return_value = "hello"
+        b2.document.filename.return_value = "hihi"
+        blist.add(b1)
+        blist.add(b2)
+        self.assertEqual(blist.bufferForFilename("hello"), b1)
+        self.assertEqual(blist.bufferForFilename("hihi"), b2)
+        self.assertEqual(blist.bufferForFilename("whatever"), None)
 
 if __name__ == '__main__':
     unittest.main()
