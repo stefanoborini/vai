@@ -53,12 +53,3 @@ class CommandBarController:
         self._command_bar.editor_mode = self._global_state.editor_mode
 
 
-        #QQQSBO    def _bufferChanged(self, old_buffer, new_buffer):
-#QQQSBO        self._status_bar_controller.setModels(new_buffer.document, new_buffer.cursor)
-#QQQSBO        self._side_ruler_controller.setModels(new_buffer.document, new_buffer.edit_area_model)
-#QQQSBO        self._edit_area.setModels(new_buffer, self._editor_model)
-#QQQSBO        if old_buffer:
-#QQQSBO            old_buffer.cursor.positionChanged.disconnect(self._showInfoHoverBoxIfNeeded)
-#QQQSBO        new_buffer.cursor.positionChanged.connect(self._showInfoHoverBoxIfNeeded)
-#QQQSBO        self._lexer.setModel(new_buffer.document)
-

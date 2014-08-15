@@ -19,6 +19,8 @@ class EditorController:
         self._editor.status_bar_controller.buffer = self._buffer_list.current
         self._editor.side_ruler_controller.buffer = self._buffer_list.current
         self._editor.info_hover_box.buffer = self._buffer_list.current
+        self._lexer.setModel(self._buffer_list.current.document)
+
 
     def forceQuit(self):
         gui.VApplication.vApp.exit()

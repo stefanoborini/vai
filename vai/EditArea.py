@@ -105,13 +105,15 @@ class EditArea(gui.VWidget):
             # Add markers for the indentation
             indent_spaces = len(line_text)-len(line_text.lstrip())
             for i in range(5, indent_spaces, 4):
-                colors[i-1] = (gui.VGlobalColor.blue, None)
                 line_text = line_text[:i-1]+'.'+line_text[i:]
 
             char_meta = document.charMeta( (doc_line_num,1))
             if CharMeta.LexerToken in char_meta:
                 colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken)]
 
+            for i in range(5, indent_spaces, 4):
+                colors[i-1] = (gui.VGlobalColor.blue, None)
+                
             # Then, if there's a word, replace (None, None) entries with the highlight color
             word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]
             for word_start in word_entries_for_line:
