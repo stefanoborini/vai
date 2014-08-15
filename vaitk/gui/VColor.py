@@ -41,5 +41,6 @@ class VGlobalColor:
     yellow = VColor(rgb=(255,255,0))
     white = VColor(rgb=(255,255,255))
     brown = VColor(rgb=(170,170,0))
+    grey = VColor(rgb=(170,170,170))
 
 

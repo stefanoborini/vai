@@ -97,10 +97,17 @@ class EditArea(gui.VWidget):
 
             # Get the relevant text
             line_text = document.lineText(doc_line_num)[pos_at_top[1]-1:]
-            painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
+            line_text.replace('\n', ' ')
 
             # Apply colors. First through the Lexer designation
             colors = [(None, None)]*len(line_text)
+
+            # Add markers for the indentation
+            indent_spaces = len(line_text)-len(line_text.lstrip())
+            for i in range(5, indent_spaces, 4):
+                colors[i-1] = (gui.VGlobalColor.blue, None)
+                line_text = line_text[:i-1]+'.'+line_text[i:]
+
             char_meta = document.charMeta( (doc_line_num,1))
             if CharMeta.LexerToken in char_meta:
                 colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken)]
@@ -111,6 +118,8 @@ class EditArea(gui.VWidget):
                 for pos in range(word_start-1, word_start-1+len(current_word)):
                     if colors[pos] == (None, None):
                         colors[pos] = (gui.VGlobalColor.red, None)
+
+            painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
             painter.recolor((0, visual_line_num), colors[pos_at_top[1]-1:])
 
         self.visual_cursor_pos = (cursor_pos[1]-pos_at_top[1], cursor_pos[0]-pos_at_top[0])
