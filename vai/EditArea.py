@@ -31,11 +31,11 @@ TOKEN_TO_COLORS = {
 }
 
 class EditArea(gui.VWidget):
-    def __init__(self, global_state, parent):
+    def __init__(self, global_state, editor_controller, parent):
         super().__init__(parent)
         self._buffer = None
 
-        self._controller = controllers.EditAreaController(self, global_state)
+        self._controller = controllers.EditAreaController(self, global_state, editor_controller)
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
