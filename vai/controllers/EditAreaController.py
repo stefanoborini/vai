@@ -17,6 +17,253 @@ DIRECTIONAL_KEYS = [ vaitk.Key.Key_Up,
                      vaitk.Key.Key_End,
                      ]
 
+class CommandState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+        # No commands. only movement and no-command operations
+
+        if event.key() == vaitk.Key.Key_I:
+            if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+                buffer.cursor.toCharFirstNonBlank()
+            return InsertState
+
+        if event.key() == vaitk.Key.Key_G:
+            if event.modifiers() == 0:
+                return GoState
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+                buffer.cursor.toLastLine()
+                buffer.edit_area_model.document_pos_at_top = (max(1,
+                                                                    buffer.cursor.pos[0]
+                                                                  - edit_area.height()
+                                                                  + 1),
+                                                                 1
+                                                             )
+                return CommandState
+
+            return UnknownState
+
+        if event.key() == vaitk.Key.Key_D and event.modifiers() == 0:
+            return DeleteState
+
+        if event.key() == vaitk.Key.Key_Y and event.modifiers() == 0:
+            return YankState
+
+        if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+            return ZetaState
+
+        if event.key() == vaitk.Key.Key_Dollar:
+            buffer.cursor.toLineEnd()
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_AsciiCircum:
+            buffer.cursor.toLineBeginning()
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_U:
+            if len(buffer.command_history):
+                command = buffer.command_history.pop()
+                command.undo()
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_A:
+            if event.modifiers() == 0:
+                buffer.cursor.toCharNext()
+                return InsertState
+
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+                buffer.cursor.toLineEnd()
+                return InsertState
+
+            return UnknownState
+
+        if event.key() == vaitk.Key.Key_N:
+            if global_state.current_search is not None:
+                text, direction = global_state.current_search
+                if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+                    direction = {Search.SearchDirection.FORWARD: Search.SearchDirection.BACKWARD,
+                                 Search.SearchDirection.BACKWARD: Search.SearchDirection.FORWARD}[direction]
+
+                Search.find(buffer, text, direction)
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_Asterisk:
+            word_at, word_pos = buffer.document.wordAt(buffer.cursor.pos)
+            if word_pos is not None:
+                global_state.current_search = (word_at, Search.SearchDirection.FORWARD)
+
+            Search.find(buffer, word_at, Search.SearchDirection.FORWARD)
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_R:
+            return ReplaceState
+
+        # Command operations
+        command = None
+        new_state = CommandState
+
+        if (event.key() == vaitk.Key.Key_X and event.modifiers() == 0) or \
+                event.key() == vaitk.Key.Key_Delete:
+            command = commands.DeleteSingleCharAfterCommand(buffer)
+
+        elif event.key() == vaitk.Key.Key_O:
+            if event.modifiers() == 0:
+                new_state = InsertState
+                command = commands.NewLineAfterCommand(buffer)
+            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+                new_state = InsertState
+                command = commands.NewLineCommand(buffer)
+
+        elif event.key() == vaitk.Key.Key_J and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+            command = commands.JoinWithNextLineCommand(buffer)
+
+        elif event.key() == vaitk.Key.Key_D and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+            command = commands.DeleteToEndOfLineCommand(buffer)
+
+        elif event.key() == vaitk.Key.Key_P:
+            if global_state.clipboard is not None:
+                if event.modifiers() == 0:
+                    command = commands.InsertLineAfterCommand(buffer, global_state.clipboard)
+                elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+                    command = commands.InsertLineCommand(buffer, global_state.clipboard)
+
+        if command is not None:
+            result = command.execute()
+            if result.success:
+                buffer.command_history.push(command)
+
+            return new_state
+
+        return UnknownState
+
+class InsertState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+
+        command = None
+        document = buffer.document
+        cursor = buffer.cursor
+
+        if event.key() == vaitk.Key.Key_Escape:
+            return CommandState
+        elif event.key() == vaitk.Key.Key_Backspace:
+            command = commands.DeleteSingleCharCommand(buffer)
+        elif event.key() == vaitk.Key.Key_Delete:
+            command = commands.DeleteSingleCharAfterCommand(buffer)
+        elif event.key() == vaitk.Key.Key_Return:
+            command = commands.BreakLineCommand(buffer)
+        else:
+            if event.key() == vaitk.Key.Key_Tab:
+                if cursor.pos[1] == 1:
+                    text = " "*4
+                else:
+                    prefix = document.wordAt( (cursor.pos[0], cursor.pos[1]-1))
+                    if prefix[1] is None:
+                        text = " "*4
+                    else:
+                        lookup = [x for x in SymbolLookupDb.lookup(prefix[0]) if x != '']
+                        if len(lookup) >= 1:
+                            text = os.path.commonprefix(lookup)
+                        else:
+                            text = ''
+            else:
+                text = event.text()
+
+            if len(text) != 0:
+                command = commands.InsertStringCommand(buffer, text)
+
+        if command is not None:
+            result = command.execute()
+            if result.success:
+                buffer.command_history.push(command)
+
+        return InsertState
+
+class DeleteState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+
+        if event.key() == vaitk.Key.Key_Escape:
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_D:
+            command = commands.DeleteLineAtCursorCommand(buffer)
+            result = command.execute()
+            if result.success:
+                buffer.command_history.push(command)
+                global_state.clipboard = result.info[2]
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_W:
+            command = commands.DeleteToEndOfWordCommand(buffer)
+            result = command.execute()
+            if result.success:
+                buffer.command_history.push(command)
+            return CommandState
+
+        # Reset if we don't recognize it.
+        return CommandState
+
+class YankState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+
+        if event.key() == vaitk.Key.Key_Escape:
+            return CommandState
+
+        if event.key() == vaitk.Key.Key_Y:
+            cursor_pos = buffer.cursor.pos
+            self._global_state.clipboard = buffer.document.lineText(cursor_pos[0])
+            return CommandState
+
+        # Reset if we don't recognize it.
+        return CommandState
+
+class GoState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+
+        if event.key() == vaitk.Key.Key_G:
+            buffer.cursor.toFirstLine()
+
+        return CommandState
+
+class ReplaceState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+
+        if vaitk.isKeyCodePrintable(event.key()):
+            command = commands.ReplaceSingleCharCommand(buffer, event.text())
+            result = command.execute()
+            if result.success:
+                buffer.command_history.push(command)
+
+        return CommandState
+
+class ZetaState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+        if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
+            editor_controller.doSaveAndExit()
+
+        return CommandState
+
+class UnknownState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+        raise Exception("Event delivered to UnknownState")
+
+MODE_TO_STATE = {
+    EditorMode.COMMAND: CommandState,
+    EditorMode.INSERT: InsertState,
+    EditorMode.DELETE: DeleteState,
+    EditorMode.YANK: YankState,
+    EditorMode.GO: GoState,
+    EditorMode.REPLACE: ReplaceState,
+    EditorMode.ZETA: ZetaState
+}
+
+STATE_TO_MODE = { v : k for k,v in MODE_TO_STATE.items() }
+
 class EditAreaController(core.VObject):
     def __init__(self, edit_area, global_state, editor_controller):
         self._edit_area = edit_area
@@ -51,28 +298,17 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
-        if self._global_state.editor_mode == EditorMode.INSERT:
-            self._handleEventInsertMode(event)
-
-        elif self._global_state.editor_mode == EditorMode.COMMAND:
-            self._handleEventCommandMode(event)
-
-        elif self._global_state.editor_mode == EditorMode.REPLACE:
-            self._handleEventReplaceMode(event)
-
-        elif self._global_state.editor_mode == EditorMode.DELETE:
-            self._handleEventDeleteMode(event)
-
-        elif self._global_state.editor_mode == EditorMode.GO:
-            self._handleEventGoMode(event)
-
-        elif self._global_state.editor_mode == EditorMode.YANK:
-            self._handleEventYankMode(event)
-
-        elif self._global_state.editor_mode == EditorMode.ZETA:
-            self._handleEventZetaMode(event)
+        state = MODE_TO_STATE[self._global_state.editor_mode]
+        new_state = state.handleEvent(event, self._buffer, self._global_state, self._edit_area, self._editor_controller)
+        if new_state is UnknownState:
+            self._global_state.editor_mode = STATE_TO_MODE[CommandState]
+        else:
+            self._global_state.editor_mode = STATE_TO_MODE[new_state]
+            event.accept()
 
         self._edit_area.update()
+
+    # Private
 
     def _handleDirectionalKey(self, event):
         buffer = self._buffer
@@ -160,269 +396,9 @@ class EditAreaController(core.VObject):
 
         self._edit_area.update()
 
+
     def _documentContentChanged(self, *args):
         self._edit_area.update()
 
-    # Private
 
-    def _handleEventInsertMode(self, event):
-        buffer = self._buffer
 
-        command = None
-        document = buffer.document
-        cursor = buffer.cursor
-
-        if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.editor_mode = EditorMode.COMMAND
-        elif event.key() == vaitk.Key.Key_Backspace:
-            command = commands.DeleteSingleCharCommand(buffer)
-        elif event.key() == vaitk.Key.Key_Delete:
-            command = commands.DeleteSingleCharAfterCommand(buffer)
-        elif event.key() == vaitk.Key.Key_Return:
-            command = commands.BreakLineCommand(buffer)
-        else:
-            if event.key() == vaitk.Key.Key_Tab:
-                if cursor.pos[1] == 1:
-                    text = " "*4
-                else:
-                    prefix = document.wordAt( (cursor.pos[0], cursor.pos[1]-1))
-                    if prefix[1] is None:
-                        text = " "*4
-                    else:
-                        lookup = [x for x in SymbolLookupDb.lookup(prefix[0]) if x != '']
-                        if len(lookup) >= 1:
-                            text = os.path.commonprefix(lookup)
-                        else:
-                            text = ''
-            else:
-                text = event.text()
-
-            if len(text) != 0:
-                command = commands.InsertStringCommand(buffer, text)
-
-        if command is not None:
-            result = command.execute()
-            if result.success:
-                buffer.command_history.push(command)
-
-        event.accept()
-
-    def _handleEventCommandMode(self, event):
-        # FIXME This code sucks. We need better handling of the state machine.
-
-        # No commands. only movement and no-command operations
-        buffer = self._buffer
-
-        if event.key() == vaitk.Key.Key_I:
-            if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                buffer.cursor.toCharFirstNonBlank()
-            self._global_state.editor_mode = EditorMode.INSERT
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_G:
-            if event.modifiers() == 0:
-                self._global_state.editor_mode = EditorMode.GO
-            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                buffer.cursor.toLastLine()
-                buffer.edit_area_model.document_pos_at_top = (max(1,
-                                                                    buffer.cursor.pos[0]
-                                                                  - self._edit_area.height()
-                                                                  + 1),
-                                                                 1
-                                                             )
-                self._global_state.editor_mode = EditorMode.COMMAND
-
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_D and event.modifiers() == 0:
-            self._global_state.editor_mode = EditorMode.DELETE
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_Y and event.modifiers() == 0:
-            self._global_state.editor_mode = EditorMode.YANK
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-            self._global_state.editor_mode = EditorMode.ZETA
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_Dollar:
-            self._buffer.cursor.toLineEnd()
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_AsciiCircum:
-            self._buffer.cursor.toLineBeginning()
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_U:
-            if len(self._buffer.command_history):
-                command = buffer.command_history.pop()
-                command.undo()
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_A:
-            if event.modifiers() == 0:
-                self._global_state.editor_mode = EditorMode.INSERT
-                self._buffer.cursor.toCharNext()
-
-            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                self._global_state.editor_mode = EditorMode.INSERT
-                self._buffer.cursor.toLineEnd()
-            else:
-                return
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_N:
-            if self._global_state.current_search is None:
-                event.accept()
-                return
-
-            text, direction = self._global_state.current_search
-            if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                direction = {Search.SearchDirection.FORWARD: Search.SearchDirection.BACKWARD,
-                             Search.SearchDirection.BACKWARD: Search.SearchDirection.FORWARD}[direction]
-
-            Search.find(buffer, text, direction)
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_Asterisk:
-            word_at, word_pos = buffer.document.wordAt(buffer.cursor.pos)
-            if word_pos is not None:
-                self._global_state.current_search = (word_at, Search.SearchDirection.FORWARD)
-
-            Search.find(buffer, word_at, Search.SearchDirection.FORWARD)
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_R:
-            self._global_state.editor_mode = EditorMode.REPLACE
-            event.accept()
-            return
-
-        # Command operations
-        command = None
-
-        if (event.key() == vaitk.Key.Key_X and event.modifiers() == 0) or \
-            event.key() == vaitk.Key.Key_Delete:
-            command = commands.DeleteSingleCharAfterCommand(buffer)
-        elif event.key() == vaitk.Key.Key_O:
-            if event.modifiers() == 0:
-                self._global_state.editor_mode = EditorMode.INSERT
-                command = commands.NewLineAfterCommand(buffer)
-            elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                self._global_state.editor_mode = EditorMode.INSERT
-                command = commands.NewLineCommand(buffer)
-        elif event.key() == vaitk.Key.Key_J and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-            command = commands.JoinWithNextLineCommand(buffer)
-        elif event.key() == vaitk.Key.Key_D and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-            command = commands.DeleteToEndOfLineCommand(buffer)
-        elif event.key() == vaitk.Key.Key_P:
-            if self._global_state.clipboard is not None:
-                if event.modifiers() == 0:
-                    command = commands.InsertLineAfterCommand(buffer, self._global_state.clipboard)
-                elif event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                    command = commands.InsertLineCommand(buffer, self._global_state.clipboard)
-        if command is not None:
-            result = command.execute()
-            if result.success:
-                buffer.command_history.push(command)
-            event.accept()
-
-    def _handleEventDeleteMode(self, event):
-        buffer = self._buffer
-
-        if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_D:
-            command = commands.DeleteLineAtCursorCommand(buffer)
-            result = command.execute()
-            if result.success:
-                buffer.command_history.push(command)
-                self._global_state.clipboard = result.info[2]
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_W:
-            command = commands.DeleteToEndOfWordCommand(buffer)
-            result = command.execute()
-            if result.success:
-                buffer.command_history.push(command)
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-        # Reset if we don't recognize it.
-        self._global_state.editor_mode = EditorMode.COMMAND
-        event.accept()
-        return
-
-    def _handleEventYankMode(self, event):
-        buffer = self._buffer
-
-        if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_Y:
-            cursor_pos = buffer.cursor.pos
-            self._global_state.clipboard = buffer.document.lineText(cursor_pos[0])
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-        # Reset if we don't recognize it.
-        self._global_state.editor_mode = EditorMode.COMMAND
-        event.accept()
-        return
-
-    def _handleEventGoMode(self, event):
-        buffer = self._buffer
-
-        if event.key() == vaitk.Key.Key_Escape:
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-        if event.key() == vaitk.Key.Key_G:
-            buffer.cursor.toFirstLine()
-            self._global_state.editor_mode = EditorMode.COMMAND
-            event.accept()
-            return
-
-    def _handleEventReplaceMode(self, event):
-        buffer = self._buffer
-
-        if vaitk.isKeyCodePrintable(event.key()):
-            command = commands.ReplaceSingleCharCommand(buffer, event.text())
-            result = command.execute()
-            if result.success:
-                self._buffer.command_history.push(command)
-
-        self._global_state.editor_mode = EditorMode.COMMAND
-        event.accept()
-
-    def _handleEventZetaMode(self, event):
-        if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-            self._editor_controller.doSaveAndExit()
-            event.accept()
-            return
-
-        # Reset if we don't recognize it.
-        self._global_state.editor_mode = EditorMode.COMMAND
-        event.accept()
-        return
