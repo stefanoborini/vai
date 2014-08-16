@@ -1,7 +1,6 @@
 import vaitk
 import os
 from vaitk import core
-import logging
 from ..models import EditorMode
 from .. import Search
 from .. import commands
@@ -289,8 +288,8 @@ class EditAreaController(core.VObject):
 
             text, direction = self._global_state.current_search
             if event.modifiers() & vaitk.KeyModifier.ShiftModifier:
-                direction = {SearchDirection.FORWARD: SearchDirection.BACKWARD,
-                             SearchDirection.BACKWARD: SearchDirection.FORWARD}[direction]
+                direction = {Search.SearchDirection.FORWARD: Search.SearchDirection.BACKWARD,
+                             Search.SearchDirection.BACKWARD: Search.SearchDirection.FORWARD}[direction]
 
             Search.find(buffer, text, direction)
             event.accept()
@@ -299,9 +298,9 @@ class EditAreaController(core.VObject):
         if event.key() == vaitk.Key.Key_Asterisk:
             word_at, word_pos = buffer.document.wordAt(buffer.cursor.pos)
             if word_pos is not None:
-                self._global_state.current_search = (word_at, SearchDirection.FORWARD)
+                self._global_state.current_search = (word_at, Search.SearchDirection.FORWARD)
 
-            Search.find(buffer, word_at, SearchDirection.FORWARD)
+            Search.find(buffer, word_at, Search.SearchDirection.FORWARD)
             event.accept()
             return
 
@@ -418,8 +417,6 @@ class EditAreaController(core.VObject):
         event.accept()
 
     def _handleEventZetaMode(self, event):
-        buffer = self._buffer
-
         if event.key() == vaitk.Key.Key_Z and event.modifiers() & vaitk.KeyModifier.ShiftModifier:
             self._editor_controller.doSaveAndExit()
             event.accept()
