@@ -182,23 +182,19 @@ class DeleteState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
 
-        if event.key() == vaitk.Key.Key_Escape:
-            return CommandState
-
         if event.key() == vaitk.Key.Key_D:
             command = commands.DeleteLineAtCursorCommand(buffer)
             result = command.execute()
             if result.success:
                 buffer.command_history.push(command)
                 global_state.clipboard = result.info[2]
-            return CommandState
 
         if event.key() == vaitk.Key.Key_W:
             command = commands.DeleteToEndOfWordCommand(buffer)
             result = command.execute()
             if result.success:
                 buffer.command_history.push(command)
-            return CommandState
+                global_state.clipboard = result.info[0]
 
         # Reset if we don't recognize it.
         return CommandState
@@ -248,6 +244,12 @@ class ZetaState:
         return CommandState
 
 class UnknownState:
+    """
+    Represents a transition that is not valid.
+    If a state handler returns UnknownState,
+    it means that the event should not be accepted,
+    and the state should revert to Command
+    """
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
         raise Exception("Event delivered to UnknownState")
@@ -298,8 +300,12 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
-        state = MODE_TO_STATE[self._global_state.editor_mode]
+        state = MODE_TO_STATE.get(self._global_state.editor_mode)
+        if not state:
+            return
+
         new_state = state.handleEvent(event, self._buffer, self._global_state, self._edit_area, self._editor_controller)
+
         if new_state is UnknownState:
             self._global_state.editor_mode = STATE_TO_MODE[CommandState]
         else:
