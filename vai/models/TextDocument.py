@@ -134,6 +134,7 @@ class TextDocument(core.VObject):
             except KeyError:
                 pass
         self.lineMetaInfoDeleted.emit(line_number, keys)
+        self.lineMetaInfoChanged.emit(line_number)
 
     # Char meta
 
@@ -220,6 +221,7 @@ class TextDocument(core.VObject):
         self._contents.insert(line_index+1, ({}, {}, EOL))
         self._setModified(True)
         self.lineCreated.emit(line_index+1)
+        self.lineMetaInfoChanged.emit(line_number)
         self.contentChanged.emit()
 
     def newLine(self, line_number):
@@ -241,6 +243,7 @@ class TextDocument(core.VObject):
         self._setModified(True)
         self.lineCreated.emit(line_number)
         self.contentChanged.emit()
+        self.lineMetaInfoChanged.emit(line_number)
 
     def deleteLine(self, line_number):
         self._checkLineNumber(line_number)
@@ -253,6 +256,7 @@ class TextDocument(core.VObject):
         else:
             self.lineDeleted.emit(line_number)
         self.contentChanged.emit()
+        self.lineMetaInfoChanged.emit(line_number)
 
     def replaceLine(self, line_number, text, line_meta=None, char_meta=None):
         self._checkLineNumber(line_number)
@@ -438,8 +442,8 @@ class TextDocument(core.VObject):
                                 )
 
         self._setModified(True)
-        self.lineMetaInfoChanged.emit(line_number)
         self.lineChanged.emit(line_number)
+        self.lineMetaInfoChanged.emit(line_number)
         self.contentChanged.emit()
         return (deleted_text, deleted_char_meta)
 
@@ -485,8 +489,8 @@ class TextDocument(core.VObject):
                                 )
 
         self._setModified(True)
-        self.lineMetaInfoChanged.emit(line_number)
         self.lineChanged.emit(line_number)
+        self.lineMetaInfoChanged.emit(line_number)
         self.contentChanged.emit()
         return (deleted_text, deleted_char_meta)
 
