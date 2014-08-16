@@ -212,7 +212,7 @@ class YankState:
 
         if event.key() == vaitk.Key.Key_Y:
             cursor_pos = buffer.cursor.pos
-            self._global_state.clipboard = buffer.document.lineText(cursor_pos[0])
+            global_state.clipboard = buffer.document.lineText(cursor_pos[0])
             return CommandState
 
         # Reset if we don't recognize it.
