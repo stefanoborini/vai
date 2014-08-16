@@ -18,16 +18,23 @@ class _KeyEventThread(threading.Thread):
         super().__init__()
         self.daemon = True
         self.stop_event = threading.Event()
+        self.throttle = threading.Event()
         self.exception = None
 
         self._screen = screen
         self._key_event_queue = key_event_queue
         self._event_available_flag = event_available_flag
 
+
     def run(self):
         while not self.stop_event.is_set():
+            last_event = (None, time.time())
             try:
                 c = self._screen.getKeyCode()
+
+#                if last_event[0] == c and time.time()-last_event[1] < 0.04:
+#                    continue
+                last_event = (c, time.time())
 
                 event = events.VKeyEvent.fromNativeKeyCode(c)
                 if event is not None:
@@ -36,6 +43,9 @@ class _KeyEventThread(threading.Thread):
                 else:
                     if hasattr(self, "debug"):
                         logging.info("Unknown key code "+str(c))
+
+                self.throttle.wait()
+                self.throttle.clear()
             except Exception as e:
                 event = _VExceptionEvent(e)
                 self._key_event_queue.put(event)
@@ -73,6 +83,7 @@ class VApplication(core.VCoreApplication):
             self._event_available_flag.clear()
             logging.info("Event available")
             self.processEvents(True)
+            self._key_event_thread.throttle.set()
 
         self._exitCleanup()
 
@@ -214,7 +225,6 @@ class VApplication(core.VCoreApplication):
                    continue
 
             self.logger.info("Data queue %d. Processing %s -> %s." % (self._event_queue.qsize(), str(event), str(receiver)))
-
             receiver.event(event)
             previous_data = (receiver, event)
 
