@@ -27,3 +27,9 @@ class VCoreApplication(VObject):
         Exits the application.
         """
         VCoreApplication.vApp = None
+
+    def sendEvent(self, receiver, event):
+        """
+        Directly send an event to a receiver.
+        """
+        receiver.event(event)
