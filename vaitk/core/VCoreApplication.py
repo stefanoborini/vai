@@ -15,6 +15,10 @@ class VCoreApplication(VObject):
 
         VCoreApplication.vApp = self
 
+    @staticmethod
+    def instance():
+        return VCoreApplication.vApp
+
     def addTimer(self, timer):
         """
         Add a timer to the application.
@@ -22,14 +26,38 @@ class VCoreApplication(VObject):
         """
         self._timers.append(timer)
 
-    def exit(self):
+    @staticmethod
+    def exit():
         """
         Exits the application.
         """
         VCoreApplication.vApp = None
 
-    def sendEvent(self, receiver, event):
+    @staticmethod
+    def sendEvent(receiver, event):
         """
         Directly send an event to a receiver.
         """
-        receiver.event(event)
+        event.setSpontaneous(False)
+        return receiver.event(event)
+
+    @staticmethod
+    def sendSpontaneousEvent(receiver, event):
+        event.setSpontaneous(True)
+        return receiver.event(event)
+
+    @staticmethod
+    def postEvent(receiver, event, priority = None):
+        pass
+
+
+    @staticmethod
+    def processEvents():
+        pass
+
+    def event(self, event):
+        pass
+
+    def compressEvent(event, receiver, post_event_list):
+        pass
+
