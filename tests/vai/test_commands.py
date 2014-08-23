@@ -25,6 +25,15 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.buffer.document.lineMeta(1), {})
         self.assertEqual(self.buffer.cursor.pos, (1,1))
 
+        self.buffer.cursor.toPos((4,7))
+        command = commands.NewLineCommand(self.buffer)
+        status = command.execute()
+        self.assertNotEqual(status, None)
+        self.assertEqual(self.buffer.document.numLines(), 5)
+        self.assertEqual(self.buffer.cursor.pos, (4,5))
+        self.buffer.cursor.toLineNext()
+        self.assertEqual(self.buffer.cursor.pos, (5,5))
+
     def testNewLineAfterCommand(self):
         command = commands.NewLineAfterCommand(self.buffer)
         status = command.execute()
@@ -43,6 +52,16 @@ class TestCommands(unittest.TestCase):
         self.assertEqual(self.buffer.document.lineMeta(1), {})
         self.assertEqual(self.buffer.document.lineMeta(2), {})
         self.assertEqual(self.buffer.cursor.pos, (1,1))
+
+        self.buffer.cursor.toPos((4,7))
+        command = commands.NewLineAfterCommand(self.buffer)
+        status = command.execute()
+        self.assertNotEqual(status, None)
+        self.assertEqual(self.buffer.document.numLines(), 5)
+        self.assertEqual(self.buffer.cursor.pos, (5,5))
+        self.buffer.cursor.toLinePrev()
+        self.assertEqual(self.buffer.cursor.pos, (4,5))
+        command.undo()
 
     def testDeleteLineAtCursorCommand1(self):
         removed_line = self.buffer.document.lineText(1)
