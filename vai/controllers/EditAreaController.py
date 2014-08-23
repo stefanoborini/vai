@@ -383,7 +383,7 @@ class EditAreaController(core.VObject):
             new_top_pos = (new_top_pos[0], doc_cursor_pos[1] - int(self._edit_area.width()/2))
 
         #
-        new_top_pos = ( max(1, new_top_pos[0]), new_top_pos[1])
+        new_top_pos = ( max(1, new_top_pos[0]), max(1,new_top_pos[1]))
         buffer.edit_area_model.document_pos_at_top = new_top_pos
         self._edit_area.visual_cursor_pos = ( doc_cursor_pos[1]-new_top_pos[1],
                                               doc_cursor_pos[0]-new_top_pos[0]
