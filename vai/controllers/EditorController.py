@@ -1,8 +1,10 @@
+import os
+
 from vaitk import core, gui
 from .. import Search
 from .. import linting
 from ..Lexer import Lexer
-from ..models import Buffer, TextDocument
+from ..models import Buffer, TextDocument, EditorState
 from ..models.TextDocument import LineMeta
 
 class EditorController:
@@ -23,6 +25,11 @@ class EditorController:
 
 
     def forceQuit(self):
+        for b in self._buffer_list.buffers:
+            EditorState.instance().setCursorPosForPath(
+                    os.path.abspath(b.document.filename()),
+                    b.cursor.pos)
+        EditorState.instance().save()
         gui.VApplication.vApp.exit()
 
     def doSave(self):
@@ -39,7 +46,7 @@ class EditorController:
                                                "Use :q! to quit without saving " +
                                                "or :qw to save and quit.", 3000)
         else:
-            gui.VApplication.vApp.exit()
+            self.forceQuit()
 
     def searchForward(self, search_text):
         if search_text == '':
@@ -67,7 +74,7 @@ class EditorController:
 
     def doSaveAndExit(self):
         self._doSave()
-        gui.VApplication.vApp.exit()
+        self.forceQuit()
 
     def openFile(self, filename):
         buffer = self._buffer_list.bufferForFilename(filename)
@@ -92,6 +99,10 @@ class EditorController:
             self._buffer_list.replaceAndSelect(current_buffer, new_buffer)
         else:
             self._buffer_list.addAndSelect(new_buffer)
+
+        recovered_cursor_pos = EditorState.instance().cursorPosForPath(os.path.abspath(filename))
+        if recovered_cursor_pos is not None:
+            new_buffer.cursor.toPos(recovered_cursor_pos)
 
         self._doLint()
 
