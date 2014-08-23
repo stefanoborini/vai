@@ -1,6 +1,6 @@
 import os
 
-from vaitk import core, gui
+from vaitk import gui
 from .. import Search
 from .. import linting
 from ..Lexer import Lexer
@@ -113,7 +113,7 @@ class EditorController:
         self._buffer_list.addAndSelect(Buffer())
 
     def setMode(self, mode):
-        self._global_state.edit_mode = EditMode.COMMAND
+        self._global_state.edit_mode = mode
 
     # Private
 

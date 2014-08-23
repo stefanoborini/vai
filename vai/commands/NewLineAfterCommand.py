@@ -16,6 +16,7 @@ class NewLineAfterCommand(BufferCommand):
         document.insertChars( (pos[0]+1, 1), ' '*current_indent )
         document.updateLineMeta(pos[0]+1, {LineMeta.Change: "added"})
         cursor.toLineNext()
+        cursor.toLineEnd()
         return CommandResult(True, None)
 
     def undo(self):
