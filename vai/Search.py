@@ -51,10 +51,11 @@ def find(buffer, text, direction):
     for line_num in range(*first_half):
         start, stop = (None, None)
         if line_num == current_line:
+            # current_col - 1 + 1 = next char
             start, stop = (current_col, None) if direction == SearchDirection.FORWARD else (None, current_col)
 
         index = getattr(document.lineText(line_num), find_routine)(text, start, stop)
-        if index != -1 and index:
+        if index != -1:
             cursor.toPos((line_num, index+1))
             return True
 
@@ -63,6 +64,8 @@ def find(buffer, text, direction):
         start, stop = (None, None)
         if line_num == current_line:
             start, stop = (None, current_col) if direction == SearchDirection.FORWARD else (current_col, None)
+        else:
+            start, stop = (0, None)
 
         index = getattr(document.lineText(line_num), find_routine)(text, start, stop)
 
