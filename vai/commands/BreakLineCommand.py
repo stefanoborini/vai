@@ -48,8 +48,9 @@ class BreakLineCommand(BufferCommand):
 
         if self._sub_command is not None:
             self._sub_command.undo()
+            self._sub_command = None
             return
 
-        self.restoreDocumentMemento()
+        self.restoreLineMemento()
         self._document.deleteLine(self._cursor.pos[0]+1)
 

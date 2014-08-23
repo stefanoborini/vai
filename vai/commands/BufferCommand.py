@@ -38,6 +38,7 @@ class BufferCommand(object):
     def undo(self):
         if self._sub_command is not None:
             self._sub_command.undo()
+            self._sub_command = None
             return
 
         for i in range(len(self._line_memento_data)):
