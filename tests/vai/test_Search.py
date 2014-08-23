@@ -37,5 +37,18 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(len(all_finds), 4)
         self.assertEqual(all_finds, [(1, 7, 10), (2, 1, 4), (3, 1, 4), (4, 6, 9)])
 
+    def testBug113Find(self):
+        buffer = fixtures.buffer("bug_113")
+        all_finds = Search.find(buffer, 'all', Search.SearchDirection.FORWARD)
+        self.assertEqual(buffer.cursor.pos, (1,7))
+        all_finds = Search.find(buffer, 'all', Search.SearchDirection.FORWARD)
+        self.assertEqual(buffer.cursor.pos, (2,1))
+        all_finds = Search.find(buffer, 'all', Search.SearchDirection.FORWARD)
+        self.assertEqual(buffer.cursor.pos, (3,1))
+        all_finds = Search.find(buffer, 'all', Search.SearchDirection.FORWARD)
+        self.assertEqual(buffer.cursor.pos, (4,6))
+        all_finds = Search.find(buffer, 'all', Search.SearchDirection.FORWARD)
+        self.assertEqual(buffer.cursor.pos, (1,7))
+
 if __name__ == '__main__':
     unittest.main()
