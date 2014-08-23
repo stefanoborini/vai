@@ -30,5 +30,12 @@ class TestSearch(unittest.TestCase):
         all_finds = Search.findAll(doc, 'key_', case_sensitive=False)
         self.assertNotEqual(len(all_finds), 0)
 
+    def testBug113(self):
+        buffer = fixtures.buffer("bug_113")
+        doc = buffer.document
+        all_finds = Search.findAll(doc, 'all')
+        self.assertEqual(len(all_finds), 4)
+        self.assertEqual(all_finds, [(1, 7, 10), (2, 1, 4), (3, 1, 4), (4, 6, 9)])
+
 if __name__ == '__main__':
     unittest.main()
