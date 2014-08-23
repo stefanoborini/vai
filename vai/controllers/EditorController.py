@@ -26,6 +26,9 @@ class EditorController:
 
     def forceQuit(self):
         for b in self._buffer_list.buffers:
+            if b.document.filename() is None:
+                continue
+
             EditorState.instance().setCursorPosForPath(
                     os.path.abspath(b.document.filename()),
                     b.cursor.pos)
