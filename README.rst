@@ -48,9 +48,11 @@ Screenshots
 
 Vai 1.2
 
+.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.2.png
+
 Vai 1.1
 
-![Screenshot](http://i.imgur.com/Cpt8LSX.png)
+.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.1.png
 
 Release Notes
 -------------
