@@ -48,7 +48,7 @@ Screenshots
 
 Vai 1.2
 
-.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.2.png
+.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.2.gif
 
 Vai 1.1
 
@@ -103,11 +103,12 @@ or via pip
 
 **Important Note**: you need python 3.4. Python 3.3 will not work. 
 
-Rationale
----------
+Rationale, Development methodology and planned features
+-------------------------------------------------------
 
 You can read about the rationale behind vai, the development
-strategy, and additional information on the RATIONALE document.
+strategy, and additional information on the `RATIONALE <https://github.com/stefanoborini/vai/blob/master/RATIONALE.rst>`_ 
+document.
 
 
 Contributors
