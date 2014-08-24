@@ -42,9 +42,10 @@ setup(
     long_description=long_description,
     classifiers=[
         "Development Status :: 3 - Alpha",
-        "Topic :: Utilities",
+        "Topic :: Text Editors",
         "License :: OSI Approved :: BSD License",
         'Intended Audience :: Developers',
+        'Programming Language :: Python :: 3.4',
     ],
     test_suite = 'nose.collector',
     install_requires = ['pygments==1.6', "pylint==1.3.0", 'pyflakes==0.8.1'],
