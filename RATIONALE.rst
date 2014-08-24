@@ -76,6 +76,15 @@ individual entries in the github feature within a proper scope so that I
 implement around 30 features per cycle (according to my current last three
 cycles). 
 
+I have other projects to attend in my non-working time, in particular
+
+   - `My blog <http://forthescience.org>`_
+   - `A book on Model View Controller <http://stefanoborini.github.io/modelviewcontroller/>`_
+   - Satisfying basic human requirements.
+   
+I jump from one to the others in a round robin pattern, occasionally giving 
+more attention to the one that needs it the most depending on the circumstances. 
+
 If you want to help with development, there are plenty of small little things 
 to do, even not requiring a lot of training or time, and every bit matters, 
 but the fact that you are trying it out it's already of great help. 
