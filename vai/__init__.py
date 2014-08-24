@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "1.2a"
+__version__ = "1.2"
 
 from vaitk import core, gui
 from . import EditorApp
