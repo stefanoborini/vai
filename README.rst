@@ -32,7 +32,7 @@ Implemented Features
    - General vim look and feel.
    - Syntax highlighting for python.
    - Highlighting of all occurrences of the identifier currently under the cursor.
-   - Linting for python 3 with pylint.
+   - Linting for python 3 with pyflakes
    - Shows linting results on the sidebar. Linting messages popup inline.
    - Backward and forward search (no regexp yet)
    - Tab completion (rough)
