@@ -3,7 +3,8 @@ Rationale
 
 A most frequent question I've been asked is "why not NeoVim?". 
 Before starting vai, and more or less a month before the annoucement of neovim,
-I put my nose in the vim source code. Here are my findings
+I put my nose in the vim source code to see if I could implement the features I wanted
+directly into vim. Here were my findings
 
    - It's completely in C, and not good C because of portability considerations
      and an old programming style. Adding any of the features I want to that is
@@ -37,7 +38,10 @@ I put my nose in the vim source code. Here are my findings
 
    - I wanted to have fun reimplementing a Qt-like library to learn about Qt itself.
 
-Shortly afterwards, Neovim was announced as a refactoring of vim to address
+I decided it was a lost cause, and I started writing my own editor. I laid out the 
+foundation which is currently vaitk, and implemented basic stuff.
+
+Shortly afterwards, Neovim was announced as a refactoring of vim. It addresses
 most of my points above. The problem is that, being a refactoring, it will
 still be in C and will grow again to become ugly and nasty.
 
