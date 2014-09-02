@@ -83,12 +83,14 @@ class TestCommands(unittest.TestCase):
 
     def testDeleteLineAtCursorCommand2(self):
         """testDeleteLineAtCursorCommand from the bottom"""
+        second_to_last_line = self.buffer.document.lineText(3)
         removed_line = self.buffer.document.lineText(4)
         command = commands.DeleteLineAtCursorCommand(self.buffer)
         self.buffer.cursor.toPos((4,1))
         command.execute()
         self.assertEqual(self.buffer.document.numLines(), 3)
         self.assertEqual(self.buffer.cursor.pos, (3,1))
+        self.assertEqual(self.buffer.document.lineText(3), second_to_last_line)
 
         command.undo()
         self.assertEqual(self.buffer.document.numLines(), 4)
