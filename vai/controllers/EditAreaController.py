@@ -20,11 +20,14 @@ class CommandState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
         # No commands. only movement and no-command operations
-
         if event.key() == Key.Key_I:
             if event.modifiers() & KeyModifier.ShiftModifier:
                 buffer.cursor.toCharFirstNonBlank()
             return InsertState
+
+        if event.key() == Key.Key_Backspace:
+            buffer.cursor.toCharPrev()
+            return CommandState
 
         if event.key() == Key.Key_G:
             if event.modifiers() == 0:
@@ -391,9 +394,5 @@ class EditAreaController(core.VObject):
 
         self._edit_area.update()
 
-
     def _documentContentChanged(self, *args):
         self._edit_area.update()
-
-
-
