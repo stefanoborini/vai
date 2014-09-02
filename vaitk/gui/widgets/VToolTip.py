@@ -1,6 +1,7 @@
 from .VLabel import VLabel
 from ..VPainter import VPainter
 from ..VPalette import VPalette
+from ..VPalette import VPalette
 
 class VToolTip(VLabel):
     _instance = None
@@ -16,7 +17,6 @@ class VToolTip(VLabel):
     def hide(cls):
         if cls._instance is not None:
             VLabel.hide(cls._instance)
-        cls._instance = None
 
     def paintEvent(self, event):
         painter = VPainter(self)
