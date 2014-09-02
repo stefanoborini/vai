@@ -16,6 +16,14 @@ class TextDocumentCursor(core.VObject):
     def pos(self):
         return self._pos
 
+    @property
+    def line(self):
+        return self._pos[0]
+
+    @property
+    def column(self):
+        return self._pos[1]
+
     # Note: not a setter, because we want to check success in a "soft" way.
     # at least for now.
     def toPos(self, pos):

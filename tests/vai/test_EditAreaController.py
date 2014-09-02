@@ -35,6 +35,22 @@ class TestEditAreaController(unittest.TestCase):
         self.assertEqual(buffer.cursor.pos, (1,2))
         self.assertEqual(line_before, buffer.document.lineText(1))
 
+    def testBug119(self):
+        buffer = fixtures.buffer("basic_python.py")
+        controller = controllers.EditAreaController(self.mock_edit_area,
+                                                    self.mock_global_state,
+                                                    self.mock_editor_controller)
+        controller.buffer = buffer
+        buffer.cursor.toLastLine()
+        last_line_number = buffer.cursor.line
+        second_to_last_line = buffer.document.lineText(last_line_number-1)
+
+        type(self.mock_global_state).editor_mode = PropertyMock(return_value=models.EditorMode.DELETE)
+
+        event = events.VKeyEvent(vaitk.Key.Key_D)
+        controller.handleKeyEvent(event)
+        self.assertEqual(buffer.cursor.line, last_line_number-1)
+        self.assertEqual(buffer.document.lineText(buffer.cursor.line), second_to_last_line)
 
 if __name__ == '__main__':
     unittest.main()
