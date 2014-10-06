@@ -27,6 +27,8 @@ class CommandBarController:
                 self._editor_controller.doSave()
             elif command_text.startswith("w "):
                 self._editor_controller.doSaveAs(command_text[2:])
+            elif command_text.startswith("r "):
+                self._editor_controller.doInsertFile(command_text[2:])
             elif command_text == "wq":
                 self._editor_controller.doSaveAndExit()
             elif command_text.startswith("e "):
