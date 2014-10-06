@@ -6,6 +6,7 @@ from .. import linting
 from ..Lexer import Lexer
 from ..models import Buffer, TextDocument, EditorState
 from ..models.TextDocument import LineMeta
+from .. import commands
 
 class EditorController:
     def __init__(self, editor, global_state, buffer_list):
@@ -22,7 +23,6 @@ class EditorController:
         self._editor.side_ruler_controller.buffer = self._buffer_list.current
         self._editor.info_hover_box.buffer = self._buffer_list.current
         self._lexer.setModel(self._buffer_list.current.document)
-
 
     def forceQuit(self):
         for b in self._buffer_list.buffers:
@@ -42,6 +42,15 @@ class EditorController:
     def doSaveAs(self, filename):
         self._doSave(filename)
         self._doLint()
+
+    def doInsertFile(self, filename):
+        buffer = self._buffer_list.current
+
+        command = commands.InsertFileCommand(buffer, filename)
+
+        result = command.execute()
+        if result.success:
+            buffer.command_history.push(command)
 
     def tryQuit(self):
         if any([b.isModified() for b in self._buffer_list.buffers]):

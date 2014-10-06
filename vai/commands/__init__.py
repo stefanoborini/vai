@@ -13,3 +13,4 @@ from .JoinWithNextLineCommand import JoinWithNextLineCommand
 from .NewLineAfterCommand import NewLineAfterCommand
 from .NewLineCommand import NewLineCommand
 from .ReplaceSingleCharCommand import ReplaceSingleCharCommand
+from .InsertFileCommand import InsertFileCommand
