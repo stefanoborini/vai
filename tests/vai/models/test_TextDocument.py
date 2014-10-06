@@ -343,5 +343,16 @@ class TestTextDocument(unittest.TestCase):
         doc.open(fixtures.get("basic_nonempty_file.txt"))
         self.assertEqual(doc.wordAt((2,6)), ('are', 5))
 
+    def testDeleteLines(self):
+        doc = TextDocument()
+        doc.open(fixtures.get("bigfile.py"))
+        doc.deleteLines(1,3)
+
+    def testInsertLines(self):
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        doc.insertLines(2, ['foo', 'bar'])
+        self.assertEqual(doc.numLines(), 4)
+
 if __name__ == '__main__':
     unittest.main()

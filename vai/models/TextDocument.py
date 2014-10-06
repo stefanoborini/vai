@@ -119,7 +119,17 @@ class TextDocument(core.VObject):
 
         line_index = line_number - 1
         self._contents[line_index][LINE_META_INDEX].update(meta_dict)
-        self.lineMetaInfoChanged.emit(line_number, meta_dict)
+        self.contentChanged.emit()
+
+    def updateLinesMeta(self, line_number, how_many, meta_dict):
+        self._checkLineNumber(line_number)
+        self._checkLineNumber(line_number+how_many)
+
+        line_index = line_number - 1
+        for i in range(line_index, line_index+how_many):
+            self._contents[i][LINE_META_INDEX].update(meta_dict)
+
+        self.contentChanged.emit()
 
     def deleteLineMeta(self, line_number, keys):
         self._checkLineNumber(line_number)
@@ -133,8 +143,8 @@ class TextDocument(core.VObject):
                 del self._contents[line_index][LINE_META_INDEX][k]
             except KeyError:
                 pass
-        self.lineMetaInfoDeleted.emit(line_number, keys)
-        self.lineMetaInfoChanged.emit(line_number)
+
+        self.contentChanged.emit()
 
     # Char meta
 
@@ -168,7 +178,7 @@ class TextDocument(core.VObject):
             char_meta[key][char_index:char_index+len(value)] = value
             char_meta[key] = char_meta[key][0:len(text)]
 
-        self.charMetaInfoChanged.emit(pos)
+        self.contentChanged.emit()
 
     def deleteCharMeta(self, pos, how_many, keys):
         line_number, char_number = pos
@@ -184,7 +194,7 @@ class TextDocument(core.VObject):
             meta_values[char_index:char_index+how_many] = None
             char_meta[key] = meta_values
 
-        self.charMetaInfoDeleted.emit(pos)
+        self.contentChanged.emit()
 
     def wordAt(self, pos, split_func=None):
         """
@@ -220,16 +230,14 @@ class TextDocument(core.VObject):
 
         self._contents.insert(line_index+1, ({}, {}, EOL))
         self._setModified(True)
-        self.lineCreated.emit(line_index+1)
-        self.lineMetaInfoChanged.emit(line_number)
+
         self.contentChanged.emit()
 
     def newLine(self, line_number):
         line_index = line_number - 1
         self._contents.insert(line_index, ({}, {}, EOL))
         self._setModified(True)
-        self.lineCreated.emit(line_number)
-        self.lineMetaInfoChanged.emit(line_number)
+
         self.contentChanged.emit()
 
     def insertLine(self, line_number, text, line_meta=None, char_meta=None):
@@ -241,9 +249,18 @@ class TextDocument(core.VObject):
         char_meta = {} if char_meta is None else char_meta
         self._contents.insert(line_index, [line_meta, char_meta, _withEOL(text)])
         self._setModified(True)
-        self.lineCreated.emit(line_number)
         self.contentChanged.emit()
-        self.lineMetaInfoChanged.emit(line_number)
+
+    def insertLines(self, insert_at, text_lines):
+        if not (1 <= insert_at <= self.numLines()+1):
+            raise IndexError("Invalid insertion line %d" % insert_at)
+
+        insert_at_index = insert_at - 1
+        for idx, text in enumerate(text_lines):
+            self._contents.insert(insert_at+idx, [{}, {}, _withEOL(text)])
+
+        self._setModified(True)
+        self.contentChanged.emit()
 
     def deleteLine(self, line_number):
         self._checkLineNumber(line_number)
@@ -252,11 +269,19 @@ class TextDocument(core.VObject):
         self._setModified(True)
         if len(self._contents) == 0:
             self._contents.append(({}, {}, EOL))
-            self.lineChanged.emit(line_number)
-        else:
-            self.lineDeleted.emit(line_number)
         self.contentChanged.emit()
-        self.lineMetaInfoChanged.emit(line_number)
+
+    def deleteLines(self, from_line, how_many):
+        self._checkLineNumber(from_line)
+        self._checkLineNumber(from_line+how_many)
+        from_line_index = from_line - 1
+        self._contents = self._contents[:from_line_index] + self._contents[from_line_index+how_many:]
+
+        if len(self._contents) == 0:
+            self._contents.append(({}, {}, EOL))
+
+        self._setModified(True)
+        self.contentChanged.emit()
 
     def replaceLine(self, line_number, text, line_meta=None, char_meta=None):
         self._checkLineNumber(line_number)
@@ -268,7 +293,6 @@ class TextDocument(core.VObject):
 
         self._contents.insert(line_index, (line_meta, char_meta, _withEOL(text)))
         self._setModified(True)
-        self.lineChanged.emit(line_number)
         self.contentChanged.emit()
 
     def breakLine(self, pos):
@@ -305,8 +329,6 @@ class TextDocument(core.VObject):
                             )
 
         self._setModified(True)
-        self.lineChanged.emit(line_number, None, None)
-        self.lineCreated.emit(line_number+1)
         self.contentChanged.emit()
 
     def joinWithNextLine(self, line_number):
@@ -361,8 +383,6 @@ class TextDocument(core.VObject):
                              )
         self._setModified(True)
         self.contentChanged.emit()
-        self.lineDeleted.emit(line_number+1)
-        self.lineChanged.emit(line_number)
 
     # Char operations
     def insertChars(self, pos, string):
@@ -391,7 +411,6 @@ class TextDocument(core.VObject):
                                 )
 
         self._setModified(True)
-        self.lineChanged.emit(pos)
         self.contentChanged.emit()
 
     def deleteChars(self, pos, how_many):
@@ -442,8 +461,6 @@ class TextDocument(core.VObject):
                                 )
 
         self._setModified(True)
-        self.lineChanged.emit(line_number)
-        self.lineMetaInfoChanged.emit(line_number)
         self.contentChanged.emit()
         return (deleted_text, deleted_char_meta)
 
@@ -489,8 +506,6 @@ class TextDocument(core.VObject):
                                 )
 
         self._setModified(True)
-        self.lineChanged.emit(line_number)
-        self.lineMetaInfoChanged.emit(line_number)
         self.contentChanged.emit()
         return (deleted_text, deleted_char_meta)
 
@@ -540,26 +555,6 @@ class TextDocument(core.VObject):
     def createCursor(self):
         return TextDocumentCursor(self)
 
-    def beginTransaction(self):
-        self.enableSignals(False)
-
-    def endTransaction(self):
-        self.enableSignals(True)
-        self.transactionFinished.emit()
-
-    def enableSignals(self, enabled):
-        for signal in [ self.lineChanged,
-                        self.lineDeleted,
-                        self.lineCreated,
-                        self.modifiedChanged,
-                        self.filenameChanged,
-                        self.lineMetaInfoChanged,
-                        self.charMetaInfoChanged,
-                        self.transactionFinished,
-                        self.contentChanged
-                        ]:
-            signal.setEnabled(enabled)
-
     def isValidLine(self, line_number):
         return (1 <= line_number <= len(self._contents))
 
@@ -573,30 +568,18 @@ class TextDocument(core.VObject):
 
     def insertFromMemento(self, line_number, memento):
         self._contents.insert(line_number-1, copy.deepcopy(memento))
-        self.lineMetaInfoChanged.emit(line_number)
-        self.charMetaInfoChanged.emit((line_number, 1))
         self.contentChanged.emit()
 
     def replaceFromMemento(self, line_number, memento):
         self._contents[line_number-1] = copy.deepcopy(memento)
-        self.lineMetaInfoChanged.emit(line_number)
-        self.charMetaInfoChanged.emit((line_number, 1))
         self.contentChanged.emit()
 
     # Private
 
     def _initSignals(self):
-        self.lineChanged = core.VSignal(self)
-        self.lineDeleted = core.VSignal(self)
-        self.lineCreated = core.VSignal(self)
         self.contentChanged = core.VSignal(self)
         self.modifiedChanged = core.VSignal(self)
         self.filenameChanged = core.VSignal(self)
-        self.lineMetaInfoChanged = core.VSignal(self)
-        self.lineMetaInfoDeleted = core.VSignal(self)
-        self.charMetaInfoChanged = core.VSignal(self)
-        self.charMetaInfoDeleted = core.VSignal(self)
-        self.transactionFinished = core.VSignal(self)
         self.documentSaved = core.VSignal(self)
 
     def _checkLineNumber(self, line_number):
