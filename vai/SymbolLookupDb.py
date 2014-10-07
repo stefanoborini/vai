@@ -33,7 +33,10 @@ def _walkDown(d, prefix):
             return None
         return d[prefix[0]]
 
-    return _walkDown(d[prefix[0]], prefix[1:])
+    try:
+        return _walkDown(d[prefix[0]], prefix[1:])
+    except KeyError:
+        return None
 
 def _composePostfix(d, tab=0):
     ret = []
