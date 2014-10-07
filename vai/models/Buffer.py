@@ -1,6 +1,7 @@
 from .TextDocument import TextDocument
 from .TextDocumentCursor import TextDocumentCursor
 from .EditAreaModel import EditAreaModel
+from .CommandHistory import CommandHistory
 
 class Buffer:
     """
@@ -42,15 +43,3 @@ class Buffer:
     def command_history(self):
         return self._command_history
 
-class CommandHistory:
-    def __init__(self):
-        self._history = []
-
-    def __len__(self):
-        return len(self._history)
-
-    def push(self, command):
-        self._history.append(command)
-
-    def pop(self):
-        return self._history.pop()
