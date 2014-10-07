@@ -29,10 +29,9 @@ def _add(d, word):
 
 def _walkDown(d, prefix):
     if len(prefix) == 1:
+        if prefix[0] not in d:
+            return None
         return d[prefix[0]]
-
-    if prefix[0] not in d:
-        return None
 
     return _walkDown(d[prefix[0]], prefix[1:])
 
