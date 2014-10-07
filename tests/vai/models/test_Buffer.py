@@ -16,7 +16,8 @@ class TestBuffer(unittest.TestCase):
     def testBufferInit(self):
         b = self.buf
         self.assertIsInstance(b, Buffer)
-        self.assertEqual(len(b.command_history), 0)
+        self.assertEqual(b.command_history.numUndoableCommands(), 0)
+        self.assertEqual(b.command_history.numRedoableCommands(), 0)
 
     def testIsEmpty(self):
         b = self.buf
@@ -33,23 +34,6 @@ class TestBuffer(unittest.TestCase):
 
         self.document.isModified.return_value = True
         self.assertTrue(b.isModified())
-
-    def testCommandHistory(self):
-        b = self.buf
-        command = Mock()
-        command1 = command()
-        command2 = command()
-
-        self.assertEqual(len(b.command_history), 0)
-        b.command_history.push(command1)
-        b.command_history.push(command2)
-
-        self.assertEqual(len(b.command_history), 2)
-        self.assertEqual(b.command_history.pop(), command2)
-        self.assertEqual(len(b.command_history), 1)
-        self.assertEqual(b.command_history.pop(), command1)
-        self.assertEqual(len(b.command_history), 0)
-        self.assertRaises(IndexError, lambda : b.command_history.pop())
 
     def testDocumentCursor(self):
         b = self.buf

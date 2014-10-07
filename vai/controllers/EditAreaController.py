@@ -62,9 +62,21 @@ class CommandState:
             return CommandState
 
         if event.key() == Key.Key_U:
-            if len(buffer.command_history):
-                command = buffer.command_history.pop()
-                command.undo()
+            try:
+                command = buffer.command_history.prev()
+            except IndexError:
+                return CommandState
+
+            command.undo()
+            return CommandState
+
+        if event.key() == Key.Key_R and event.modifiers() & KeyModifier.ControlModifier:
+            try:
+                command = buffer.command_history.next()
+            except IndexError:
+                return CommandState
+
+            command.execute()
             return CommandState
 
         if event.key() == Key.Key_A:
@@ -131,7 +143,7 @@ class CommandState:
         if command is not None:
             result = command.execute()
             if result.success:
-                buffer.command_history.push(command)
+                buffer.command_history.add(command)
 
             return new_state
 
@@ -176,7 +188,7 @@ class InsertState:
         if command is not None:
             result = command.execute()
             if result.success:
-                buffer.command_history.push(command)
+                buffer.command_history.add(command)
 
         return InsertState
 
@@ -188,14 +200,14 @@ class DeleteState:
             command = commands.DeleteLineAtCursorCommand(buffer)
             result = command.execute()
             if result.success:
-                buffer.command_history.push(command)
+                buffer.command_history.add(command)
                 global_state.clipboard = result.info[2]
 
         if event.key() == Key.Key_W:
             command = commands.DeleteToEndOfWordCommand(buffer)
             result = command.execute()
             if result.success:
-                buffer.command_history.push(command)
+                buffer.command_history.add(command)
                 global_state.clipboard = result.info[0]
 
         # Reset if we don't recognize it.
@@ -233,7 +245,7 @@ class ReplaceState:
             command = commands.ReplaceSingleCharCommand(buffer, event.text())
             result = command.execute()
             if result.success:
-                buffer.command_history.push(command)
+                buffer.command_history.add(command)
 
         return CommandState
 
