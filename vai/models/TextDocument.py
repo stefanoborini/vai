@@ -527,7 +527,7 @@ class TextDocument(core.VObject):
         contents = []
         with contextlib.closing(open(filename,'r')) as f:
             for textline in f:
-                contents.append(({}, {}, _withEOL(textline)))
+                contents.append(({}, {}, _withEOL(textline).replace("\t", " "*4)))
 
         if len(contents) == 0:
             contents.append(({}, {}, EOL))
