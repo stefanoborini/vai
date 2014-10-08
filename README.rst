@@ -43,10 +43,12 @@ Implemented Features
    - Cursor position restored between runs.
    - Autoindent
 
+Note: vai is currently focused exclusively on Python editing. Future additions will handle other languages.
+
 Screenshots
 -----------
 
-Vai 1.2
+Vai 1.2/1.3
 
 .. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.2.gif
 
@@ -56,6 +58,15 @@ Vai 1.1
 
 Release Notes
 -------------
+
+Vai 1.3
+~~~~~~~
+
+   - Deleting to end of word should also delete the spaces following it.
+   - Implemented redo with Ctrl+R
+   - :r command to read and include a file
+   - Performance improvements
+   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.3+is%3Aclosed+label%3ABug`_
 
 Vai 1.2
 ~~~~~~~
