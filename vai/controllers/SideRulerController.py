@@ -27,16 +27,15 @@ class SideRulerController:
 
         if self._buffer:
             self._buffer.edit_area_model.documentPosAtTopChanged.disconnect(self.updateTopRow)
-            self._buffer.document.metaContentChanged.disconnect(self.updateBadges)
-            self._buffer.document.contentChanged.disconnect(self.updateNumRows)
+            self._buffer.document.lineMetaContentChanged.disconnect(self.updateBadges)
+            self._buffer.document.numLinesChanged.disconnect(self.updateNumRows)
 
         self._buffer = buffer
 
         # Set signals
         self._buffer.edit_area_model.documentPosAtTopChanged.connect(self.updateTopRow)
-
-        self._buffer.document.metaContentChanged.connect(self.updateBadges)
-        self._buffer.document.contentChanged.connect(self.updateNumRows)
+        self._buffer.document.lineMetaContentChanged.connect(self.updateBadges)
+        self._buffer.document.numLinesChanged.connect(self.updateNumRows)
 
         # Refresh
         self.updateTopRow()
