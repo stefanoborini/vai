@@ -2,18 +2,21 @@ Vai
 ===
 
 .. image:: https://travis-ci.org/stefanoborini/vai.svg?branch=master
-    :target: https://travis-ci.org/stefanoborini/vai
-    :alt: Build status
+   :target: https://travis-ci.org/stefanoborini/vai
+   :alt: Build status
 .. image:: https://pypip.in/download/vai/badge.png
-    :target: https://pypi.python.org/pypi/vai/
-    :alt: Downloads
+   :target: https://pypi.python.org/pypi/vai/
+   :alt: Downloads
 .. image:: https://pypip.in/py_versions/vai/badge.svg
-    :target: https://pypi.python.org/pypi/vai/
-    :alt: Supported Python versions
+   :target: https://pypi.python.org/pypi/vai/
+   :alt: Supported Python versions
 .. image:: https://pypip.in/version/vai/badge.png
-    :target: https://pypi.python.org/pypi/vai/
-    :alt: Latest version
-
+   :target: https://pypi.python.org/pypi/vai/
+   :alt: Latest version
+.. image:: https://landscape.io/github/stefanoborini/vai/master/landscape.png
+   :target: https://landscape.io/github/stefanoborini/vai
+   :alt: Latest version
+   
 We love vim, but we want more. We want a terminal-based IDE that looks like vim,
 handles like vim, but has all those nice features of Eclipse and Sublime, is
 integrated with git, and is fully coded in python. 
