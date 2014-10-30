@@ -55,6 +55,7 @@ class _KeyEventThread(threading.Thread):
         pass
 
 class VApplication(core.VCoreApplication):
+
     def __init__(self, argv, screen=None):
         from . import VWidget
         super().__init__(argv)
@@ -72,6 +73,10 @@ class VApplication(core.VCoreApplication):
         self._key_event_thread = _KeyEventThread(self._screen, self._key_event_queue, self._event_available_flag)
         self._delete_later_queue = []
         self._exit_flag = False
+
+        # Signals.
+        self.lastWindowClosed = core.VSignal(self)
+        self.focusChanged = core.VSignal(self)
 
     def exec_(self):
         self._root_widget.show()
@@ -152,6 +157,33 @@ class VApplication(core.VCoreApplication):
 
     def resetScreen(self):
         self._screen.reset()
+
+    def topLevelWidgets(self):
+        raise NotImplementedError()
+
+    def allWidgets(self):
+        raise NotImplementedError()
+
+    def activeWindow(self):
+        raise NotImplementedError()
+
+    def setActiveWindow(self, window):
+        raise NotImplementedError()
+
+    def closeAllWindows(self):
+        raise NotImplementedError()
+
+    def event(self, event):
+        raise NotImplementedError()
+
+    def clipboard(self):
+        raise NotImplementedError()
+
+    def keyboardModifiers(self):
+        raise NotImplementedError()
+
+    def notify(self):
+        raise NotImplementedError()
 
     # Private
 
