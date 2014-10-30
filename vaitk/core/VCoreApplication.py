@@ -1,4 +1,5 @@
 from .VObject import VObject
+from .VSignal import VSignal
 
 class VCoreApplication(VObject):
     """
@@ -14,6 +15,7 @@ class VCoreApplication(VObject):
             raise Exception("Only one application is allowed")
 
         VCoreApplication.vApp = self
+        self.aboutToQuit = VSignal(self):
 
     def addTimer(self, timer):
         """
@@ -22,7 +24,7 @@ class VCoreApplication(VObject):
         """
         self._timers.append(timer)
 
-    def exit(self):
+    def exit(self, retcode=0):
         """
         Exits the application.
         """
@@ -33,3 +35,51 @@ class VCoreApplication(VObject):
         Directly send an event to a receiver.
         """
         receiver.event(event)
+
+    def applicationName(self):
+        raise NotImplementedError()
+
+    def applicationVersion(self):
+        raise NotImplementedError()
+
+    def instance(self):
+        raise NotImplementedError()
+
+    def exec_(self):
+        raise NotImplementedError()
+
+    def processEvents(self, flags)
+        raise NotImplementedError()
+
+    def postEvent(self, receiver, event):
+        raise NotImplementedError()
+
+    def sendPostedEvents(self, receiver, event_type):
+        raise NotImplementedError()
+
+    def removePostedEvents(self, receiver, event_type):
+        raise NotImplementedError()
+
+    def hasPendingEvents(self):
+        raise NotImplementedError()
+
+    def notify(self, receiver, event):
+        raise NotImplementedError()
+
+    def applicationDirPath(self):
+        raise NotImplementedError()
+
+    def applicationFilePath(self):
+        raise NotImplementedError()
+
+    def startingUp(self):
+        raise NotImplementedError()
+
+    def closingDown(self):
+        raise NotImplementedError()
+
+    def setEventFilter(self, event_filter):
+        raise NotImplementedError()
+
+
+
