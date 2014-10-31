@@ -15,7 +15,7 @@ class VCoreApplication(VObject):
             raise Exception("Only one application is allowed")
 
         VCoreApplication.vApp = self
-        self.aboutToQuit = VSignal(self)
+        self.aboutToQuit = VSignal(self):
 
     def addTimer(self, timer):
         """
@@ -48,7 +48,7 @@ class VCoreApplication(VObject):
     def exec_(self):
         raise NotImplementedError()
 
-    def processEvents(self, flags):
+    def processEvents(self, flags)
         raise NotImplementedError()
 
     def postEvent(self, receiver, event):
