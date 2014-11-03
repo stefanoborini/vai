@@ -59,6 +59,14 @@ class SideRuler(gui.VWidget):
             del self._badges[line]
             self.update()
 
+    def setBadges(self, badges):
+        for idx, badge in enumerate(badges):
+            if badge is None:
+                continue
+            self._badges[self._top_row+idx] = badge
+
+        self.update()
+
     def badge(self, line):
         return self._badges.get(line)
 
