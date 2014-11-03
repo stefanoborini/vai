@@ -20,19 +20,38 @@ class CommandState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
         # No commands. only movement and no-command operations
-        if event.key() == Key.Key_I:
-            if event.modifiers() & KeyModifier.ShiftModifier:
-                buffer.cursor.toCharFirstNonBlank()
-            return InsertState
+        key = event.key()
+        modifiers = event.modifiers()
 
-        if event.key() == Key.Key_Backspace:
+        if key == Key.Key_H:
             buffer.cursor.toCharPrev()
             return CommandState
 
-        if event.key() == Key.Key_G:
-            if event.modifiers() == 0:
+        if key == Key.Key_J:
+            buffer.cursor.toLineNext()
+            return CommandState
+
+        if key == Key.Key_K:
+            buffer.cursor.toLinePrev()
+            return CommandState
+
+        if key == Key.Key_L:
+            buffer.cursor.toCharNext()
+            return CommandState
+
+        if key == Key.Key_I:
+            if modifiers & KeyModifier.ShiftModifier:
+                buffer.cursor.toCharFirstNonBlank()
+            return InsertState
+
+        if key == Key.Key_Backspace:
+            buffer.cursor.toCharPrev()
+            return CommandState
+
+        if key == Key.Key_G:
+            if modifiers == 0:
                 return GoState
-            elif event.modifiers() & KeyModifier.ShiftModifier:
+            elif modifiers & KeyModifier.ShiftModifier:
                 buffer.cursor.toLastLine()
                 buffer.edit_area_model.document_pos_at_top = (max(1,
                                                                     buffer.cursor.pos[0]
@@ -44,24 +63,24 @@ class CommandState:
 
             return UnknownState
 
-        if event.key() == Key.Key_D and event.modifiers() == 0:
+        if key == Key.Key_D and modifiers == 0:
             return DeleteState
 
-        if event.key() == Key.Key_Y and event.modifiers() == 0:
+        if key == Key.Key_Y and modifiers == 0:
             return YankState
 
-        if event.key() == Key.Key_Z and event.modifiers() & KeyModifier.ShiftModifier:
+        if key == Key.Key_Z and modifiers & KeyModifier.ShiftModifier:
             return ZetaState
 
-        if event.key() == Key.Key_Dollar:
+        if key == Key.Key_Dollar:
             buffer.cursor.toLineEnd()
             return CommandState
 
-        if event.key() == Key.Key_AsciiCircum:
+        if key == Key.Key_AsciiCircum:
             buffer.cursor.toLineBeginning()
             return CommandState
 
-        if event.key() == Key.Key_U:
+        if key == Key.Key_U:
             try:
                 command = buffer.command_history.prev()
             except IndexError:
@@ -70,7 +89,7 @@ class CommandState:
             command.undo()
             return CommandState
 
-        if event.key() == Key.Key_R and event.modifiers() & KeyModifier.ControlModifier:
+        if key == Key.Key_R and modifiers & KeyModifier.ControlModifier:
             try:
                 command = buffer.command_history.next()
             except IndexError:
@@ -79,28 +98,28 @@ class CommandState:
             command.execute()
             return CommandState
 
-        if event.key() == Key.Key_A:
-            if event.modifiers() == 0:
+        if key == Key.Key_A:
+            if modifiers == 0:
                 buffer.cursor.toCharNext()
                 return InsertState
 
-            elif event.modifiers() & KeyModifier.ShiftModifier:
+            elif modifiers & KeyModifier.ShiftModifier:
                 buffer.cursor.toLineEnd()
                 return InsertState
 
             return UnknownState
 
-        if event.key() == Key.Key_N:
+        if key == Key.Key_N:
             if global_state.current_search is not None:
                 text, direction = global_state.current_search
-                if event.modifiers() & KeyModifier.ShiftModifier:
+                if modifiers & KeyModifier.ShiftModifier:
                     direction = {Search.SearchDirection.FORWARD: Search.SearchDirection.BACKWARD,
                                  Search.SearchDirection.BACKWARD: Search.SearchDirection.FORWARD}[direction]
 
                 Search.find(buffer, text, direction)
             return CommandState
 
-        if event.key() == Key.Key_Asterisk:
+        if key == Key.Key_Asterisk:
             word_at, word_pos = buffer.document.wordAt(buffer.cursor.pos)
             if word_pos is not None:
                 global_state.current_search = (word_at, Search.SearchDirection.FORWARD)
@@ -108,36 +127,36 @@ class CommandState:
             Search.find(buffer, word_at, Search.SearchDirection.FORWARD)
             return CommandState
 
-        if event.key() == Key.Key_R:
+        if key == Key.Key_R:
             return ReplaceState
 
         # Command operations
         command = None
         new_state = CommandState
 
-        if (event.key() == Key.Key_X and event.modifiers() == 0) or \
-                event.key() == Key.Key_Delete:
+        if (key == Key.Key_X and modifiers == 0) or \
+                key == Key.Key_Delete:
             command = commands.DeleteSingleCharAfterCommand(buffer)
 
-        elif event.key() == Key.Key_O:
-            if event.modifiers() == 0:
+        elif key == Key.Key_O:
+            if modifiers == 0:
                 new_state = InsertState
                 command = commands.NewLineAfterCommand(buffer)
-            elif event.modifiers() & KeyModifier.ShiftModifier:
+            elif modifiers & KeyModifier.ShiftModifier:
                 new_state = InsertState
                 command = commands.NewLineCommand(buffer)
 
-        elif event.key() == Key.Key_J and event.modifiers() & KeyModifier.ShiftModifier:
+        elif key == Key.Key_J and event.modifiers() & KeyModifier.ShiftModifier:
             command = commands.JoinWithNextLineCommand(buffer)
 
-        elif event.key() == Key.Key_D and event.modifiers() & KeyModifier.ShiftModifier:
+        elif key == Key.Key_D and event.modifiers() & KeyModifier.ShiftModifier:
             command = commands.DeleteToEndOfLineCommand(buffer)
 
-        elif event.key() == Key.Key_P:
+        elif key == Key.Key_P:
             if global_state.clipboard is not None:
-                if event.modifiers() == 0:
+                if modifiers == 0:
                     command = commands.InsertLineAfterCommand(buffer, global_state.clipboard)
-                elif event.modifiers() & KeyModifier.ShiftModifier:
+                elif modifiers & KeyModifier.ShiftModifier:
                     command = commands.InsertLineCommand(buffer, global_state.clipboard)
 
         if command is not None:
