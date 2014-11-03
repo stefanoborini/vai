@@ -1,3 +1,4 @@
+import shlex
 from .. import models
 
 class CommandBarController:
@@ -17,33 +18,18 @@ class CommandBarController:
     def _parseCommandBar(self):
         command_text = self._command_bar.command_text
         mode = self._global_state.editor_mode
+        self._global_state.editor_mode = models.EditorMode.COMMAND
 
         if mode == models.EditorMode.COMMAND_INPUT:
-            if command_text == 'q!':
-                self._editor_controller.forceQuit()
-            elif command_text == 'q':
-                self._editor_controller.tryQuit()
-            elif command_text == "w":
-                self._editor_controller.doSave()
-            elif command_text.startswith("w "):
-                self._editor_controller.doSaveAs(command_text[2:])
-            elif command_text.startswith("r "):
-                self._editor_controller.doInsertFile(command_text[2:])
-            elif command_text == "wq":
-                self._editor_controller.doSaveAndExit()
-            elif command_text.startswith("e "):
-                self._editor_controller.openFile(command_text[2:])
-            elif command_text.startswith("bp"):
-                self._editor_controller.selectPrevBuffer()
-            elif command_text.startswith("bn"):
-                self._editor_controller.selectNextBuffer()
+            if self._interpretLine(command_text):
+                self._command_bar.clear()
         elif mode == models.EditorMode.SEARCH_FORWARD:
-                self._editor_controller.searchForward(command_text)
+            self._editor_controller.searchForward(command_text)
+            self._command_bar.clear()
         elif mode == models.EditorMode.SEARCH_BACKWARD:
-                self._editor_controller.searchBackward(command_text)
+            self._editor_controller.searchBackward(command_text)
+            self._command_bar.clear()
 
-        self._command_bar.clear()
-        self._global_state.editor_mode = models.EditorMode.COMMAND
         self._edit_area.setFocus()
 
     def _abortCommandBar(self):
@@ -54,4 +40,47 @@ class CommandBarController:
     def _editorModeChanged(self, *args):
         self._command_bar.editor_mode = self._global_state.editor_mode
 
+    def _interpretLine(self, command_text):
+        command = shlex.split(command_text)
+        if command[0] == 'q!':
+            self._editor_controller.forceQuit()
+        elif command[0] == 'q':
+            self._editor_controller.tryQuit()
+        elif command[0] == "w":
+            if len(command) == 1:
+                self._editor_controller.doSave()
+            elif len(command) == 2:
+                self._editor_controller.doSaveAs(command[1])
+            else:
+                self._reportError("Only one filename allowed at write")
+                return False
+        elif command[0] == "r":
+            if len(command) == 1:
+                self._reportError("Specify filename")
+                return False
+            elif len(command) == 2:
+                self._editor_controller.doInsertFile(command[1])
+            else:
+                self._reportError("Only one filename allowed")
+                return False
+        elif command[0] == "wq":
+            self._editor_controller.doSaveAndExit()
+        elif command[0] == "e":
+            if len(command) == 1:
+                self._reportError("Specify filename")
+            elif len(command) == 2:
+                self._editor_controller.openFile(command[1])
+            else:
+                self._reportError("Only one filename allowed")
+                return False
+        elif command[0] == "bp":
+            self._editor_controller.selectPrevBuffer()
+        elif command[0] == "bn":
+            self._editor_controller.selectNextBuffer()
+        else:
+            self._reportError("Unknown command")
+            return False
+        return True
 
+    def _reportError(self, error_string):
+        self._command_bar.setErrorString(error_string)

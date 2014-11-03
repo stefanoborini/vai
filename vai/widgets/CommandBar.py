@@ -53,6 +53,12 @@ class CommandBar(gui.VWidget):
                 return True
         return False
 
+    def setErrorString(self, error_string):
+        self._line_edit.clear()
+        self._state_label.resize( (len(error_string), 1) )
+        self._state_label.setText(error_string)
+        self._line_edit.setGeometry( (len(error_string), 0, self.width()-len(error_string), 1) )
+
     # Private
 
     def _updateText(self):
