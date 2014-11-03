@@ -354,5 +354,54 @@ class TestTextDocument(unittest.TestCase):
         doc.insertLines(2, ['foo', 'bar'])
         self.assertEqual(doc.numLines(), 4)
 
+    def testLineMetaInfoBasic(self):
+        doc = TextDocument()
+        meta_info = doc.lineMetaInfo("whatever")
+
+        self.assertEqual(meta_info.document, doc)
+        self.assertEqual(meta_info.meta_type, "whatever")
+        self.assertEqual(meta_info.numLines(), 1)
+        self.assertEqual(meta_info.data(), [None])
+
+        meta_info.setData(1, "hello")
+        self.assertEqual(meta_info.data(), ["hello"])
+
+    def testLineMetaSameObject(self):
+        doc = TextDocument()
+        self.assertEqual(doc.lineMetaInfo("whatever"), doc.lineMetaInfo("whatever"))
+        self.assertNotEqual(doc.lineMetaInfo("whatever"), doc.lineMetaInfo("whatever2"))
+
+    def testLineMetaInfoChangeLineNumber(self):
+        doc = TextDocument()
+        meta_info1 = doc.lineMetaInfo("whatever")
+        meta_info2 = doc.lineMetaInfo("whatever2")
+
+        meta_info1.setData(1, "hello")
+        meta_info2.setData(1, "byebye")
+
+        doc.newLineAfter(1)
+
+        self.assertEqual(meta_info1.numLines(), 2)
+        self.assertEqual(meta_info2.numLines(), 2)
+
+        self.assertEqual(meta_info1.data(1,2), ["hello", None])
+        self.assertEqual(meta_info2.data(1,2), ["byebye", None])
+
+        doc.newLine(1)
+
+        self.assertEqual(meta_info1.numLines(), 3)
+        self.assertEqual(meta_info2.numLines(), 3)
+
+        self.assertEqual(meta_info1.data(1,3), [None, "hello", None])
+        self.assertEqual(meta_info2.data(1,3), [None, "byebye", None])
+
+        doc.deleteLine(2)
+
+        self.assertEqual(meta_info1.numLines(), 2)
+        self.assertEqual(meta_info2.numLines(), 2)
+
+        self.assertEqual(meta_info1.data(1,2), [None, None])
+        self.assertEqual(meta_info2.data(1,2), [None, None])
+
 if __name__ == '__main__':
     unittest.main()
