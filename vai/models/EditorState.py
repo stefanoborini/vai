@@ -8,7 +8,13 @@ class EditorState:
 
     @staticmethod
     def editorStatePath():
-        return os.path.expanduser("~/.vaistate")
+        _home = os.path.expanduser('~')
+        xdg_state_home = os.environ.get('XDG_STATE_HOME') or \
+                         os.path.join(_home, '.local', 'state')
+        state_dir = os.path.join(xdg_state_home, 'vai')
+        if not os.path.isdir(state_dir):
+            os.makedirs(state_dir)
+        return os.path.join(state_dir, 'vaistate')
 
     @classmethod
     def instance(cls):
