@@ -5,6 +5,7 @@ import os
 from vaitk import core
 import contextlib
 from .TextDocumentCursor import TextDocumentCursor
+from .LineMetaInfo import LineMetaInfo
 
 EOL='\n'
 LINE_META_INDEX = 0
@@ -33,6 +34,9 @@ class TextDocument(core.VObject):
 
     def __init__(self):
         self._initSignals()
+
+        # New dictionary to store meta info objects. This will outdate the current format.
+        self._meta_info = {}
 
         self._document_meta = {}
 
@@ -108,10 +112,17 @@ class TextDocument(core.VObject):
 
     # Line meta
 
+    # will be deprecated.
     def lineMeta(self, line_number):
         self._checkLineNumber(line_number)
         line_index = line_number - 1
         return self._contents[line_index][LINE_META_INDEX]
+
+    def lineMetaInfo(self, meta_type):
+        if not meta_type in self._meta_info:
+            self._meta_info[meta_type] = LineMetaInfo(meta_type, self)
+
+        return self._meta_info[meta_type]
 
     def updateLineMeta(self, line_number, meta_dict):
         self._checkLineNumber(line_number)
@@ -233,6 +244,9 @@ class TextDocument(core.VObject):
         self._contents.insert(line_index+1, ({}, {}, EOL))
         self._setModified(True)
 
+        for meta in self._meta_info.values():
+            meta.addLines(line_number+1, 1)
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.lineMetaContentChanged.emit()
@@ -243,6 +257,8 @@ class TextDocument(core.VObject):
         self._contents.insert(line_index, ({}, {}, EOL))
         self._setModified(True)
 
+        for meta in self._meta_info.values():
+            meta.addLines(line_number, 1)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.lineMetaContentChanged.emit()
@@ -257,6 +273,10 @@ class TextDocument(core.VObject):
         char_meta = {} if char_meta is None else char_meta
         self._contents.insert(line_index, [line_meta, char_meta, _withEOL(text)])
         self._setModified(True)
+
+        for meta in self._meta_info.values():
+            meta.addLines(line_number, 1)
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.lineMetaContentChanged.emit()
@@ -269,6 +289,9 @@ class TextDocument(core.VObject):
         insert_at_index = insert_at - 1
         for idx, text in enumerate(text_lines):
             self._contents.insert(insert_at+idx, [{}, {}, _withEOL(text)])
+
+        for meta in self._meta_info.values():
+            meta.addLines(insert_at, len(text_lines))
 
         self._setModified(True)
         self.contentChanged.emit()
@@ -283,6 +306,10 @@ class TextDocument(core.VObject):
         self._setModified(True)
         if len(self._contents) == 0:
             self._contents.append(({}, {}, EOL))
+
+        for meta in self._meta_info.values():
+            meta.deleteLines(line_number, 1)
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.lineMetaContentChanged.emit()
@@ -298,6 +325,11 @@ class TextDocument(core.VObject):
             self._contents.append(({}, {}, EOL))
 
         self._setModified(True)
+
+        for meta in self._meta_info.values():
+            meta.deleteLines(from_line, how_many)
+
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.lineMetaContentChanged.emit()
@@ -350,6 +382,9 @@ class TextDocument(core.VObject):
                                           )
                             )
 
+        for meta in self._meta_info.values():
+            meta.addLines(line_number, 1)
+
         self._setModified(True)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
@@ -367,6 +402,8 @@ class TextDocument(core.VObject):
         if self.isLineEmpty(line_number):
             if not self.isEmpty():
                 self._contents.pop(line_index)
+                for meta in self._meta_info.values():
+                    meta.deleteLines(line_number, 1)
                 self._setModified(True)
                 self.contentChanged.emit()
                 self.metaContentChanged.emit()
@@ -409,6 +446,11 @@ class TextDocument(core.VObject):
                                              _withoutEOL(current_line_text) + _withEOL(next_line_text)
                                         )
                              )
+
+        for meta in self._meta_info.values():
+            meta.deleteLines(line_number+1, 1)
+
+
         self._setModified(True)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
