@@ -69,7 +69,7 @@ Vai 1.3
    - Implemented redo with Ctrl+R
    - :r command to read and include a file
    - Performance improvements
-   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.3+is%3Aclosed+label%3ABug`_
+   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.3+is%3Aclosed+label%3ABug>`_
 
 Vai 1.2
 ~~~~~~~
