@@ -55,8 +55,7 @@ class SideRulerController:
         if not self._buffer:
             return
 
-        top_pos = self._buffer.edit_area_model.document_pos_at_top
-
+        top_pos = self._buffer.edit_area_model.document_pos_at_top[0]
         # FIXME: compute actual number of rows
         num_lines = 50
         badges = [None] * num_lines
@@ -71,7 +70,7 @@ class SideRulerController:
 
         lint_data = self._buffer.document.lineMetaInfo("LinterResult").data(top_pos, num_lines)
 
-        for idx, lint enumerate(lint_data):
+        for idx, lint in enumerate(lint_data):
             if lint is None:
                 continue
 
