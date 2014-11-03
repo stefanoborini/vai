@@ -94,5 +94,5 @@ class SideRulerController:
                                 )
 
 
-        self._side_ruler.setBadges(line_num, badges)
+        self._side_ruler.setBadges(badges)
 
