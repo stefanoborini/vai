@@ -21,15 +21,14 @@ class InfoHoverBox(core.VObject):
         self._buffer.cursor.positionChanged.connect(self._cursorPositionChanged)
 
     def _cursorPositionChanged(self, *args):
-
         if self._buffer is None:
             return
 
         cursor = self._buffer.cursor
         pos_at_top = self._buffer.edit_area_model.document_pos_at_top
 
-        meta = self._buffer.document.lineMeta(cursor.pos[0])
-        lint = meta.get(LineMeta.LinterResult)
+        meta = self._buffer.document.lineMetaInfo("LinterResult").data()
+        lint = meta[cursor.pos[0]-1]
 
         if lint is not None:
             gui.VToolTip.showText((0, cursor.pos[0]-pos_at_top[0]+1), lint.message)
