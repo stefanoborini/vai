@@ -1,6 +1,5 @@
 from ..widgets import LineBadge
 from ..linting import LinterResult
-from ..models.TextDocument import LineMeta
 from ..models import Configuration
 from ..Utils import stringToColor
 from vaitk import gui

@@ -1,6 +1,5 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
-from ..models.TextDocument import LineMeta
 
 class DeleteToEndOfWordCommand(BufferCommand):
     SPACERS = " {}[]().!@#$%^&*()=,"
@@ -13,9 +12,10 @@ class DeleteToEndOfWordCommand(BufferCommand):
         self.saveCursorPos()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
-        line_meta = document.lineMeta(pos[0])
-        if not LineMeta.Change in line_meta:
-            document.updateLineMeta(pos[0], {LineMeta.Change: "modified"})
+        line_meta = document.lineMetaInfo("Change")
+        changed = line_meta.data(pos[0])
+        if changed is None:
+            line_meta.setData(pos[0], "modified")
 
         text = document.lineText(pos[0])
 

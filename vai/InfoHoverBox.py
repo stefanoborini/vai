@@ -1,5 +1,4 @@
 from vaitk import gui, core
-from .models.TextDocument import LineMeta
 
 class InfoHoverBox(core.VObject):
     def __init__(self, buffer):
@@ -27,7 +26,7 @@ class InfoHoverBox(core.VObject):
         cursor = self._buffer.cursor
         pos_at_top = self._buffer.edit_area_model.document_pos_at_top
 
-        meta = self._buffer.document.lineMetaInfo("LinterResult").data()
+        meta = self._buffer.document.lineMetaInfo("LinterResult").data(1, self._buffer.document.numLines())
         lint = meta[cursor.pos[0]-1]
 
         if lint is not None:
