@@ -1,6 +1,5 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
-from ..models.TextDocument import LineMeta
 
 class NewLineCommand(BufferCommand):
     def execute(self):
@@ -14,7 +13,8 @@ class NewLineCommand(BufferCommand):
 
         document.newLine(pos[0])
         document.insertChars( (pos[0], 1), ' '*current_indent )
-        document.updateLineMeta(pos[0], {LineMeta.Change: "added"})
+        line_meta = document.lineMetaInfo("Change")
+        line_meta.setData(pos[0], "added")
         cursor.toPos( (pos[0], document.lineLength(pos[0])))
         return CommandResult(True, None)
 

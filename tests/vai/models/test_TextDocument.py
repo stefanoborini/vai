@@ -101,32 +101,6 @@ class TestTextDocument(unittest.TestCase):
         doc.insertLine(1,"")
         self.assertNotEqual(doc.lastModified(), last_modified)
 
-    def testLineMeta(self):
-        doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
-        self.assertEqual(type(doc.lineMeta(1)), dict)
-        self.assertRaises(IndexError, lambda : doc.lineMeta(20))
-
-    def testUpdateLineMeta(self):
-        doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
-        doc.updateLineMeta(1, {"hello": 5})
-        self.assertEqual(type(doc.lineMeta(1)), dict)
-        self.assertEqual(doc.lineMeta(1)["hello"], 5)
-
-        self.assertRaises(IndexError, lambda : doc.updateLineMeta(20, {}))
-
-    def testDeleteLineMeta(self):
-        doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
-        doc.updateLineMeta(1, {"hello": 5})
-        self.assertEqual(doc.lineMeta(1)["hello"], 5)
-
-        doc.deleteLineMeta(1, ["hello"])
-        self.assertNotIn("hello", doc.lineMeta(1))
-
-        self.assertRaises(IndexError, lambda : doc.deleteLineMeta(20, "hello"))
-
     def testCharMeta(self):
         doc = TextDocument()
         doc.open(fixtures.get("basic_nonempty_file.txt"))
@@ -361,10 +335,10 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(meta_info.document, doc)
         self.assertEqual(meta_info.meta_type, "whatever")
         self.assertEqual(meta_info.numLines(), 1)
-        self.assertEqual(meta_info.data(), [None])
+        self.assertEqual(meta_info.data(1), [None])
 
         meta_info.setData(1, "hello")
-        self.assertEqual(meta_info.data(), ["hello"])
+        self.assertEqual(meta_info.data(1), ["hello"])
 
     def testLineMetaSameObject(self):
         doc = TextDocument()

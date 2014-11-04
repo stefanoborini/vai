@@ -2,7 +2,6 @@ from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
 from .NewLineCommand import NewLineCommand
 from .NewLineAfterCommand import NewLineAfterCommand
-from ..models.TextDocument import LineMeta
 
 class BreakLineCommand(BufferCommand):
     def execute(self):
@@ -36,11 +35,13 @@ class BreakLineCommand(BufferCommand):
         document.insertChars( (pos[0]+1, 1), ' '*current_indent )
         cursor.toPos((pos[0]+1, current_indent+1))
 
-        line_meta = document.lineMeta(pos[0])
-        if line_meta.get(LineMeta.Change) == None:
-            document.updateLineMeta(pos[0], {LineMeta.Change: "modified"})
+        line_meta = document.lineMetaInfo("Change")
 
-        document.updateLineMeta(pos[0]+1, {LineMeta.Change: "added"})
+        if line_meta.data(pos[0], 1) == None:
+            line_meta.setData(pos[0], [ "modified", "added" ])
+        else:
+            line_meta.setData(pos[0]+1, [ "added" ])
+
         return CommandResult(success=True, info=None)
 
     def undo(self):

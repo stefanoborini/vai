@@ -1,6 +1,6 @@
 import unittest
 from vai.models.Buffer import Buffer
-from vai.models.TextDocument import TextDocument, LineMeta
+from vai.models.TextDocument import TextDocument
 from vai.models.EditAreaModel import EditAreaModel
 from vai import commands
 from tests import fixtures
@@ -16,13 +16,13 @@ class TestCommands(unittest.TestCase):
         status = command.execute()
         self.assertNotEqual(status, None)
         self.assertEqual(self.buffer.document.numLines(), 5)
-        self.assertEqual(self.buffer.document.lineMeta(1), {LineMeta.Change: "added"})
-        self.assertEqual(self.buffer.document.lineMeta(2), {})
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(1)[0], "added")
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(2)[0], None)
         self.assertEqual(self.buffer.cursor.pos, (1,1))
 
         command.undo()
         self.assertEqual(self.buffer.document.numLines(), 4)
-        self.assertEqual(self.buffer.document.lineMeta(1), {})
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(1)[0], None)
         self.assertEqual(self.buffer.cursor.pos, (1,1))
 
         self.buffer.cursor.toPos((4,7))
@@ -40,17 +40,17 @@ class TestCommands(unittest.TestCase):
         self.assertNotEqual(status, None)
         self.assertTrue(status.success)
         self.assertEqual(self.buffer.document.numLines(), 5)
-        self.assertEqual(self.buffer.document.lineMeta(1), {})
-        self.assertEqual(self.buffer.document.lineMeta(2), {LineMeta.Change: "added"})
-        self.assertEqual(self.buffer.document.lineMeta(3), {})
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(1)[0], None)
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(2)[0], "added")
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(3)[0], None)
         self.assertNotEqual(self.buffer.document.lineText(1), "\n")
         self.assertEqual(self.buffer.document.lineText(2), "\n")
         self.assertEqual(self.buffer.cursor.pos, (2,1))
 
         command.undo()
         self.assertEqual(self.buffer.document.numLines(), 4)
-        self.assertEqual(self.buffer.document.lineMeta(1), {})
-        self.assertEqual(self.buffer.document.lineMeta(2), {})
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(1)[0], None)
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(2)[0], None)
         self.assertEqual(self.buffer.cursor.pos, (1,1))
 
         self.buffer.cursor.toPos((4,7))

@@ -1,6 +1,5 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
-from ..models.TextDocument import LineMeta
 
 class JoinWithNextLineCommand(BufferCommand):
     def execute(self):
@@ -12,14 +11,14 @@ class JoinWithNextLineCommand(BufferCommand):
             return CommandResult(success=False, info=None)
 
         self.saveCursorPos()
-        line_meta = document.lineMeta(pos[0])
+        line_meta = document.lineMetaInfo("Change")
 
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
         self.saveLineMemento(pos[0]+1, BufferCommand.MEMENTO_INSERT)
 
         document.joinWithNextLine(pos[0])
-        if line_meta.get(LineMeta.Change) == None:
-            document.updateLineMeta(pos[0], {LineMeta.Change: "modified"})
+        if line_meta.data(pos[0]) == None:
+            line_meta.setData(pos[0], "modified")
 
         return CommandResult(success=True, info=None)
 

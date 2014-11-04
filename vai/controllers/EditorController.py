@@ -5,7 +5,6 @@ from .. import Search
 from .. import linting
 from ..Lexer import Lexer
 from ..models import Buffer, TextDocument, EditorState
-from ..models.TextDocument import LineMeta
 from .. import commands
 
 class EditorController:
@@ -164,6 +163,5 @@ class EditorController:
         else:
             status_bar.setMessage("Saved %s" % document.filename(), 3000)
 
-        for line_num in range(1, document.numLines()+1):
-            document.deleteLineMeta(line_num, LineMeta.Change)
+        document.lineMetaInfo("Change").clear()
 

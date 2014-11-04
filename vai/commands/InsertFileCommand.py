@@ -1,6 +1,5 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
-from ..models.TextDocument import LineMeta
 
 class InsertFileCommand(BufferCommand):
     def __init__(self, buffer, filename):
@@ -22,7 +21,8 @@ class InsertFileCommand(BufferCommand):
         self.saveCursorPos()
         self._how_many = len(lines)
         document.insertLines(line_pos, lines)
-        document.updateLinesMeta(line_pos, self._how_many, {LineMeta.Change: "added"})
+        line_meta = document.lineMetaInfo("Change")
+        line_meta.setData(line_pos, ["added"] * self._how_many)
 
         return CommandResult(True, None)
 

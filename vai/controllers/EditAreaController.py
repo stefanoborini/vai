@@ -220,7 +220,7 @@ class DeleteState:
             result = command.execute()
             if result.success:
                 buffer.command_history.add(command)
-                global_state.clipboard = result.info[2]
+                global_state.clipboard = result.info[0]
 
         if event.key() == Key.Key_W:
             command = commands.DeleteToEndOfWordCommand(buffer)

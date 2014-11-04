@@ -13,5 +13,6 @@ class ReplaceSingleCharCommand(BufferCommand):
         self.saveCursorPos()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
         deleted = document.replaceChars(pos, 1, self._char)
+        document.lineMetaInfo("Change").setData(pos[0], 'modified')
         return CommandResult(True, deleted)
 

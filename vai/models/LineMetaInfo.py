@@ -39,11 +39,11 @@ class LineMetaInfo:
 
         self.notifyObservers()
 
-    def data(self, from_line=1, how_many=None):
+    def data(self, from_line, how_many=None):
         if how_many is None:
-            how_many = len(self._data)
+            how_many = 1
 
-        return self._data[from_line-1:from_line+how_many]
+        return self._data[from_line-1:from_line-1+how_many]
 
     def clear(self):
         self._data = [None] * self._document.numLines()
