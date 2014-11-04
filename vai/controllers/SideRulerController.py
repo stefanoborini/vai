@@ -34,7 +34,7 @@ class SideRulerController:
 
         # Set signals
         self._buffer.edit_area_model.documentPosAtTopChanged.connect(self.updateTopRow)
-        self._buffer.document.lineMetaInfo("LinterResult").contentChanged.disconnect(self.updateBadges)
+        self._buffer.document.lineMetaInfo("LinterResult").contentChanged.connect(self.updateBadges)
         self._buffer.document.numLinesChanged.connect(self.updateNumRows)
 
         # Refresh
@@ -92,7 +92,6 @@ class SideRulerController:
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.cyan
                                 )
-
 
         self._side_ruler.setBadges(badges)
 

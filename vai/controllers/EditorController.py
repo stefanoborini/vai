@@ -130,13 +130,14 @@ class EditorController:
         document = self._buffer_list.current.document
 
         linter1 = linting.PyFlakesLinter(document)
-        info = linter1.runOnce()
+        all_info = linter1.runOnce()
 
-        for line_num in range(1, document.numLines()+1):
-            document.deleteLineMeta(line_num, LineMeta.LinterResult)
+        meta_info = [None]*document.numLines()
 
-        for i in info:
-            document.updateLineMeta(i.line, {LineMeta.LinterResult: i})
+        for info in all_info:
+            meta_info[info.line-1] = info
+
+        document.lineMetaInfo("LinterResult").setData(1, meta_info)
 
     def _doSave(self, filename=None):
         status_bar = self._editor.status_bar
