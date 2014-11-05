@@ -2,7 +2,7 @@ from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
 
 class DeleteToEndOfWordCommand(BufferCommand):
-    SPACERS = " {}[]().!@#$%^&*()=,"
+    SPACERS = " {}[]().!@#$%^&*=,"
 
     def execute(self):
         cursor = self._buffer.cursor
@@ -22,19 +22,23 @@ class DeleteToEndOfWordCommand(BufferCommand):
         # Zero based, for text.
         cur_index = pos[1]-1
 
+        char_under_cursor = text[cur_index]
         if text[cur_index] in DeleteToEndOfWordCommand.SPACERS:
             # cursor is on a spacer. Delete everything up to the first non spacer
-            remove_count = len(text[cur_index:]) - len(text[cur_index:].lstrip(DeleteToEndOfWordCommand.SPACERS))
+            # or the first spacer that is not the one we are currently on.
+            remove_count = len(text[cur_index:]) - len(text[cur_index:].lstrip(char_under_cursor))
+            remove_count += len(text[cur_index+remove_count:]) - len(text[cur_index+remove_count:].lstrip(' '))
         else:
             # Get the next spacer from the current position.
             # It's the first of this list comprehension, if available
             spacer_indexes = [ p for p, c in enumerate(text) if (p > cur_index and c in DeleteToEndOfWordCommand.SPACERS)]
             if len(spacer_indexes) == 0:
+                # None, just remove to end of line
                 remove_count = document.lineLength(pos[0]) - cur_index + 1
             else:
-                # Remove the non-spacer, plus all the spacers up to the next non-spacer
+                # Remove the non-spacer, plus all the ' ' up to the next spacer
                 remove_count = spacer_indexes[0] - cur_index
-                remove_count += len(text[cur_index+remove_count:]) - len(text[cur_index+remove_count:].lstrip(DeleteToEndOfWordCommand.SPACERS))
+                remove_count += len(text[cur_index+remove_count:]) - len(text[cur_index+remove_count:].lstrip(' '))
 
         deleted = document.deleteChars(pos, remove_count)
         return CommandResult(success=True, info=deleted)
