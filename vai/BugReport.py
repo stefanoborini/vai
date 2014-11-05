@@ -1,12 +1,17 @@
 import contextlib
 
-def report():
+def report(saved_files):
     print("Apologies. Vai has crashed.")
     print("---------------------------")
     with contextlib.closing(open("vai_crashreport.out")) as f:
         print(f.read())
 
     print("---------------------------")
+    print("Your buffers have been dumped to the following files")
+    print("")
+    for f in saved_files:
+        print("  "+str(f))
+    print("")
     print("The traceback has been saved in vai_crashreport.out")
 
     #print("Would you like to send a bug report to the development team?")

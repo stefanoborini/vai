@@ -46,6 +46,8 @@ def main():
         import traceback
         import contextlib
 
+        saved_files = app.dumpBuffers()
+
         app.resetScreen()
 
         with contextlib.closing(open("vai_crashreport.out", "w")) as f:
@@ -56,7 +58,7 @@ def main():
             pdb.post_mortem()
 
         if not args.noreport:
-            BugReport.report()
+            BugReport.report(saved_files)
 
     return 0
 
