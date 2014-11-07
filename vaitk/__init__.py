@@ -1,7 +1,4 @@
 import os
-
-
-import logging
 import curses
 
 class FocusPolicy:
