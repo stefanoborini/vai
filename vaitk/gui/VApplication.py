@@ -83,10 +83,10 @@ class VApplication(core.VCoreApplication):
         self.processEvents(True)
         self._key_event_thread.start()
         while self._exit_flag != True:
-            logging.info("Waiting for events")
+            self.logger.info("Waiting for events")
             self._event_available_flag.wait()
             self._event_available_flag.clear()
-            logging.info("Event available")
+            self.logger.info("Event available")
             self.processEvents(True)
             self._key_event_thread.throttle.set()
 
