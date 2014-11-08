@@ -335,10 +335,10 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(meta_info.document, doc)
         self.assertEqual(meta_info.meta_type, "whatever")
         self.assertEqual(meta_info.numLines(), 1)
-        self.assertEqual(meta_info.data(1), [None])
+        self.assertEqual(meta_info.data(1), None)
 
-        meta_info.setData(1, "hello")
-        self.assertEqual(meta_info.data(1), ["hello"])
+        meta_info.setData("hello",1)
+        self.assertEqual(meta_info.data(1), "hello")
 
     def testLineMetaSameObject(self):
         doc = TextDocument()
@@ -350,8 +350,8 @@ class TestTextDocument(unittest.TestCase):
         meta_info1 = doc.lineMetaInfo("whatever")
         meta_info2 = doc.lineMetaInfo("whatever2")
 
-        meta_info1.setData(1, "hello")
-        meta_info2.setData(1, "byebye")
+        meta_info1.setData("hello", 1)
+        meta_info2.setData("byebye", 1)
 
         doc.newLineAfter(1)
 
@@ -376,6 +376,35 @@ class TestTextDocument(unittest.TestCase):
 
         self.assertEqual(meta_info1.data(1,2), [None, None])
         self.assertEqual(meta_info2.data(1,2), [None, None])
+
+        self.assertEqual(meta_info1.data(1,1), [None])
+        self.assertEqual(meta_info2.data(1,1), [None])
+
+        self.assertEqual(meta_info1.data(1), None)
+        self.assertEqual(meta_info2.data(1), None)
+
+    def testLineMetaInfoMemento(self):
+        doc = TextDocument()
+        meta_info1 = doc.lineMetaInfo("whatever")
+        meta_info2 = doc.lineMetaInfo("whatever2")
+        doc.newLineAfter(1)
+        doc.newLine(1)
+
+        meta_info1.setData("hello", 1)
+        meta_info2.setData("byebye", 1)
+
+        memento = doc.lineMemento(1)
+
+        doc.deleteLine(1)
+        self.assertEqual(doc.lineMetaInfo("whatever").data(1), None)
+        self.assertEqual(doc.lineMetaInfo("whatever2").data(1), None)
+
+        doc.insertFromMemento(1, memento)
+        self.assertEqual(doc.lineText(1), '\n')
+        self.assertEqual(doc.lineMetaInfo("whatever").data(1), 'hello')
+        self.assertEqual(doc.lineMetaInfo("whatever2").data(1), 'byebye')
+
+
 
 if __name__ == '__main__':
     unittest.main()

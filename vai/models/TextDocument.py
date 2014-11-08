@@ -566,16 +566,28 @@ class TextDocument(core.VObject):
     # Memento extraction for a line
 
     def lineMemento(self, line_number):
-        return copy.deepcopy(self._contents[line_number-1])
+        memento = [ copy.deepcopy(self._contents[line_number-1]) ]
+        meta_info = {}
+        for name, meta in self._meta_info.items():
+            meta_info[name] = meta.memento(line_number)
+
+        memento.append(meta_info)
+        return memento
 
     def insertFromMemento(self, line_number, memento):
-        self._contents.insert(line_number-1, copy.deepcopy(memento))
+        self._contents.insert(line_number-1, copy.deepcopy(memento[0]))
+        for name, meta_info in memento[1].items():
+            self._meta_info[name].insertFromMemento(line_number, meta_info)
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
 
     def replaceFromMemento(self, line_number, memento):
         self._contents[line_number-1] = copy.deepcopy(memento)
+        for name, meta_info in memento[1].items():
+            self._meta_info[name].replaceFromMemento(line_number, meta_info)
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
 
