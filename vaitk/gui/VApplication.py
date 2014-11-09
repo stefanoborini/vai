@@ -96,6 +96,7 @@ class VApplication(core.VCoreApplication):
         self.logger.info("++++---- %s processing events ---+++++" % ("Native" if native else "Forced"))
         self._processKeyEvents()
         self._processRemainingEvents()
+        self._sendPaintEvents()
         self._deleteScheduled()
         self.logger.info("===================================")
         self._screen.refresh()
@@ -270,6 +271,19 @@ class VApplication(core.VCoreApplication):
             #x, y = self._screen.size()
             #curses.resizeterm(y, x)
             #self.renderWidgets()
+
+    def _sendPaintEvents(self):
+        for w in self.rootWidget().depthFirstFullTree():
+            if w.needsUpdate():
+                for w2 in w.depthFirstRightTree():
+                    if core.VRect.tuple.intersects(w.absoluteRect(),w2.absoluteRect()):
+                        w2.update()
+
+        for w in self.rootWidget().depthFirstFullTree():
+            if w.needsUpdate():
+                w.event(events.VPaintEvent())
+
+
 
     def _exitCleanup(self):
         self._key_event_thread.stop_event.set()
