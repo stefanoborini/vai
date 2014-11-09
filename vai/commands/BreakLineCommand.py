@@ -8,7 +8,6 @@ class BreakLineCommand(BufferCommand):
         cursor = self._cursor
         document = self._document
         pos = cursor.pos
-
         self.saveCursorPos()
 
         if pos[1] == document.lineLength(pos[0]):
@@ -37,10 +36,10 @@ class BreakLineCommand(BufferCommand):
 
         line_meta = document.lineMetaInfo("Change")
 
-        if line_meta.data(pos[0], 1) == None:
-            line_meta.setData(pos[0], [ "modified", "added" ])
+        if line_meta.data(pos[0]) == None:
+            line_meta.setData([ "modified", "added" ], pos[0])
         else:
-            line_meta.setData(pos[0]+1, [ "added" ])
+            line_meta.setData([ "added" ], pos[0]+1)
 
         return CommandResult(success=True, info=None)
 
