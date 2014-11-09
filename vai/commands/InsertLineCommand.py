@@ -10,11 +10,11 @@ class InsertLineCommand(BufferCommand):
         document = self._document
         cursor = self._cursor
         pos = cursor.pos
+        line_meta = document.lineMetaInfo("Change")
 
         self.saveCursorPos()
 
         document.insertLine(pos[0], self._text)
-        line_meta = document.lineMetaInfo("Change")
         line_meta.setData("added", pos[0])
         cursor.toPos((pos[0], 1))
         return CommandResult(True, None)
