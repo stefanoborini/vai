@@ -136,7 +136,7 @@ class EditorController:
         for info in all_info:
             meta_info[info.line-1] = info
 
-        document.lineMetaInfo("LinterResult").setDataForIndexes(meta_info)
+        document.lineMetaInfo("LinterResult").setDataForLines(meta_info)
 
     def _doSave(self, filename=None):
         status_bar = self._editor.status_bar
