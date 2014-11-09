@@ -18,7 +18,7 @@ class JoinWithNextLineCommand(BufferCommand):
 
         document.joinWithNextLine(pos[0])
         if line_meta.data(pos[0]) == None:
-            line_meta.setData(pos[0], "modified")
+            line_meta.setData("modified", pos[0])
 
         return CommandResult(success=True, info=None)
 
