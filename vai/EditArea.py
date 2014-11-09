@@ -2,33 +2,10 @@ import vaitk
 from vaitk import gui, core, utils
 from . import controllers
 from .models.TextDocument import CharMeta
+from .DefaultColorSchema import DefaultColorSchema
 from . import Search
 
-from pygments import token
 
-TOKEN_TO_COLORS = {
-    token.Keyword:              (gui.VGlobalColor.yellow, None),
-    token.Keyword.Constant:     (gui.VGlobalColor.red, None),
-    token.Keyword.Pseudo:       (gui.VGlobalColor.red, None),
-    token.Keyword.Namespace:    (gui.VGlobalColor.magenta, None),
-    token.Keyword.Reserved:     (gui.VGlobalColor.magenta, None),
-    token.Keyword.Type:         (gui.VGlobalColor.magenta, None),
-    token.Comment:              (gui.VGlobalColor.cyan, None),
-    token.Comment.Single:       (gui.VGlobalColor.cyan, None),
-    token.Name.Function:        (gui.VGlobalColor.cyan, None),
-    token.Name.Class:           (gui.VGlobalColor.cyan, None),
-    token.String:               (gui.VGlobalColor.red, None),
-    token.Literal:              (gui.VGlobalColor.red, None),
-    token.Literal.String.Doc:   (gui.VGlobalColor.red, None),
-    token.Number:               (gui.VGlobalColor.red, None),
-    token.Number.Integer:       (gui.VGlobalColor.red, None),
-    token.Number.Float:         (gui.VGlobalColor.red, None),
-    token.Number.Hex:           (gui.VGlobalColor.red, None),
-    token.Number.Oct:           (gui.VGlobalColor.red, None),
-    token.Operator.Word:        (gui.VGlobalColor.yellow, None),
-    token.Name.Decorator:       (gui.VGlobalColor.blue, None),
-    token.Name.Builtin.Pseudo:  (gui.VGlobalColor.cyan, None),
-}
 
 class EditArea(gui.VWidget):
     def __init__(self, global_state, editor_controller, parent):
@@ -36,6 +13,7 @@ class EditArea(gui.VWidget):
         self._buffer = None
 
         self._controller = controllers.EditAreaController(self, global_state, editor_controller)
+        self._color_schema = DefaultColorSchema()
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
@@ -63,8 +41,6 @@ class EditArea(gui.VWidget):
         pos_y = utils.clamp(cursor_pos[1], 0, self.height()-1)
         self._visual_cursor_pos = (pos_x, pos_y)
         gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
-
-
 
     def paintEvent(self, event):
         painter = gui.VPainter(self)
@@ -109,11 +85,11 @@ class EditArea(gui.VWidget):
 
             char_meta = document.charMeta( (doc_line_num,1))
             if CharMeta.LexerToken in char_meta:
-                colors = [TOKEN_TO_COLORS.get(tok, (None, None)) for tok in char_meta.get(CharMeta.LexerToken)]
+                colors = [self._color_schema.COLORMAP[tok] for tok in char_meta.get(CharMeta.LexerToken)]
 
             for i in range(5, indent_spaces, 4):
                 colors[i-1] = (gui.VGlobalColor.blue, None)
-                
+
             # Then, if there's a word, replace (None, None) entries with the highlight color
             word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]
             for word_start in word_entries_for_line:
