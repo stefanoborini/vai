@@ -63,7 +63,7 @@ class CommandBarController:
             else:
                 self._reportError("Only one filename allowed")
                 return False
-        elif command[0] == "wq":
+        elif command[0] in ("wq", "x"):
             self._editor_controller.doSaveAndExit()
         elif command[0] == "e":
             if len(command) == 1:
