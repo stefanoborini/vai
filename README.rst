@@ -131,6 +131,9 @@ Contributors
 Main development:
 - Stefano Borini
 
+Additional contributes:
+- `Carl George (cgtx) <https://github.com/cgtx>`_
+
 Testing:
 - Maicon Lourenco
 
