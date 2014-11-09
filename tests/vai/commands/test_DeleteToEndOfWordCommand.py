@@ -4,8 +4,7 @@ from vai.models.TextDocument import TextDocument
 from vai import commands
 from tests import fixtures
 
-class TestCommands(unittest.TestCase):
-
+class TestDeleteToEndOfWordCommands(unittest.TestCase):
     def testDeleteToEndOfWordCommand(self):
         self.buffer = Buffer()
         self.buffer.document.open(fixtures.get("basic_python.py"))
