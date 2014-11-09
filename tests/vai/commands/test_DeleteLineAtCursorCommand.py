@@ -1,0 +1,84 @@
+import unittest
+from vai.models.Buffer import Buffer
+from vai.models.TextDocument import TextDocument
+from vai.models.EditAreaModel import EditAreaModel
+from vai import commands
+from tests import fixtures
+
+
+class TestDeleteLineAtCursorCommand(unittest.TestCase):
+    def setUp(self):
+        self.buffer = Buffer()
+        self.buffer.document.open(fixtures.get("basic_python.py"))
+
+    def testDeleteLineAtCursorCommand1(self):
+        removed_line = self.buffer.document.lineText(1)
+
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        status = command.execute()
+        self.assertNotEqual(status, None)
+        self.assertTrue(status.success)
+
+        self.assertEqual(self.buffer.document.numLines(), 3)
+        self.assertNotEqual(self.buffer.document.lineText(1), removed_line)
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+        # FIXME  check meta
+
+        command.undo()
+        self.assertEqual(self.buffer.document.numLines(), 4)
+        self.assertEqual(self.buffer.document.lineText(1), removed_line)
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+
+    def testDeleteLineAtCursorCommand2(self):
+        """testDeleteLineAtCursorCommand from the bottom"""
+        second_to_last_line = self.buffer.document.lineText(3)
+        removed_line = self.buffer.document.lineText(4)
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        self.buffer.cursor.toPos((4,1))
+        command.execute()
+        self.assertEqual(self.buffer.document.numLines(), 3)
+        self.assertEqual(self.buffer.cursor.pos, (3,1))
+        self.assertEqual(self.buffer.document.lineText(3), second_to_last_line)
+
+        command.undo()
+        self.assertEqual(self.buffer.document.numLines(), 4)
+        self.assertEqual(self.buffer.document.lineText(4), removed_line)
+        self.assertEqual(self.buffer.cursor.pos, (4,1))
+
+    def testDeleteLineAtCursorCommand3(self):
+        """testDeleteLineAtCursorCommand all the way from the bottom"""
+        self.buffer.cursor.toPos((4,2))
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        command.execute()
+        self.assertEqual(self.buffer.document.numLines(), 3)
+        self.assertEqual(self.buffer.cursor.pos, (3,2))
+
+        command.execute()
+        self.assertEqual(self.buffer.document.numLines(), 2)
+        self.assertEqual(self.buffer.cursor.pos, (2,1))
+
+        command.execute()
+        self.assertEqual(self.buffer.document.numLines(), 1)
+        self.assertNotEqual(self.buffer.document.lineLength(1), 1)
+        self.assertEqual(self.buffer.cursor.pos, (1,2))
+
+        command.execute()
+        self.assertEqual(self.buffer.document.numLines(), 1)
+        self.assertEqual(self.buffer.document.lineLength(1), 1)
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+
+        status = command.execute()
+        self.assertFalse(status.success)
+        self.assertEqual(self.buffer.document.numLines(), 1)
+        self.assertEqual(self.buffer.document.lineLength(1), 1)
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+
+    def testDeleteLineAtCursorCommand4(self):
+        """Check if the cursor is placed at the end of line if next line is invalid"""
+        self.buffer.cursor.toPos((1,6))
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        command.execute()
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+
+if __name__ == '__main__':
+    unittest.main()
