@@ -1,14 +1,15 @@
 from vaitk import gui, core, utils
 import math
 from collections import namedtuple
+from ..Debug import log
 
-LineBadge = namedtuple('LineBadge', ["marker", "description", "fg_color", "bg_color"])
+LineBadge = namedtuple('LineBadge', ["marker", "fg_color", "bg_color"])
 
 class SideRuler(gui.VWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        self._num_rows = 1
-        self._top_row = 1
+        self._num_lines = 1
+        self._top_line = 1
         self._skip_intervals = []
         self._badges = {}
 
@@ -18,13 +19,14 @@ class SideRuler(gui.VWidget):
         painter = gui.VPainter(self)
         painter.erase()
         num_digits = self._lineNumberWidth()
-        entries = _computeLineValues(self._top_row, h, self._skip_intervals)
+        entries = _computeLineValues(self._top_line, h, self._skip_intervals)
         for i, current in enumerate(entries):
+            log("updating " + str(i) + str( current))
             badge_mark = " "
             border = " "
             painter.bg_color = current_bg
 
-            if current > self._num_rows:
+            if current > self._num_lines:
                 painter.fg_color = current_fg
                 painter.drawText( (0, i), "~".ljust(num_digits)+" "+border)
                 continue
@@ -38,42 +40,43 @@ class SideRuler(gui.VWidget):
                               str(current).rjust(num_digits) + badge_mark + border,
                               )
 
-
-    def setNumRows(self, num_rows):
-        self._num_rows = num_rows
+    def setNumLines(self, num_lines):
+        """Sets the total number of lines the document has"""
+        self._num_lines = num_lines
         self.update()
 
-    def setTopRow(self, top_row):
-        self._top_row = top_row
+    def setTopLine(self, top_line):
+        """Sets the current top line that is displayed"""
+        self._top_line = top_line
         self.update()
 
     def minimumSize(self):
         return (self._lineNumberWidth(), 1)
 
-    def addBadge(self, line, badge):
-        self._badges[line] = badge
+    def setBadges(self, badges_dict):
+        """Set badges at specified lines, overriding the current ones."""
+        self._badges.update(badges_dict)
         self.update()
 
-    def removeBadge(self, line):
+    def removeBadges(self, lines):
+        """Clear specific badge lines"""
         if line in self._badges:
             del self._badges[line]
             self.update()
 
-    def setBadges(self, badges):
-        for idx, badge in enumerate(badges):
-            if badge is None:
-                continue
-            self._badges[self._top_row+idx] = badge
+    def badges(self, lines):
+        return [self._badges.get(line) for line in lines]
 
-        self.update()
-
-    def badge(self, line):
-        return self._badges.get(line)
+    def visibleLineNumbers(self):
+        w, h = self.size()
+        line_values = _computeLineValues(self._top_line, h, self._skip_intervals)
+        return [l for l in line_values if l <= self._num_lines]
 
     # Private
 
     def _lineNumberWidth(self):
-        return int(math.log10(self._num_rows))+1
+        return int(math.log10(self._num_lines))+1
+
 
 
 def _computeLineValues(start, how_many, skip):

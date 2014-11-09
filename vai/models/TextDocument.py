@@ -202,6 +202,9 @@ class TextDocument(core.VObject):
         for meta in self._meta_info.values():
             meta.addLines(line_number+1, 1)
 
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
@@ -213,6 +216,9 @@ class TextDocument(core.VObject):
 
         for meta in self._meta_info.values():
             meta.addLines(line_number, 1)
+
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
@@ -229,6 +235,8 @@ class TextDocument(core.VObject):
         for meta in self._meta_info.values():
             meta.addLines(line_number, 1)
 
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
@@ -245,6 +253,9 @@ class TextDocument(core.VObject):
             meta.addLines(insert_at, len(text_lines))
 
         self._setModified(True)
+
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
@@ -259,6 +270,9 @@ class TextDocument(core.VObject):
 
         for meta in self._meta_info.values():
             meta.deleteLines(line_number, 1)
+
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
 
         self.contentChanged.emit()
         self.metaContentChanged.emit()
@@ -278,6 +292,8 @@ class TextDocument(core.VObject):
         for meta in self._meta_info.values():
             meta.deleteLines(from_line, how_many)
 
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
 
         self.contentChanged.emit()
         self.metaContentChanged.emit()
@@ -329,6 +345,8 @@ class TextDocument(core.VObject):
             meta.addLines(line_number, 1)
 
         self._setModified(True)
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
@@ -347,6 +365,8 @@ class TextDocument(core.VObject):
                 for meta in self._meta_info.values():
                     meta.deleteLines(line_number, 1)
                 self._setModified(True)
+                for meta in self._meta_info.values():
+                    meta.notifyObservers()
                 self.contentChanged.emit()
                 self.metaContentChanged.emit()
                 self.numLinesChanged.emit()
@@ -383,8 +403,10 @@ class TextDocument(core.VObject):
         for meta in self._meta_info.values():
             meta.deleteLines(line_number+1, 1)
 
-
         self._setModified(True)
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
