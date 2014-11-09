@@ -70,7 +70,7 @@ class TestLineMetaInfo(unittest.TestCase):
 
         meta_info.setDataForLines({2: "damn"})
 
-        self.assertEqual(meta_info.data(), [None, "damn", None])
+        self.assertEqual(meta_info.data(), [None, "damn", None, None])
 
 
 
