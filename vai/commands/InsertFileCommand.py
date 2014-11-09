@@ -18,11 +18,12 @@ class InsertFileCommand(BufferCommand):
         except:
             return CommandResult(False, None)
 
+        line_meta = document.lineMetaInfo("Change")
+
         self.saveCursorPos()
         self._how_many = len(lines)
         document.insertLines(line_pos, lines)
-        line_meta = document.lineMetaInfo("Change")
-        line_meta.setData(line_pos, ["added"] * self._how_many)
+        line_meta.setData(["added"] * self._how_many, line_pos)
 
         return CommandResult(True, None)
 
