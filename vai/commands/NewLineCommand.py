@@ -14,7 +14,7 @@ class NewLineCommand(BufferCommand):
         document.newLine(pos[0])
         document.insertChars( (pos[0], 1), ' '*current_indent )
         line_meta = document.lineMetaInfo("Change")
-        line_meta.setData(pos[0], "added")
+        line_meta.setData("added", pos[0])
         cursor.toPos( (pos[0], document.lineLength(pos[0])))
         return CommandResult(True, None)
 
