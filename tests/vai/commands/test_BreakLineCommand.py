@@ -64,12 +64,22 @@ class TestBreakLineCommands(unittest.TestCase):
         command = commands.BreakLineCommand(self.buffer)
         result = command.execute()
         self.assertTrue(result.success)
-        self.assertEqual(self.buffer.document.lineText(1), '#!python\n')
-        self.assertEqual(self.buffer.document.lineText(2), '\n')
-        self.assertEqual(self.buffer.document.lineText(3), '\n')
+        self.assertEqual(doc.lineText(1), '#!python\n')
+        self.assertEqual(doc.lineText(2), '\n')
+        self.assertEqual(doc.lineText(3), '\n')
 
         command.undo()
 
+    def testBreakStripsSpaces(self):
+        doc = self.buffer.document
+        cursor = self.buffer.cursor
+
+        doc.insertLine(1, "foo          bar")
+        cursor.toPos((1,6))
+        command = commands.BreakLineCommand(self.buffer)
+        result = command.execute()
+        self.assertEqual(doc.lineText(1), "foo  \n")
+        self.assertEqual(doc.lineText(2), "bar\n")
 
 
 if __name__ == '__main__':

@@ -31,6 +31,8 @@ class BreakLineCommand(BufferCommand):
         current_indent = len(current_text) - len(current_text.lstrip(' '))
 
         document.breakLine(pos)
+        text_broken_line = document.lineText(pos[0]+1)
+        document.deleteChars((pos[0]+1, 1), len(text_broken_line)-len(text_broken_line.lstrip(' ')))
         document.insertChars( (pos[0]+1, 1), ' '*current_indent )
         cursor.toPos((pos[0]+1, current_indent+1))
 
