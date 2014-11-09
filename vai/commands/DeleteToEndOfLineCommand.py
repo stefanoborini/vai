@@ -13,7 +13,7 @@ class DeleteToEndOfLineCommand(BufferCommand):
         line_meta = document.lineMetaInfo("Change")
         changed = line_meta.data(pos[0])
         if changed:
-            line_meta.setData(pos[0], "modified")
+            line_meta.setData("modified", pos[0])
 
         deleted = document.deleteChars(pos, document.lineLength(pos[0])-pos[1])
         cursor.toCharPrev()

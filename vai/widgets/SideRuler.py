@@ -18,7 +18,7 @@ class SideRuler(gui.VWidget):
         painter = gui.VPainter(self)
         painter.erase()
         num_digits = self._lineNumberWidth()
-        entries = _computeLineValues(self._top_row, h, self._skip_intervals)
+        entries = self.visibleRowNumbers()
         for i, current in enumerate(entries):
             badge_mark = " "
             border = " "
@@ -38,37 +38,48 @@ class SideRuler(gui.VWidget):
                               str(current).rjust(num_digits) + badge_mark + border,
                               )
 
-
     def setNumRows(self, num_rows):
+        """Sets the total number of document rows"""
         self._num_rows = num_rows
         self.update()
 
     def setTopRow(self, top_row):
+        """Sets the top row value, that is the value at the very top of the ruler"""
         self._top_row = top_row
         self.update()
 
     def minimumSize(self):
         return (self._lineNumberWidth(), 1)
 
-    def addBadge(self, line, badge):
-        self._badges[line] = badge
-        self.update()
+    def addBadges(self, badges):
+        """
+        Add the badges to the internal badge set.
+        badges is a dictionary { linenumber: badge }
+        """
 
-    def removeBadge(self, line):
-        if line in self._badges:
-            del self._badges[line]
-            self.update()
+        self._badges.update(badges)
+        self.update()
 
     def setBadges(self, badges):
-        for idx, badge in enumerate(badges):
-            if badge is None:
-                continue
-            self._badges[self._top_row+idx] = badge
+        self._badges.clear()
+        self._badges.update(badges)
+        self.update()
+
+    def removeBadges(self, line_num_list):
+        for line in line_num_list:
+            del self._badges[line]
 
         self.update()
 
-    def badge(self, line):
-        return self._badges.get(line)
+    def clearBadges(self):
+        self._badges.clear()
+
+        self.update()
+
+    def visibleRowNumbers(self):
+        """Returns a list of all row numbers visible on the ruler"""
+        w, h = self.size()
+        return _computeLineValues(self._top_row, self._num_rows, self._skip_intervals)
 
     # Private
 

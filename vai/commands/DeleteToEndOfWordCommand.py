@@ -15,7 +15,7 @@ class DeleteToEndOfWordCommand(BufferCommand):
         line_meta = document.lineMetaInfo("Change")
         changed = line_meta.data(pos[0])
         if changed is None:
-            line_meta.setData(pos[0], "modified")
+            line_meta.setData("modified", pos[0])
 
         text = document.lineText(pos[0])
 
