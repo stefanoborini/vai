@@ -206,6 +206,8 @@ class TestTextDocument(unittest.TestCase):
         doc = TextDocument()
         doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.breakLine((1,3))
+        self.assertEqual(doc.lineText(1), "he\n")
+        self.assertEqual(doc.lineText(2), "llo\n")
 
     def testJoinWithNextLine(self):
         doc = TextDocument()
