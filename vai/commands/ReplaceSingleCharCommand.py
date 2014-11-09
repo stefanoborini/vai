@@ -10,9 +10,12 @@ class ReplaceSingleCharCommand(BufferCommand):
         document = self._buffer.document
         cursor = self._buffer.cursor
         pos = cursor.pos
+        meta_info = document.lineMetaInfo("Change")
+
         self.saveCursorPos()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
+
+        meta_info.setData('modified', pos[0])
         deleted = document.replaceChars(pos, 1, self._char)
-        document.lineMetaInfo("Change").setData(pos[0], 'modified')
         return CommandResult(True, deleted)
 
