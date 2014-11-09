@@ -21,7 +21,6 @@ class SideRuler(gui.VWidget):
         num_digits = self._lineNumberWidth()
         entries = _computeLineValues(self._top_line, h, self._skip_intervals)
         for i, current in enumerate(entries):
-            log("updating " + str(i) + str( current))
             badge_mark = " "
             border = " "
             painter.bg_color = current_bg
