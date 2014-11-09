@@ -42,9 +42,9 @@ class LineMetaInfo:
 
         self.notifyObservers()
 
-    def setDataForIndexes(self, data_dict):
+    def setDataForLines(self, data_dict):
         for k, v in data_dict.items():
-            self._data[k-1] = d
+            self._data[k-1] = v
 
         self.notifyObservers()
 
