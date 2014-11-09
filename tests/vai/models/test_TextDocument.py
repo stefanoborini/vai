@@ -406,6 +406,21 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.lineMetaInfo("whatever").data(1), 'hello')
         self.assertEqual(doc.lineMetaInfo("whatever2").data(1), 'byebye')
 
+    def testReplaceFromMemento(self):
+
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        initial_text = doc.documentText()
+        meta_info1 = doc.lineMetaInfo("whatever")
+        meta_info1.setData("hello", 1)
+
+        memento = doc.lineMemento(1)
+        doc.insertChars((1,1), 'gnakgnak')
+        meta_info1.setData("byebye", 1)
+        doc.replaceFromMemento(1, memento)
+
+        self.assertEqual(doc.documentText(), initial_text)
+        self.assertEqual(meta_info1.data(1), "hello")
 
 
 if __name__ == '__main__':
