@@ -15,7 +15,7 @@ class SideRulerTest(unittest.TestCase):
 
     def testBasicSideRulerRepresentation(self):
         ruler = SideRuler(parent=None)
-        ruler.setNumRows(10)
+        ruler.setNumLines(10)
         ruler.setGeometry((0,0,5,40))
         ruler.show()
         self.app.processEvents()
@@ -24,7 +24,7 @@ class SideRulerTest(unittest.TestCase):
         self.assertEqual(self.screen.stringAt(0,9,10),  "10   .....")
         self.assertEqual(self.screen.stringAt(0,10,10), "~    .....")
 
-        ruler.setNumRows(100)
+        ruler.setNumLines(100)
         self.app.processEvents()
         self.assertEqual(self.screen.stringAt(0,0,10),  "  1  .....")
         self.assertEqual(self.screen.stringAt(0,1,10),  "  2  .....")
