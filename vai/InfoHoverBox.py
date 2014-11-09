@@ -3,6 +3,7 @@ from vaitk import gui, core
 class InfoHoverBox(core.VObject):
     def __init__(self, buffer):
         self._buffer = None
+        self._current_shown_line = None
 
     @property
     def buffer(self):
@@ -26,10 +27,15 @@ class InfoHoverBox(core.VObject):
         cursor = self._buffer.cursor
         pos_at_top = self._buffer.edit_area_model.document_pos_at_top
 
-        meta = self._buffer.document.lineMetaInfo("LinterResult").data(1, self._buffer.document.numLines())
-        lint = meta[cursor.pos[0]-1]
+        if self._current_shown_line == cursor.pos[0]:
+            gui.VToolTip.hide()
+            return
+
+        lint = self._buffer.document.lineMetaInfo("LinterResult").data(cursor.pos[0])
 
         if lint is not None:
+            self._current_shown_line = cursor.pos[0]
             gui.VToolTip.showText((0, cursor.pos[0]-pos_at_top[0]+1), lint.message)
         else:
+            self._current_shown_line = None
             gui.VToolTip.hide()
