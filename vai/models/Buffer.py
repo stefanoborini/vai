@@ -14,6 +14,8 @@ class Buffer:
         self._document_cursor = TextDocumentCursor(self._document)
         self._edit_area_model = EditAreaModel()
         self._command_history = CommandHistory()
+        self._document.createLineMetaInfo("LinterResult")
+        self._document.createLineMetaInfo("Change")
 
     def isEmpty(self):
         """

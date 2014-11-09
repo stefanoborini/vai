@@ -11,7 +11,7 @@ class LineMetaInfo:
     def __init__(self, meta_type, document):
         self._meta_type = meta_type
         self._document = document
-        self._data = [None] * self._document.numLines()
+        self.resetLines()
 
         self.contentChanged = core.VSignal(self)
 
@@ -27,6 +27,10 @@ class LineMetaInfo:
     def deleteLines(self, line_number, how_many):
         for i in range(how_many):
             self._data.pop(line_number-1)
+
+    # Meant to be called by document.
+    def resetLines(self):
+        self._data = [None] * self._document.numLines()
 
     def setData(self, data, from_line=1):
         # As a method, so we can bind to it via signal/slot. Property with slice needed.

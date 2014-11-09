@@ -8,6 +8,7 @@ from tests import fixtures
 class TestLineMetaInfo(unittest.TestCase):
     def testBasic(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
         meta_info = doc.lineMetaInfo("whatever")
 
         self.assertEqual(meta_info.document, doc)
@@ -20,11 +21,15 @@ class TestLineMetaInfo(unittest.TestCase):
 
     def testSameObject(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
         self.assertEqual(doc.lineMetaInfo("whatever"), doc.lineMetaInfo("whatever"))
         self.assertNotEqual(doc.lineMetaInfo("whatever"), doc.lineMetaInfo("whatever2"))
 
     def testChangeLineNumber(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
         meta_info1 = doc.lineMetaInfo("whatever")
         meta_info2 = doc.lineMetaInfo("whatever2")
 
@@ -63,6 +68,7 @@ class TestLineMetaInfo(unittest.TestCase):
 
     def testSetDataForLines(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
         doc.insertLine(1, "hello")
         doc.insertLine(1, "hello")
         doc.insertLine(1, "hello")
