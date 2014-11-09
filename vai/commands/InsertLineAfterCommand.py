@@ -13,7 +13,7 @@ class InsertLineAfterCommand(BufferCommand):
         self.saveCursorPos()
 
         document.insertLine(cursor.pos[0]+1, self._text)
-        document.lineMetaInfo("Change").setData(cursor.pos[0]+1, "added")
+        document.lineMetaInfo("Change").setData("added", cursor.pos[0]+1)
         cursor.toLineNext()
         return CommandResult(True, None)
 
