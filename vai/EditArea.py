@@ -95,7 +95,7 @@ class EditArea(gui.VWidget):
             for word_start in word_entries_for_line:
                 for pos in range(word_start-1, word_start-1+len(current_word)):
                     if colors[pos] == (None, None):
-                        colors[pos] = (gui.VGlobalColor.red, None)
+                        colors[pos] = (gui.VGlobalColor.lightred, None)
 
             painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
             painter.recolor((0, visual_line_num), colors[pos_at_top[1]-1:])
