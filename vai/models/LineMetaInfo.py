@@ -1,6 +1,5 @@
 from vaitk import core
 import collections
-from ..Debug import log
 import copy
 
 # New class to store meta information in a separate
@@ -59,7 +58,6 @@ class LineMetaInfo:
         return { i+1: v for i,v in enumerate(self._data) if v is not None}
 
     def dataForIndexes(self, indexes):
-        log(self._data)
         return {i: self._data[i-1] for i in indexes}
 
     def clear(self):
