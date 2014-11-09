@@ -44,3 +44,6 @@ class VGlobalColor:
     grey = VColor(rgb=(170,170,170))
 
 
+    def nameToColor(name):
+        return VGlobalColor.__dict__.get(name)
+

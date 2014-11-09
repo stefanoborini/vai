@@ -1,8 +1,6 @@
 from ..widgets import LineBadge
 from ..linting import LinterResult
 from ..models import Configuration
-from ..Utils import stringToColor
-from ..Debug import log
 from vaitk import gui
 
 class SideRulerController:
@@ -10,8 +8,8 @@ class SideRulerController:
         self._side_ruler = side_ruler
         config = Configuration.instance()
 
-        self._side_ruler.setColors(stringToColor(config["colors.side_ruler.fg"]),
-                                   stringToColor(config["colors.side_ruler.bg"])
+        self._side_ruler.setColors(gui.VGlobalColor.nameToColor(config["colors.side_ruler.fg"]),
+                                   gui.VGlobalColor.nameToColor(config["colors.side_ruler.bg"])
                                   )
 
         self._buffer = None
@@ -52,9 +50,7 @@ class SideRulerController:
 
         badges = {}
         needed_lines = self._side_ruler.visibleLineNumbers()
-        log(needed_lines)
         changed_data = self._buffer.document.lineMetaInfo("Change").dataForLines(needed_lines)
-        log(changed_data)
 
         for line, change in changed_data.items():
             if change == "added":
@@ -68,7 +64,6 @@ class SideRulerController:
             if lint is None:
                 continue
 
-            log(lint_data)
             if lint.level == LinterResult.Level.ERROR:
                 badges[line] = LineBadge(marker="E",
                                   fg_color=gui.VGlobalColor.yellow,
@@ -86,5 +81,4 @@ class SideRulerController:
                                 )
 
         self._side_ruler.setBadges(badges)
-        log("updating")
         self._side_ruler.update()
