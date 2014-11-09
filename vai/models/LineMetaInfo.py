@@ -48,17 +48,23 @@ class LineMetaInfo:
 
         self.notifyObservers()
 
-    def data(self, from_line=1, how_many=None):
-        if how_many == None:
-            return self._data[from_line-1]
+    def data(self, from_line=None, how_many=None):
+        if from_line is not None:
+            if how_many is None:
+                return self._data[from_line-1]
+            else:
+                return self._data[from_line-1:from_line-1+how_many]
         else:
-            return self._data[from_line-1:from_line-1+how_many]
+            if how_many is None:
+                return self._data
+            else:
+                return self._data[:how_many]
 
     def notNoneData(self):
         return { i+1: v for i,v in enumerate(self._data) if v is not None}
 
-    def dataForIndexes(self, indexes):
-        return {i: self._data[i-1] for i in indexes}
+    def dataForLines(self, lines):
+        return {i: self._data[i-1] for i in lines}
 
     def clear(self):
         self._data = [None] * self._document.numLines()
