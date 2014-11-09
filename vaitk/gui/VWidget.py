@@ -27,6 +27,7 @@ class VWidget(core.VObject):
         self._enabled = True
         self._active = True
         self._focus_policy = FocusPolicy.NoFocus
+        self._needs_update = False
 
     def keyEvent(self, event):
         pass
@@ -164,22 +165,8 @@ class VWidget(core.VObject):
         if isinstance(event, events.VPaintEvent):
             if not self.isVisible():
                 return True
-
-            repaint_queue = [self]
-            while len(repaint_queue) > 0:
-                widget = repaint_queue.pop(0)
-                if widget.isVisible():
-                    self.logger.info("Widget %s visible. painting." % str(widget))
-                    widget.paintEvent(event)
-
-                for w in widget.depthFirstRightTree():
-                    self.logger.info("Widget %s in rightTree" % str(w))
-                    self.logger.info("%s, %s", w.absoluteRect(), widget.absoluteRect())
-                    if core.VRect.tuple.intersects(w.absoluteRect(),widget.absoluteRect()):
-                        self.logger.info("Intersected")
-                        repaint_queue.append(w)
-                self.logger.info("repaint queue: %s" % str(repaint_queue))
-
+            self.paintEvent(event)
+            self._needs_update = False
 
         elif isinstance(event, events.VFocusEvent):
             if self.isVisible():
@@ -189,6 +176,8 @@ class VWidget(core.VObject):
                 if event.eventType() == core.VEvent.EventType.FocusOut:
                     self.focusOutEvent(event)
 
+            self.update()
+
         elif isinstance(event, events.VHideEvent):
             self.hideEvent(event)
 
@@ -197,19 +186,17 @@ class VWidget(core.VObject):
                 if not w.isVisible():
                     continue
                 self.logger.info("Repainting widget %s" % str(w))
-                #self.logger.info("%s, %s", w.absoluteRect(), self.absoluteRect())
-                #if w.absoluteRect().intersects(self.absoluteRect()):
-                    #self.logger.info("Intersected")
-                w.paintEvent(events.VPaintEvent())
-        elif isinstance(event, events.VShowEvent):
+                w.update()
 
+        elif isinstance(event, events.VShowEvent):
             self.showEvent(event)
 
             for w in self.depthFirstFullTree():
                 self.logger.info("Widget %s in tree" % str(w))
                 if not w.isVisible():
                     continue
-                w.paintEvent(events.VPaintEvent())
+                w.update()
+
         elif isinstance(event, events.VMoveEvent):
             if not self.isVisible():
                 return True
@@ -220,7 +207,8 @@ class VWidget(core.VObject):
                 self.logger.info("Widget %s in tree" % str(w))
                 if not w.isVisible():
                     continue
-                w.paintEvent(events.VPaintEvent())
+                w.update()
+
         elif isinstance(event, events.VResizeEvent):
             if not self.isVisible():
                 return True
@@ -231,7 +219,7 @@ class VWidget(core.VObject):
                 self.logger.info("Widget %s in tree" % str(w))
                 if not w.isVisible():
                     continue
-                w.paintEvent(events.VPaintEvent())
+                w.update()
         else:
             return super().event(event)
 
@@ -247,6 +235,8 @@ class VWidget(core.VObject):
         string = ' '*size[Index.SIZE_WIDTH]
         for i in range(0, size[Index.SIZE_HEIGHT]):
             painter.drawText( (0, i), string)
+    def needsUpdate(self):
+        return self._needs_update
 
     def focusInEvent(self, event):
         self.logger.info("FocusIn event")
@@ -311,7 +301,7 @@ class VWidget(core.VObject):
         return self.colors(color_group)
 
     def update(self):
-        VApplication.vApp.postEvent(self,events.VPaintEvent())
+        self._needs_update = True
 
     def contentsRect(self):
         margins = self.contentsMargins()
