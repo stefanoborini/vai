@@ -4,10 +4,10 @@ import json
 
 class Configuration:
     DEFAULTS = {
-                 "colors.status_bar.fg"     : "cyan",
-                 "colors.status_bar.bg"     : "blue",
-                 "colors.side_ruler.fg"     : "cyan",
-                 "colors.side_ruler.bg"     : "blue",
+                 "colors.status_bar.fg"     : "darkcyan",
+                 "colors.status_bar.bg"     : "darkblue",
+                 "colors.side_ruler.fg"     : "darkcyan",
+                 "colors.side_ruler.bg"     : "darkblue",
                  }
 
     _instance = None
