@@ -131,12 +131,12 @@ class EditorController:
         linter1 = linting.PyFlakesLinter(document)
         all_info = linter1.runOnce()
 
-        meta_info = [None]*document.numLines()
+        meta_info = {}
 
         for info in all_info:
             meta_info[info.line-1] = info
 
-        document.lineMetaInfo("LinterResult").setData(1, meta_info)
+        document.lineMetaInfo("LinterResult").setDataForIndexes(meta_info)
 
     def _doSave(self, filename=None):
         status_bar = self._editor.status_bar
