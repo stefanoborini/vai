@@ -41,6 +41,8 @@ class TextDocument(core.VObject):
         self._document_meta[DocumentMeta.LastModified] = time.time()
         self._cursors = []
 
+    def __str__(self):
+        return self.documentText()
 
     # Query routines
     def isEmpty(self):
@@ -584,7 +586,7 @@ class TextDocument(core.VObject):
         self.numLinesChanged.emit()
 
     def replaceFromMemento(self, line_number, memento):
-        self._contents[line_number-1] = copy.deepcopy(memento)
+        self._contents[line_number-1] = copy.deepcopy(memento[0])
         for name, meta_info in memento[1].items():
             self._meta_info[name].replaceFromMemento(line_number, meta_info)
 
