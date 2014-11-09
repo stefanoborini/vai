@@ -32,16 +32,32 @@ class VColor:
 
 
 class VGlobalColor:
-    black = VColor(rgb=(255,0,0))
-    red = VColor(rgb=(255,0,0))
-    green = VColor(rgb=(0,255,0))
-    blue = VColor(rgb=(0,0,255))
-    cyan = VColor(rgb=(0,255,255))
-    magenta = VColor(rgb=(255,0,255))
+    black = VColor(rgb=(0,0,0))
+
+    darkred = VColor(rgb=(170,0,0))
+    lightred = VColor(rgb=(255,0,0))
+    red = darkred
+
+    darkgreen = VColor(rgb=(0,170,0))
+    lightgreen = VColor(rgb=(0,255,0))
+    green = darkgreen
+
+    darkblue = VColor(rgb=(0,0,170))
+    lightblue = VColor(rgb=(0,0,255))
+    blue = darkblue
+
+    darkcyan = VColor(rgb=(0,170,170))
+    lightcyan = VColor(rgb=(0,255,255))
+    cyan = darkcyan
+
+    darkmagenta = VColor(rgb=(170,0,170))
+    lightmagenta = VColor(rgb=(255,0,255))
+    magenta = darkmagenta
+
     yellow = VColor(rgb=(255,255,0))
-    white = VColor(rgb=(255,255,255))
     brown = VColor(rgb=(170,170,0))
     grey = VColor(rgb=(170,170,170))
+    white = VColor(rgb=(255,255,255))
 
 
     def nameToColor(name):

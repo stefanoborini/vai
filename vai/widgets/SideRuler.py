@@ -22,21 +22,23 @@ class SideRuler(gui.VWidget):
         entries = _computeLineValues(self._top_line, h, self._skip_intervals)
         for i, current in enumerate(entries):
             badge_mark = " "
-            border = " "
             painter.bg_color = current_bg
 
             if current > self._num_lines:
                 painter.fg_color = current_fg
-                painter.drawText( (0, i), "~".ljust(num_digits)+" "+border)
+                painter.drawText( (0, i), "~".ljust(num_digits).ljust(w))
                 continue
 
             badge = self._badges.get(current)
             if badge is not None:
                 badge_mark = badge.marker
+                painter.fg_color = badge.fg_color
                 painter.bg_color = badge.bg_color
-            painter.fg_color = current_fg
+            else:
+                painter.fg_color = current_fg
+                painter.bg_color = current_bg
             painter.drawText( (0, i),
-                              str(current).rjust(num_digits) + badge_mark + border,
+                              (str(current).rjust(num_digits) + badge_mark).ljust(w),
                               )
 
     def setNumLines(self, num_lines):

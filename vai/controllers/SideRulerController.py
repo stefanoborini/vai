@@ -54,9 +54,9 @@ class SideRulerController:
 
         for line, change in changed_data.items():
             if change == "added":
-                badges[line] = LineBadge(marker="+", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.green)
+                badges[line] = LineBadge(marker="+", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.green)
             elif change == "modified":
-                badges[line] = LineBadge(marker=".", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.magenta)
+                badges[line] = LineBadge(marker=".", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.magenta)
 
         lint_data = self._buffer.document.lineMetaInfo("LinterResult").dataForLines(needed_lines)
 
