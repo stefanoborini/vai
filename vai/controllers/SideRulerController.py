@@ -3,7 +3,6 @@ from ..linting import LinterResult
 from ..models import Configuration
 from ..Utils import stringToColor
 from vaitk import gui
-from ..Debug import log
 
 class SideRulerController:
     def __init__(self, side_ruler):
@@ -27,17 +26,15 @@ class SideRulerController:
 
         if self._buffer:
             self._buffer.edit_area_model.documentPosAtTopChanged.disconnect(self.updateTopRow)
-            self._buffer.document.numLinesChanged.disconnect(self.updateNumRows)
             self._buffer.document.lineMetaInfo("LinterResult").contentChanged.disconnect(self.updateBadges)
-            self._buffer.document.lineMetaInfo("Change").contentChanged.disconnect(self.updateBadges)
+            self._buffer.document.numLinesChanged.disconnect(self.updateNumRows)
 
         self._buffer = buffer
 
         # Set signals
         self._buffer.edit_area_model.documentPosAtTopChanged.connect(self.updateTopRow)
-        self._buffer.document.numLinesChanged.connect(self.updateNumRows)
         self._buffer.document.lineMetaInfo("LinterResult").contentChanged.connect(self.updateBadges)
-        self._buffer.document.lineMetaInfo("Change").contentChanged.connect(self.updateBadges)
+        self._buffer.document.numLinesChanged.connect(self.updateNumRows)
 
         # Refresh
         self.updateTopRow()
@@ -57,39 +54,43 @@ class SideRulerController:
         if not self._buffer:
             return
 
-        badges = {}
+        top_pos = self._buffer.edit_area_model.document_pos_at_top[0]
+        # FIXME: compute actual number of rows
+        num_lines = 50
+        badges = [None] * num_lines
 
-        lines = self._side_ruler.visibleRowNumbers()
-        data = self._buffer.document.lineMetaInfo("Change").notNoneData()
-        log(str(self._buffer.document.lineMetaInfo("Change")._data))
-        for line, change in data.items():
+        changed_data = self._buffer.document.lineMetaInfo("Change").data(top_pos, num_lines)
+
+        for idx, change in enumerate(changed_data):
             if change == "added":
-                badges[line] = LineBadge(marker="+", description="", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.green)
+                badges[idx] = LineBadge(marker="+", description="", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.green)
             elif change == "modified":
-                badges[line] = LineBadge(marker=".", description="", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.magenta)
+                badges[idx] = LineBadge(marker=".", description="", fg_color=gui.VGlobalColor.white, bg_color=gui.VGlobalColor.magenta)
 
-        data = self._buffer.document.lineMetaInfo("LinterResult").notNoneData()
+        lint_data = self._buffer.document.lineMetaInfo("LinterResult").data(top_pos, num_lines)
 
-        for line, lint in data.items():
+        for idx, lint in enumerate(lint_data):
+            if lint is None:
+                continue
+
             if lint.level == LinterResult.Level.ERROR:
-                badges[line] = LineBadge(marker="E",
+                badges[idx] = LineBadge(marker="E",
                                   description=lint.message,
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.red
                         )
             elif lint.level == LinterResult.Level.WARNING:
-                badges[line] = LineBadge(marker="W",
+                badges[idx] = LineBadge(marker="W",
                                   description=lint.message,
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.brown
                         )
             elif lint.level == LinterResult.Level.INFO:
-                badges[line] = LineBadge(marker="*",
+                badges[idx] = LineBadge(marker="*",
                                   description=lint.message,
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.cyan
                                 )
 
-        log("syncing "+str(badges))
         self._side_ruler.setBadges(badges)
 
