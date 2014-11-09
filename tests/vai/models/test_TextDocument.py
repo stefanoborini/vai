@@ -332,7 +332,9 @@ class TestTextDocument(unittest.TestCase):
 
     def testLineMetaInfoBasic(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
         meta_info = doc.lineMetaInfo("whatever")
+
 
         self.assertEqual(meta_info.document, doc)
         self.assertEqual(meta_info.meta_type, "whatever")
@@ -344,11 +346,15 @@ class TestTextDocument(unittest.TestCase):
 
     def testLineMetaSameObject(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
         self.assertEqual(doc.lineMetaInfo("whatever"), doc.lineMetaInfo("whatever"))
         self.assertNotEqual(doc.lineMetaInfo("whatever"), doc.lineMetaInfo("whatever2"))
 
     def testLineMetaInfoChangeLineNumber(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
         meta_info1 = doc.lineMetaInfo("whatever")
         meta_info2 = doc.lineMetaInfo("whatever2")
 
@@ -387,6 +393,9 @@ class TestTextDocument(unittest.TestCase):
 
     def testLineMetaInfoMemento(self):
         doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
+
         meta_info1 = doc.lineMetaInfo("whatever")
         meta_info2 = doc.lineMetaInfo("whatever2")
         doc.newLineAfter(1)
@@ -410,6 +419,7 @@ class TestTextDocument(unittest.TestCase):
 
         doc = TextDocument()
         doc.open(fixtures.get("basic_nonempty_file.txt"))
+        doc.createLineMetaInfo("whatever")
         initial_text = doc.documentText()
         meta_info1 = doc.lineMetaInfo("whatever")
         meta_info1.setData("hello", 1)

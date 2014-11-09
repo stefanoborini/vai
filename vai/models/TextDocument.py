@@ -109,10 +109,13 @@ class TextDocument(core.VObject):
 
     # Line meta
 
-    def lineMetaInfo(self, meta_type):
-        if not meta_type in self._meta_info:
-            self._meta_info[meta_type] = LineMetaInfo(meta_type, self)
+    def createLineMetaInfo(self, meta_type):
+        if meta_type in self._meta_info:
+            return
 
+        self._meta_info[meta_type] = LineMetaInfo(meta_type, self)
+
+    def lineMetaInfo(self, meta_type):
         return self._meta_info[meta_type]
 
     # Char meta
@@ -550,6 +553,12 @@ class TextDocument(core.VObject):
         self._document_meta[DocumentMeta.LastModified] = time.time()
         self._contents = contents
         self._cursors = []
+
+        for meta in self._meta_info.values():
+            meta.resetLines()
+
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
 
         self.contentChanged.emit()
         self.metaContentChanged.emit()
