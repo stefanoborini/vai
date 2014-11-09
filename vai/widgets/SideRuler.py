@@ -1,7 +1,6 @@
 from vaitk import gui, core, utils
 import math
 from collections import namedtuple
-from ..Debug import log
 
 LineBadge = namedtuple('LineBadge', ["marker", "fg_color", "bg_color"])
 

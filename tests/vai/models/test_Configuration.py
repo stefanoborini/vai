@@ -8,7 +8,7 @@ class TestConfiguration(unittest.TestCase):
 
     def testDefaultInit(self):
         config = Configuration.instance()
-        self.assertEqual(config['colors.status_bar.fg'], 'cyan')
+        self.assertEqual(config['colors.status_bar.fg'], 'darkcyan')
 
     def testInitFromFile(self):
 
