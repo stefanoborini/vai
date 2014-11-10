@@ -41,6 +41,9 @@ class CommandBarController:
         self._command_bar.editor_mode = self._global_state.editor_mode
 
     def _interpretLine(self, command_text):
+        if len(command_text.strip()) == 0:
+            return True
+
         command = shlex.split(command_text)
         if command[0] == 'q!':
             self._editor_controller.forceQuit()
