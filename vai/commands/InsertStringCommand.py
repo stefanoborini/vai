@@ -1,6 +1,5 @@
 from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
-from ..Debug import log
 
 class InsertStringCommand(BufferCommand):
     """

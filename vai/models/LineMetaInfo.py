@@ -1,7 +1,6 @@
 from vaitk import core
 import collections
 import copy
-from ..Debug import log
 
 # New class to store meta information in a separate
 # object, so that we can listen to specific notifications
@@ -67,10 +66,6 @@ class LineMetaInfo:
         return { i+1: v for i,v in enumerate(self._data) if v is not None}
 
     def dataForLines(self, lines):
-        log("XXX")
-        log(lines)
-        log(self._data)
-        log("YYYXXX")
         return {i: self._data[i-1] for i in lines}
 
     def clear(self):
