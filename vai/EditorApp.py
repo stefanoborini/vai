@@ -16,8 +16,8 @@ class EditorApp(gui.VApplication):
             os.makedirs(config_dir)
         return os.path.join(config_dir, 'vairc')
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, filename=None, argv=None):
+        super().__init__(argv)
 
         config_file = self.editorConfigPath()
         if os.path.exists(config_file):
@@ -28,14 +28,16 @@ class EditorApp(gui.VApplication):
         # We keep them at the App level because the app will be responsible
         # for coordinating the async system in the future.
         self._global_model = models.GlobalState()
-        self._buffer_list = models.BufferList()
+
+        if filename is not None:
+            first_buffer = models.Buffer.newBufferForFilename(filename)
+        else:
+            first_buffer = models.Buffer()
+
+        self._buffer_list = models.BufferList(first_buffer)
 
         self._editor = Editor(self._global_model, self._buffer_list)
-
         self._editor.show()
-
-    def openFile(self, path):
-        self._editor.controller.openFile(path)
 
     def dumpBuffers(self, destination_dir=None):
         """

@@ -3,10 +3,21 @@ from vaitk import core
 from .Buffer import Buffer
 
 class BufferList(core.VObject):
-    def __init__(self):
-        self._buffers = [Buffer()]
-        self._current = self._buffers[0]
+    """
+    Contains the list of buffers.
+    It can _never_ be empty. There must always be a buffer.
+    This prevents having to deal with the potential situation
+    where no buffers are present, and all the views would have
+    to handle this special case.
+    """
 
+    def __init__(self, first_buffer):
+        """
+        Instantiation of the BufferList with the first buffer.
+        """
+
+        self._buffers = [first_buffer]
+        self._current = self._buffers[0]
         self.currentBufferChanged = core.VSignal(self)
 
     @property
@@ -26,7 +37,7 @@ class BufferList(core.VObject):
             if buffer.document.filename() is None:
                 continue
 
-            
+
             try:
                 if os.path.samefile(
                         os.path.abspath(
@@ -37,10 +48,10 @@ class BufferList(core.VObject):
                     return buffer
             except:
                 pass
-            
+
             if path == buffer.document.filename():
                 return buffer
-        
+
         return None
 
     def select(self, buffer):

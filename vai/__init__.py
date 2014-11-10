@@ -19,10 +19,7 @@ def main():
     args = parser.parse_args()
 
     try:
-
-        app = EditorApp.EditorApp(sys.argv)
-        if args.filename:
-            app.openFile(args.filename)
+        app = EditorApp.EditorApp(args.filename, sys.argv)
 
         if args.profile:
             import cProfile

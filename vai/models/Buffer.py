@@ -45,3 +45,12 @@ class Buffer:
     def command_history(self):
         return self._command_history
 
+
+    @staticmethod
+    def newBufferForFilename(filename):
+        """
+        Quick static method to create a buffer and open a file in it
+        """
+        b = Buffer()
+        b.document.open(filename)
+        return b
