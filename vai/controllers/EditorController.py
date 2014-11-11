@@ -134,7 +134,7 @@ class EditorController:
         meta_info = {}
 
         for info in all_info:
-            meta_info[info.line-1] = info
+            meta_info[info.line] = info
 
         document.lineMetaInfo("LinterResult").setDataForLines(meta_info)
 
