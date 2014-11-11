@@ -55,6 +55,7 @@ class SideRuler(gui.VWidget):
 
     def setBadges(self, badges_dict):
         """Set badges at specified lines, overriding the current ones."""
+        self._badges.clear()
         self._badges.update(badges_dict)
         self.update()
 
