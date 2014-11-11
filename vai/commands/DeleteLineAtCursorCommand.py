@@ -20,6 +20,10 @@ class DeleteLineAtCursorCommand(BufferCommand):
                 # It's also the first line. Go at the beginning
                 cursor.toLineBeginning()
 
+        if document.hasLine(pos[0]-1):
+            document.lineMetaInfo("Change").setData("deletion_before", pos[0]-1)
+        if document.hasLine(pos[0]+1):
+            document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
         document.deleteLine(pos[0])
 
         # Deleted line, now we check the length of what comes up from below.

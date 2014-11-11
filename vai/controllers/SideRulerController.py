@@ -57,6 +57,10 @@ class SideRulerController:
                 badges[line] = LineBadge(marker="+", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.green)
             elif change == "modified":
                 badges[line] = LineBadge(marker=".", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.magenta)
+            elif change == "deletion_before":
+                badges[line] = LineBadge(marker=",", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.red)
+            elif change == "deletion_after":
+                badges[line] = LineBadge(marker="'", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.red)
 
         lint_data = self._buffer.document.lineMetaInfo("LinterResult").dataForLines(needed_lines)
 

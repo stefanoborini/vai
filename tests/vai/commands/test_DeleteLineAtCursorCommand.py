@@ -80,5 +80,12 @@ class TestDeleteLineAtCursorCommand(unittest.TestCase):
         command.execute()
         self.assertEqual(self.buffer.cursor.pos, (1,1))
 
+    def testDeleteLineAtCursorCommand5(self):
+        """testDeleteLineAtCursorCommand all the way from the bottom"""
+        self.buffer.cursor.toPos((3,2))
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        command.execute()
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(), [None, 'deletion_before', 'deletion_after'])
+
 if __name__ == '__main__':
     unittest.main()

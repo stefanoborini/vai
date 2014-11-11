@@ -94,4 +94,5 @@ class LineMetaInfo:
         self._data[line-1] = copy.deepcopy(memento)
         self.notifyObservers()
 
-
+    def __str__(self):
+        return str(self._data)
