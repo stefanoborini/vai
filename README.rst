@@ -16,6 +16,9 @@ Vai
 .. image:: https://landscape.io/github/stefanoborini/vai/master/landscape.png
    :target: https://landscape.io/github/stefanoborini/vai
    :alt: Latest version
+.. image:: http://img.shields.io/gratipay/StefanoBorini.svg
+   :target: https://gratipay.com/StefanoBorini/
+   :alt: gratipay
    
 We love vim, but we want more. We want a terminal-based IDE that looks like vim,
 handles like vim, but has all those nice features of Eclipse and Sublime, is
