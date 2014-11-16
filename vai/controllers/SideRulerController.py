@@ -1,18 +1,19 @@
 from ..widgets import LineBadge
 from ..linting import LinterResult
 from ..models import Configuration
+from ..models import Icons
 from vaitk import gui
 
 class SideRulerController:
     def __init__(self, side_ruler):
         self._side_ruler = side_ruler
-        config = Configuration.instance()
 
-        self._side_ruler.setColors(gui.VGlobalColor.nameToColor(config["colors.side_ruler.fg"]),
-                                   gui.VGlobalColor.nameToColor(config["colors.side_ruler.bg"])
+        self._side_ruler.setColors(gui.VGlobalColor.nameToColor(Configuration.get("colors.side_ruler.fg")),
+                                   gui.VGlobalColor.nameToColor(Configuration.get("colors.side_ruler.bg"))
                                   )
 
         self._buffer = None
+        self._icons = Icons.getCollection(Configuration.get("icons.collection"))
 
     @property
     def buffer(self):
@@ -54,13 +55,21 @@ class SideRulerController:
 
         for line, change in changed_data.items():
             if change == "added":
-                badges[line] = LineBadge(marker="+", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.green)
+                badges[line] = LineBadge(marker=self._icons["SideRuler.added"],
+                                         fg_color=gui.VGlobalColor.black,
+                                         bg_color=gui.VGlobalColor.green)
             elif change == "modified":
-                badges[line] = LineBadge(marker=".", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.magenta)
+                badges[line] = LineBadge(marker=self._icons["SideRuler.modified"],
+                                         fg_color=gui.VGlobalColor.black,
+                                         bg_color=gui.VGlobalColor.magenta)
             elif change == "deletion_before":
-                badges[line] = LineBadge(marker=",", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.red)
+                badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_before"],
+                                         fg_color=gui.VGlobalColor.black,
+                                         bg_color=gui.VGlobalColor.red)
             elif change == "deletion_after":
-                badges[line] = LineBadge(marker="'", fg_color=gui.VGlobalColor.black, bg_color=gui.VGlobalColor.red)
+                badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_after"],
+                                         fg_color=gui.VGlobalColor.black,
+                                         bg_color=gui.VGlobalColor.red)
 
         lint_data = self._buffer.document.lineMetaInfo("LinterResult").dataForLines(needed_lines)
 
@@ -69,17 +78,17 @@ class SideRulerController:
                 continue
 
             if lint.level == LinterResult.Level.ERROR:
-                badges[line] = LineBadge(marker="E",
+                badges[line] = LineBadge(marker=self._icons["SideRuler.error"],
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.red
                         )
             elif lint.level == LinterResult.Level.WARNING:
-                badges[line] = LineBadge(marker="W",
+                badges[line] = LineBadge(marker=self._icons["SideRuler.warning"],
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.brown
                         )
             elif lint.level == LinterResult.Level.INFO:
-                badges[line] = LineBadge(marker="*",
+                badges[line] = LineBadge(marker=self._icons["SideRuler.info"],
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.cyan
                                 )

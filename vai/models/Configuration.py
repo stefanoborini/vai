@@ -8,6 +8,7 @@ class Configuration:
                  "colors.status_bar.bg"     : "darkblue",
                  "colors.side_ruler.fg"     : "darkcyan",
                  "colors.side_ruler.bg"     : "darkblue",
+                 "icons.collection"         : "unicode1",
                  }
 
     _instance = None
@@ -47,6 +48,9 @@ class Configuration:
     def __getitem__(self, key):
         return self._config_dict[key]
 
+    @classmethod
+    def get(cls, key):
+        return cls.instance()[key]
 
 
 

@@ -2,9 +2,10 @@ import vaitk
 from vaitk import gui, core, utils
 from . import controllers
 from .models.TextDocument import CharMeta
-from .DefaultColorSchema import DefaultColorSchema
+from .models import DefaultColorSchema
+from .models import Configuration
 from . import Search
-
+from .models import Icons
 
 
 class EditArea(gui.VWidget):
@@ -17,6 +18,10 @@ class EditArea(gui.VWidget):
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
+
+        self._icons = Icons.getCollection(
+                                Configuration.get("icons.collection")
+                                )
 
     # properties
     @property
@@ -81,7 +86,7 @@ class EditArea(gui.VWidget):
             # Add markers for the indentation
             indent_spaces = len(line_text)-len(line_text.lstrip())
             for i in range(5, indent_spaces, 4):
-                line_text = line_text[:i-1]+'.'+line_text[i:]
+                line_text = line_text[:i-1]+self._icons["EditArea.tab"]+line_text[i:]
 
             char_meta = document.charMeta( (doc_line_num,1))
             if CharMeta.LexerToken in char_meta:

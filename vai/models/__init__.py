@@ -7,3 +7,5 @@ from .TextDocument import TextDocument
 from .EditorMode import EditorMode
 from .Configuration import Configuration
 from .EditorState import EditorState
+from .DefaultColorSchema import DefaultColorSchema
+from .Icons import Icons
