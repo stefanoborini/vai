@@ -88,11 +88,9 @@ class LineMetaInfo:
 
     def insertFromMemento(self, line, memento):
         self._data.insert(line-1, copy.deepcopy(memento))
-        self.notifyObservers()
 
     def replaceFromMemento(self, line, memento):
         self._data[line-1] = copy.deepcopy(memento)
-        self.notifyObservers()
 
     def __str__(self):
         return str(self._data)
