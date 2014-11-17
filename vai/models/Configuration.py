@@ -7,7 +7,7 @@ class Configuration:
                  "colors.status_bar.fg"     : "darkcyan",
                  "colors.status_bar.bg"     : "darkblue",
                  "colors.side_ruler.fg"     : "darkcyan",
-                 "colors.side_ruler.bg"     : "darkblue",
+                 "colors.side_ruler.bg"     : "black",
                  "icons.collection"         : "unicode1",
                  }
 

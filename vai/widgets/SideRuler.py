@@ -1,5 +1,7 @@
 from vaitk import gui, core, utils
 import math
+from ..models import Icons
+from ..models import Configuration
 from collections import namedtuple
 
 LineBadge = namedtuple('LineBadge', ["marker", "fg_color", "bg_color"])
@@ -11,6 +13,7 @@ class SideRuler(gui.VWidget):
         self._top_line = 1
         self._skip_intervals = []
         self._badges = {}
+        self._icons = Icons.getCollection(Configuration.get("icons.collection"))
 
     def paintEvent(self, event):
         w, h = self.size()
@@ -20,13 +23,21 @@ class SideRuler(gui.VWidget):
         num_digits = self._lineNumberWidth()
         entries = _computeLineValues(self._top_line, h, self._skip_intervals)
         for i, current in enumerate(entries):
-            badge_mark = " "
+            painter.fg_color = current_fg
             painter.bg_color = current_bg
 
             if current > self._num_lines:
                 painter.fg_color = current_fg
-                painter.drawText( (0, i), "~".ljust(num_digits).ljust(w))
+                painter.bg_color = None
+                painter.drawText( (0, i), self._icons["SideRuler.unexistent_line"].ljust(num_digits).ljust(w-1))
+                painter.drawText( (w, i), self._icons["SideRuler.border"])
                 continue
+
+
+            painter.drawText((0, i),
+                                (str(current).rjust(num_digits).ljust(w-3)
+                                + " "
+                                + self._icons["SideRuler.border"]))
 
             badge = self._badges.get(current)
             if badge is not None:
@@ -34,11 +45,8 @@ class SideRuler(gui.VWidget):
                 painter.fg_color = badge.fg_color
                 painter.bg_color = badge.bg_color
             else:
-                painter.fg_color = current_fg
-                painter.bg_color = current_bg
-            painter.drawText( (0, i),
-                              (str(current).rjust(num_digits) + badge_mark).ljust(w),
-                              )
+                badge_mark = " "
+            painter.drawText( (w-3, i), badge_mark)
 
     def setNumLines(self, num_lines):
         """Sets the total number of lines the document has"""
