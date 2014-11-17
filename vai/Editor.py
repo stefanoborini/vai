@@ -76,11 +76,11 @@ class Editor(gui.VWidget):
     def _createSideRuler(self):
         self._side_ruler = widgets.SideRuler(self)
         self._side_ruler.move( (0, 0) )
-        self._side_ruler.resize( (5, self.height()-2) )
+        self._side_ruler.resize( (7, self.height()-2) )
 
     def _createEditArea(self):
         self._edit_area = EditArea(self._global_state, self._controller, parent = self)
-        self._edit_area.move( (4, 0) )
+        self._edit_area.move( (6, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
 
     def _createInfoHoverBox(self):

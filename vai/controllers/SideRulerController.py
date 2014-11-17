@@ -56,20 +56,20 @@ class SideRulerController:
         for line, change in changed_data.items():
             if change == "added":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.added"],
-                                         fg_color=gui.VGlobalColor.black,
-                                         bg_color=gui.VGlobalColor.green)
+                                         fg_color=gui.VGlobalColor.green,
+                                         bg_color=gui.VGlobalColor.black)
             elif change == "modified":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.modified"],
-                                         fg_color=gui.VGlobalColor.black,
-                                         bg_color=gui.VGlobalColor.magenta)
+                                         fg_color=gui.VGlobalColor.magenta,
+                                         bg_color=gui.VGlobalColor.black)
             elif change == "deletion_before":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_before"],
-                                         fg_color=gui.VGlobalColor.black,
-                                         bg_color=gui.VGlobalColor.red)
+                                         fg_color=gui.VGlobalColor.red,
+                                         bg_color=gui.VGlobalColor.black)
             elif change == "deletion_after":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_after"],
-                                         fg_color=gui.VGlobalColor.black,
-                                         bg_color=gui.VGlobalColor.red)
+                                         fg_color=gui.VGlobalColor.red,
+                                         bg_color=gui.VGlobalColor.black)
 
         lint_data = self._buffer.document.lineMetaInfo("LinterResult").dataForLines(needed_lines)
 
@@ -79,8 +79,8 @@ class SideRulerController:
 
             if lint.level == LinterResult.Level.ERROR:
                 badges[line] = LineBadge(marker=self._icons["SideRuler.error"],
-                                  fg_color=gui.VGlobalColor.yellow,
-                                  bg_color=gui.VGlobalColor.red
+                                  fg_color=gui.VGlobalColor.red,
+                                  bg_color=gui.VGlobalColor.yellow
                         )
             elif lint.level == LinterResult.Level.WARNING:
                 badges[line] = LineBadge(marker=self._icons["SideRuler.warning"],

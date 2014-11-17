@@ -23,18 +23,22 @@ class Icons:
                                  "SideRuler.added"   : "+",
                                  "SideRuler.deletion_before" : "_",
                                  "SideRuler.deletion_after"  : "^",
-                                 "SideRuler.modified"       : ".",
+                                 "SideRuler.modified"        : ".",
+                                 "SideRuler.unexistent_line" : "~",
+                                 "SideRuler.border"          : "|",
                                 }
 
         cls._ICONS["unicode1"] = {
-                                 "EditArea.tab" : "\u250a",
-                                 "SideRuler.warning" : "\u203c",
-                                 "SideRuler.error"   : "\u203c",
-                                 "SideRuler.info"    : "I",
-                                 "SideRuler.added"   : "+",
-                                 "SideRuler.deletion_before" : "\u21a7",
-                                 "SideRuler.deletion_after"  : "\u21a5",
-                                 "SideRuler.modified"       : "\u2023",
+                                 "EditArea.tab"              : "\u254e", # dotted lines
+                                 "SideRuler.warning"         : "\u203c", # Double exclamation
+                                 "SideRuler.error"           : "\u203c", # Double exclamation
+                                 "SideRuler.info"            : "I",
+                                 "SideRuler.added"           : "+",
+                                 "SideRuler.deletion_before" : "\u21a7", # Arrow
+                                 "SideRuler.deletion_after"  : "\u21a5", # Arrow
+                                 "SideRuler.modified"        : "\u2023", # Triangle bullet
+                                 "SideRuler.unexistent_line" : "~",
+                                 "SideRuler.border"          : "\u2551", # double line
                                 }
 
 
