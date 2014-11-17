@@ -80,17 +80,17 @@ class SideRulerController:
             if lint.level == LinterResult.Level.ERROR:
                 badges[line] = LineBadge(marker=self._icons["SideRuler.error"],
                                   fg_color=gui.VGlobalColor.red,
-                                  bg_color=gui.VGlobalColor.yellow
+                                  bg_color=gui.VGlobalColor.black
                         )
             elif lint.level == LinterResult.Level.WARNING:
                 badges[line] = LineBadge(marker=self._icons["SideRuler.warning"],
                                   fg_color=gui.VGlobalColor.yellow,
-                                  bg_color=gui.VGlobalColor.brown
+                                  bg_color=gui.VGlobalColor.black
                         )
             elif lint.level == LinterResult.Level.INFO:
                 badges[line] = LineBadge(marker=self._icons["SideRuler.info"],
-                                  fg_color=gui.VGlobalColor.yellow,
-                                  bg_color=gui.VGlobalColor.cyan
+                                  fg_color=gui.VGlobalColor.cyan,
+                                  bg_color=gui.VGlobalColor.black
                                 )
 
         self._side_ruler.setBadges(badges)
