@@ -13,6 +13,7 @@ class DeleteLineAtCursorCommand(BufferCommand):
         pos = cursor.pos
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_INSERT)
         old_line = copy.deepcopy(self.lastSavedMemento()[2])
+        self._old_line_meta_info = {}
 
         if cursor.pos[0] == document.numLines():
             # Last line. Move the cursor up
@@ -21,8 +22,11 @@ class DeleteLineAtCursorCommand(BufferCommand):
                 cursor.toLineBeginning()
 
         if document.hasLine(pos[0]-1):
+            self._old_line_meta_info[-1] = document.lineMetaInfo("Change").data(pos[0]-1)
             document.lineMetaInfo("Change").setData("deletion_before", pos[0]-1)
+
         if document.hasLine(pos[0]+1):
+            self._old_line_meta_info[1] = document.lineMetaInfo("Change").data(pos[0]+1)
             document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
         document.deleteLine(pos[0])
 
@@ -33,4 +37,15 @@ class DeleteLineAtCursorCommand(BufferCommand):
 
         return CommandResult(success=True, info=old_line)
 
+    def undo(self):
+        super().undo()
+        document = self._document
+        cursor = self._cursor
+        pos = cursor.pos
+
+        if -1 in self._old_line_meta_info:
+            document.lineMetaInfo("Change").setData(self._old_line_meta_info[-1], pos[0]-1)
+
+        if 1 in self._old_line_meta_info:
+            document.lineMetaInfo("Change").setData(self._old_line_meta_info[1], pos[0]+1)
 

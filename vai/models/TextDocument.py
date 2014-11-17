@@ -612,6 +612,9 @@ class TextDocument(core.VObject):
         for name, meta_info in memento[1].items():
             self._meta_info[name].insertFromMemento(line_number, meta_info)
 
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
+
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         self.numLinesChanged.emit()
@@ -620,6 +623,9 @@ class TextDocument(core.VObject):
         self._contents[line_number-1] = copy.deepcopy(memento[0])
         for name, meta_info in memento[1].items():
             self._meta_info[name].replaceFromMemento(line_number, meta_info)
+
+        for meta in self._meta_info.values():
+            meta.notifyObservers()
 
         self.contentChanged.emit()
         self.metaContentChanged.emit()
