@@ -16,20 +16,22 @@ class SideRulerTest(unittest.TestCase):
     def testBasicSideRulerRepresentation(self):
         ruler = SideRuler(parent=None)
         ruler.setNumLines(10)
-        ruler.setGeometry((0,0,5,40))
+        ruler.setGeometry((0,0,7,40))
         ruler.show()
         self.app.processEvents()
-        self.assertEqual(self.screen.stringAt(0,0,10),  " 1   .....")
-        self.assertEqual(self.screen.stringAt(0,1,10),  " 2   .....")
-        self.assertEqual(self.screen.stringAt(0,9,10),  "10   .....")
-        self.assertEqual(self.screen.stringAt(0,10,10), "~    .....")
+        print(self.screen)
+
+        self.assertEqual(self.screen.stringAt(0,0,10),  " 1    ║...")
+        self.assertEqual(self.screen.stringAt(0,1,10),  " 2    ║...")
+        self.assertEqual(self.screen.stringAt(0,9,10),  "10    ║...")
+        self.assertEqual(self.screen.stringAt(0,10,10), "~     ║...")
 
         ruler.setNumLines(100)
         self.app.processEvents()
-        self.assertEqual(self.screen.stringAt(0,0,10),  "  1  .....")
-        self.assertEqual(self.screen.stringAt(0,1,10),  "  2  .....")
-        self.assertEqual(self.screen.stringAt(0,9,10),  " 10  .....")
-        self.assertEqual(self.screen.stringAt(0,10,10), " 11  .....")
+        self.assertEqual(self.screen.stringAt(0,0,10),  "  1   ║...")
+        self.assertEqual(self.screen.stringAt(0,1,10),  "  2   ║...")
+        self.assertEqual(self.screen.stringAt(0,9,10),  " 10   ║...")
+        self.assertEqual(self.screen.stringAt(0,10,10), " 11   ║...")
 
 
 if __name__ == '__main__':

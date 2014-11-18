@@ -30,12 +30,12 @@ class SideRuler(gui.VWidget):
                 painter.fg_color = current_fg
                 painter.bg_color = None
                 painter.drawText( (0, i), self._icons["SideRuler.unexistent_line"].ljust(num_digits).ljust(w-1))
-                painter.drawText( (w, i), self._icons["SideRuler.border"])
+                painter.drawText( (w-1, i), self._icons["SideRuler.border"])
                 continue
 
 
             painter.drawText((0, i),
-                                (str(current).rjust(num_digits).ljust(w-3)
+                                (str(current).rjust(num_digits).ljust(w-2)
                                 + " "
                                 + self._icons["SideRuler.border"]))
 
@@ -44,9 +44,7 @@ class SideRuler(gui.VWidget):
                 badge_mark = badge.marker
                 painter.fg_color = badge.fg_color
                 painter.bg_color = badge.bg_color
-            else:
-                badge_mark = " "
-            painter.drawText( (w-3, i), badge_mark)
+                painter.drawText( (w-2, i), badge_mark)
 
     def setNumLines(self, num_lines):
         """Sets the total number of lines the document has"""

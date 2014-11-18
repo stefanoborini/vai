@@ -80,7 +80,7 @@ class Editor(gui.VWidget):
 
     def _createEditArea(self):
         self._edit_area = EditArea(self._global_state, self._controller, parent = self)
-        self._edit_area.move( (6, 0) )
+        self._edit_area.move( (7, 0) )
         self._edit_area.resize((self.width()-4, self.height()-2) )
 
     def _createInfoHoverBox(self):
