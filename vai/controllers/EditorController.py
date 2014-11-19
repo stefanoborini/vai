@@ -4,7 +4,7 @@ from vaitk import gui
 from .. import Search
 from .. import linting
 from ..Lexer import Lexer
-from ..models import Buffer, TextDocument, EditorState
+from .. import models
 from .. import commands
 
 class EditorController:
@@ -28,10 +28,12 @@ class EditorController:
             if b.document.filename() is None:
                 continue
 
-            EditorState.instance().setCursorPosForPath(
+            models.EditorState.instance().setCursorPosForPath(
                     os.path.abspath(b.document.filename()),
                     b.cursor.pos)
-        EditorState.instance().save()
+
+        models.EditorState.instance().save()
+        models.Configuration.save()
         gui.VApplication.vApp.exit()
 
     def doSave(self):
@@ -94,7 +96,7 @@ class EditorController:
             return
 
         current_buffer = self._buffer_list.current
-        new_buffer = Buffer()
+        new_buffer = models.Buffer()
         status_bar = self._editor.status_bar
 
         try:
@@ -111,14 +113,14 @@ class EditorController:
         else:
             self._buffer_list.addAndSelect(new_buffer)
 
-        recovered_cursor_pos = EditorState.instance().cursorPosForPath(os.path.abspath(filename))
+        recovered_cursor_pos = models.EditorState.instance().cursorPosForPath(os.path.abspath(filename))
         if recovered_cursor_pos is not None:
             new_buffer.cursor.toPos(recovered_cursor_pos)
 
         self._doLint()
 
     def createEmptyBuffer(self):
-        self._buffer_list.addAndSelect(Buffer())
+        self._buffer_list.addAndSelect(models.Buffer())
 
     def setMode(self, mode):
         self._global_state.edit_mode = mode
@@ -154,7 +156,7 @@ class EditorController:
                 document.saveAs(filename)
             else:
                 document.save()
-        except TextDocument.MissingFilenameException:
+        except models.TextDocument.MissingFilenameException:
             status_bar.setMessage("Error! Cannot save unnamed file. Please specify a filename with :w filename", 3000)
             return
         except Exception as e:

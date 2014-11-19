@@ -14,7 +14,8 @@ class TestConfiguration(unittest.TestCase):
 
         filename = fixtures.get("example_configuration.rc")
 
-        config = Configuration.initFromFile(filename)
+        Configuration.setFilename(filename)
+        config = Configuration.instance()
 
         self.assertEqual(config['colors.status_bar.fg'], 'red')
 

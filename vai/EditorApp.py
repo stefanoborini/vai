@@ -6,25 +6,9 @@ import os
 
 
 class EditorApp(gui.VApplication):
-    @staticmethod
-    def editorConfigPath():
-        _home = os.path.expanduser('~')
-        xdg_config_home = os.environ.get('XDG_CONFIG_HOME') or \
-                          os.path.join(_home, '.config')
-        config_dir = os.path.join(xdg_config_home, 'vai')
-        if not os.path.isdir(config_dir):
-            os.makedirs(config_dir)
-        return os.path.join(config_dir, 'vairc')
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        config_file = self.editorConfigPath()
-        if os.path.exists(config_file):
-            try:
-                models.Configuration.initFromFile(config_file)
-            except:
-                pass
         # We keep them at the App level because the app will be responsible
         # for coordinating the async system in the future.
         self._global_model = models.GlobalState()
