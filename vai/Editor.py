@@ -1,5 +1,4 @@
-from vaitk import gui, core
-import os
+from vaitk import gui
 
 from . import widgets
 from . import controllers
