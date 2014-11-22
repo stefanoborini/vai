@@ -57,7 +57,7 @@ Screenshots
 
 Vai 1.4
 
-.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.4.gif
+.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.4.png
 
 Vai 1.2/1.3
 
