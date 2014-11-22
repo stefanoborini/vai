@@ -35,6 +35,7 @@ class EditArea(gui.VWidget):
 
         self._buffer = buffer
         self._controller.buffer = buffer
+        self.update()
 
     @property
     def visual_cursor_pos(self):
