@@ -7,6 +7,7 @@ class CommandBar(gui.VWidget):
         super().__init__(parent=parent)
         self.returnPressed = core.VSignal(self)
         self.escapePressed = core.VSignal(self)
+        self.tabPressed = core.VSignal(self)
 
         self._editor_mode = EditorMode.COMMAND
 
@@ -35,6 +36,12 @@ class CommandBar(gui.VWidget):
     def command_text(self):
         return self._line_edit.text().strip()
 
+    @command_text.setter
+    def command_text(self, text):
+        self._line_edit.setText(text)
+        self._line_edit.end()
+
+
     def clear(self):
         self._editor_mode = EditorMode.COMMAND
         self._line_edit.clear()
@@ -50,6 +57,9 @@ class CommandBar(gui.VWidget):
                 return True
             elif event.key() == vaitk.Key.Key_Backspace and len(self.command_text) == 0:
                 self.escapePressed.emit()
+                return True
+            if event.key() == vaitk.Key.Key_Tab:
+                self.tabPressed.emit()
                 return True
         return False
 
