@@ -1,5 +1,6 @@
 import shlex
 from .. import models
+import os
 
 class CommandBarController:
     def __init__(self, command_bar, edit_area, editor_controller, global_state):
@@ -10,6 +11,7 @@ class CommandBarController:
 
         self._command_bar.returnPressed.connect(self._parseCommandBar)
         self._command_bar.escapePressed.connect(self._abortCommandBar)
+        self._command_bar.tabPressed.connect(self._autocompleteCommandBar)
 
         self._global_state.editorModeChanged.connect(self._editorModeChanged)
 
@@ -87,3 +89,28 @@ class CommandBarController:
 
     def _reportError(self, error_string):
         self._command_bar.setErrorString(error_string)
+
+    def _autocompleteCommandBar(self):
+        command_text = self._command_bar.command_text
+        command = shlex.split(command_text)
+
+        if command[0] in ("w", "r", "e"):
+            if len(command) == 2:
+                path = command[1]
+
+                dirname = os.path.join(".", os.path.dirname(path))
+                basename = os.path.basename(path)
+                if os.path.isdir(dirname):
+                    files = [f for f in os.listdir(dirname) if f.startswith(basename)]
+                    prefix = os.path.commonprefix(files)
+                    add_to_basename = ''
+                    if len(prefix) > len(basename):
+                        add_to_basename = prefix[len(basename):]
+
+                    new_command_text = self._command_bar.command_text+add_to_basename
+                    new_path = os.path.join(dirname, basename+add_to_basename)
+                    if os.path.isdir(new_path) and new_path[-1] != '/':
+                        new_command_text += '/'
+
+                    self._command_bar.command_text = new_command_text
+

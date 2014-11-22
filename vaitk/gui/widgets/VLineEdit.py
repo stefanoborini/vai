@@ -63,12 +63,14 @@ class VLineEdit(VWidget):
         self.selectionChanged.emit()
 
     def home(self):
+        old_pos = self._cursor_position
         self._cursor_position = 0
-        self.cursorPositionChanged.emit(old_pos, position)
+        self.cursorPositionChanged.emit(old_pos, self._cursor_position)
 
     def end(self):
+        old_pos = self._cursor_position
         self._cursor_position = len(self._text)
-        self.cursorPositionChanged.emit(old_pos, position)
+        self.cursorPositionChanged.emit(old_pos, self._cursor_position)
 
     def text(self):
         return self._text
