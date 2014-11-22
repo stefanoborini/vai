@@ -36,23 +36,28 @@ Implemented Features
 --------------------
 
    - General vim look and feel.
-   - Syntax highlighting for python.
+   - Syntax highlighting for python. Partial support for other languages.
    - Highlighting of all occurrences of the identifier currently under the cursor.
    - Linting for python 3 with pyflakes
    - Shows linting results on the sidebar. Linting messages popup inline.
    - Backward and forward search (no regexp yet)
-   - Tab completion (rough)
-   - Undo
+   - Tab completion for editor and command bar (while accessing files)
+   - Undo/Redo
+   - Indentation levels
    - Multiple buffers
    - Copying and pasting (only of a single line)
    - Minimal configuration of colors
    - Cursor position restored between runs.
    - Autoindent
 
-Note: vai is currently focused exclusively on Python editing. Future additions will handle other languages.
+Note: vai is currently focused mostly on Python editing. Future additions will handle other languages.
 
 Screenshots
 -----------
+
+Vai 1.4
+
+.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.4.gif
 
 Vai 1.2/1.3
 
@@ -64,6 +69,25 @@ Vai 1.1
 
 Release Notes
 -------------
+
+Vai 1.4
+~~~~~~~
+
+   - Unicode icons for the Side Ruler. Can be disabled with appropriate setting in the .config/vai/vairc file.
+   - Command line option ``--dump-default-config`` to create a default vairc file.
+   - Dumping of current open buffers in case of crash.
+   - More performance improvements.
+   - Now tooltip messages don't stay when you move around or start typing.
+   - Parentheses are no longer removed when using ``dw``
+   - Improved color schema
+   - Implemented vim movements ``hjkl``
+   - Removing leading spaces when breaking a line.
+   - Implemented :x to write and quit.
+   - Implementation of XDG Base Directory Specification.
+   - Command bar tabbing autocompletes filenames and directory names.
+   - Markers added when a line is deleted.
+   - Refactorings
+   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.4+is%3Aclosed+label%3ABug>`_
 
 Vai 1.3
 ~~~~~~~
