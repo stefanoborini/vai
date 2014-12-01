@@ -4,8 +4,6 @@ Command mode keys
 -----------------
 
 =====  =====  ======
-   Inputs     Output
-------------  ------
   A      B    A or B
 =====  =====  ======
 False  False  False
