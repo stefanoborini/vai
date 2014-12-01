@@ -6,10 +6,10 @@ Command mode keys
 =======  =====  ======
   Key      B    A or B
 =======  =====  ======
-False    False  False
-True     False  True
-False    True   True
-True     True   True
+a        False  False
+A        False  True
+i        True   True
+I        True   True
 =======  =====  ======
 
 
