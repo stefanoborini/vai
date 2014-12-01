@@ -3,6 +3,18 @@ Here you will find a list of implemented and still not implemented features, sho
 Command mode keys
 -----------------
 
+=====  =====  ======
+   Inputs     Output
+------------  ------
+  A      B    A or B
+=====  =====  ======
+False  False  False
+True   False  True
+False  True   True
+True   True   True
+=====  =====  ======
+
+
 =======    =============                      ==========
   Key        Operation                          Status
 =======    =============                      ==========
