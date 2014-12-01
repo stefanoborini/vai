@@ -3,27 +3,17 @@ Here you will find a list of implemented and still not implemented features, sho
 Command mode keys
 -----------------
 
-=======  =====  ======
-  Key      B    A or B
-=======  =====  ======
-a        False  False
-A        False  True
-i        True   True
-I        True   True
-=======  =====  ======
-
-
-=======    =============                      ==========
+=======    =================================  ==========
   Key        Operation                          Status
-=======    =============                      ==========
-a          Insert on next char                Implemented 1.0
-A          Insert at end of line              Implemented 1.0 
-i          Insert on current char             Implemented 1.0
-I          Insert beginning of line           Implemented 1.0 
-o          New next line                      Implemented 1.0
-O          New prev line                      Implemented 1.0
-h          Cursor left                        Implemented 1.3
-j          Cursor down                        Implemented 1.3
-k          Cursor up                          Implemented 1.3
-l          Cursor right                       Implemented 1.3
-=======    =============                      ==========
+=======    =================================  ==========
+a          Insert on next char                1.0
+A          Insert at end of line              1.0 
+i          Insert on current char             1.0
+I          Insert beginning of line           1.0 
+o          New next line                      1.0
+O          New prev line                      1.0
+h          Cursor left                        1.3
+j          Cursor down                        1.3
+k          Cursor up                          1.3
+l          Cursor right                       1.3
+=======    =================================  ==========
