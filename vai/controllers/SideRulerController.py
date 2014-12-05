@@ -60,7 +60,7 @@ class SideRulerController:
                                          bg_color=gui.VGlobalColor.black)
             elif change == "modified":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.modified"],
-                                         fg_color=gui.VGlobalColor.magenta,
+                                         fg_color=gui.VGlobalColor.yellow,
                                          bg_color=gui.VGlobalColor.black)
             elif change == "deletion_before":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_before"],

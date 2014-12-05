@@ -19,7 +19,6 @@ class SideRulerTest(unittest.TestCase):
         ruler.setGeometry((0,0,7,40))
         ruler.show()
         self.app.processEvents()
-        print(self.screen)
 
         self.assertEqual(self.screen.stringAt(0,0,10),  " 1    ║...")
         self.assertEqual(self.screen.stringAt(0,1,10),  " 2    ║...")

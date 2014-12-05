@@ -1,4 +1,4 @@
-from vaitk import gui, core, utils
+from vaitk import gui, utils
 import math
 from ..models import Icons
 from ..models import Configuration
