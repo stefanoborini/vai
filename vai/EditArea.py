@@ -1,5 +1,5 @@
 import vaitk
-from vaitk import gui, core, utils
+from vaitk import gui, utils
 from . import controllers
 from .models.TextDocument import CharMeta
 from .models import DefaultColorSchema
