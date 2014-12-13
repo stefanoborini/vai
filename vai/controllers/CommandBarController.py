@@ -9,15 +9,14 @@ class CommandBarController:
         self._editor_controller = editor_controller
         self._global_state = global_state
 
-        self._command_bar.returnPressed.connect(self._parseCommandBar)
-        self._command_bar.escapePressed.connect(self._abortCommandBar)
-        self._command_bar.tabPressed.connect(self._autocompleteCommandBar)
+        self._command_bar.returnPressed.connect(self.parseCommandBar)
+        self._command_bar.escapePressed.connect(self.abortCommandBar)
+        self._command_bar.tabPressed.connect(self.autocompleteCommandBar)
 
-        self._global_state.editorModeChanged.connect(self._editorModeChanged)
+        self._global_state.editorModeChanged.connect(self.editorModeChanged)
 
-    # Private
 
-    def _parseCommandBar(self):
+    def parseCommandBar(self):
         command_text = self._command_bar.command_text
         mode = self._global_state.editor_mode
         self._global_state.editor_mode = models.EditorMode.COMMAND
@@ -34,12 +33,12 @@ class CommandBarController:
 
         self._edit_area.setFocus()
 
-    def _abortCommandBar(self):
+    def abortCommandBar(self):
         self._command_bar.clear()
         self._global_state.editor_mode = models.EditorMode.COMMAND
         self._edit_area.setFocus()
 
-    def _editorModeChanged(self, *args):
+    def editorModeChanged(self, *args):
         self._command_bar.editor_mode = self._global_state.editor_mode
 
     def _interpretLine(self, command_text):
@@ -90,8 +89,11 @@ class CommandBarController:
     def _reportError(self, error_string):
         self._command_bar.setErrorString(error_string)
 
-    def _autocompleteCommandBar(self):
+    def autocompleteCommandBar(self):
         command_text = self._command_bar.command_text
+        if len(command_text.strip()) == 0:
+            return True
+
         command = shlex.split(command_text)
 
         if command[0] in ("w", "r", "e"):
