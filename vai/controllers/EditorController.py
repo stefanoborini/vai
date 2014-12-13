@@ -5,7 +5,7 @@ from .. import Search
 from .. import linting
 from ..Lexer import Lexer
 from .. import models
-from .. import commands
+from ..models import commands
 
 class EditorController:
     def __init__(self, editor, global_state, buffer_list):

@@ -1,7 +1,6 @@
 from ..widgets import LineBadge
 from ..linting import LinterResult
-from ..models import Configuration
-from ..models import Icons
+from ..models import Configuration, Icons
 from vaitk import gui
 
 class SideRulerController:

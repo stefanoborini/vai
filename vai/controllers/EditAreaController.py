@@ -3,7 +3,7 @@ import os
 from vaitk import core, Key, KeyModifier
 from ..models import EditorMode
 from .. import Search
-from .. import commands
+from ..models import commands
 from ..SymbolLookupDb import SymbolLookupDb
 
 DIRECTIONAL_KEYS = [ Key.Key_Up,
