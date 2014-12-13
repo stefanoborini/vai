@@ -1,12 +1,11 @@
 import unittest
-from vai.models.Buffer import Buffer
-from vai.models.TextDocument import TextDocument
-from vai import commands
+from vai import models
+from vai.models import commands
 from tests import fixtures
 
 class TestDeleteToEndOfWordCommands(unittest.TestCase):
     def testDeleteToEndOfWordCommand(self):
-        self.buffer = Buffer()
+        self.buffer = models.Buffer()
         self.buffer.document.open(fixtures.get("basic_python.py"))
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfWordCommand(self.buffer)
@@ -16,7 +15,7 @@ class TestDeleteToEndOfWordCommands(unittest.TestCase):
 
     def testParenthesisPreserved(self):
         """Check if parentheses are preserved (#124)"""
-        self.buffer = Buffer()
+        self.buffer = models.Buffer()
         self.buffer.document.open(fixtures.get("issue_124"))
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfWordCommand(self.buffer)

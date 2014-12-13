@@ -1,14 +1,12 @@
 import unittest
-from vai.models.Buffer import Buffer
-from vai.models.TextDocument import TextDocument
-from vai.models.EditAreaModel import EditAreaModel
-from vai import commands
+from vai import models
+from vai.models import commands
 from tests import fixtures
 
 
 class TestNewLineCommand(unittest.TestCase):
     def setUp(self):
-        self.buffer = Buffer()
+        self.buffer = models.Buffer()
         self.buffer.document.open(fixtures.get("basic_python.py"))
 
     def testNewLineCommand(self):

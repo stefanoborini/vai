@@ -1,12 +1,11 @@
 import unittest
-from vai.models.Buffer import Buffer
-from vai.models.TextDocument import TextDocument
-from vai import commands
+from vai import models
+from vai.models import commands
 from tests import fixtures
 
 class TestDeleteToEndOfLineCommands(unittest.TestCase):
     def testDeleteToEndOfLineCommand(self):
-        self.buffer = Buffer()
+        self.buffer = models.Buffer()
         self.buffer.document.open(fixtures.get("basic_python.py"))
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfLineCommand(self.buffer)
