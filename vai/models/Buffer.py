@@ -16,6 +16,7 @@ class Buffer:
         self._command_history = CommandHistory()
         self._document.createLineMetaInfo("LinterResult")
         self._document.createLineMetaInfo("Change")
+        self._document.createLineMetaInfo("Bookmark")
 
     def isEmpty(self):
         """
