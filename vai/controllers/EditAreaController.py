@@ -17,7 +17,6 @@ DIRECTIONAL_KEYS = [ Key.Key_Up,
                      ]
 
 class CommandState:
-
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
         # No commands. only movement and no-command operations
@@ -63,6 +62,9 @@ class CommandState:
                 return CommandState
 
             return UnknownState
+
+        if key == Key.Key_Apostrophe and modifiers == 0:
+            return GoToBookmarkState
 
         if key == Key.Key_D and modifiers == 0:
             return DeleteState
@@ -270,10 +272,21 @@ class BookmarkState:
 
         return CommandState
 
-class ReplaceState:
+class GoToBookmarkState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
 
+        if Key.Key_A <= event.key() <= Key.Key_Z:
+            marker = vaitk.vaiKeyCodeToText(event.key())
+            found = buffer.document.lineMetaInfo("Bookmark").findWhere(lambda x: x == marker)
+            if len(found) != 0:
+                buffer.cursor.toLine(list(found.keys())[0])
+
+        return CommandState
+
+class ReplaceState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
         if vaitk.isKeyCodePrintable(event.key()):
             command = commands.ReplaceSingleCharCommand(buffer, event.text())
             result = command.execute()
@@ -310,6 +323,7 @@ MODE_TO_STATE = {
     EditorMode.REPLACE: ReplaceState,
     EditorMode.ZETA: ZetaState,
     EditorMode.BOOKMARK: BookmarkState,
+    EditorMode.GOTOBOOKMARK: GoToBookmarkState,
 }
 
 STATE_TO_MODE = { v : k for k,v in MODE_TO_STATE.items() }

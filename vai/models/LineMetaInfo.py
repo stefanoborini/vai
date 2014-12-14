@@ -63,7 +63,10 @@ class LineMetaInfo:
                 return self._data[:how_many]
 
     def notNoneData(self):
-        return { i+1: v for i,v in enumerate(self._data) if v is not None}
+        return self.findWhere(lambda x: x is not None)
+
+    def findWhere(self, condition):
+        return { i+1: v for i,v in enumerate(self._data) if condition(v)}
 
     def dataForLines(self, lines):
         return {i: self._data[i-1] for i in lines}
