@@ -1,12 +1,8 @@
 from .. import models
-from vaitk import gui
 
 class StatusBarController(object):
     def __init__(self, status_bar):
         self._status_bar = status_bar
-        self._status_bar.setColors(gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.fg")),
-                                   gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.bg"))
-                                  )
         self._buffer = None
 
     @property

@@ -7,9 +7,6 @@ class SideRulerController:
     def __init__(self, side_ruler):
         self._side_ruler = side_ruler
 
-        self._side_ruler.setColors(gui.VGlobalColor.nameToColor(Configuration.get("colors.side_ruler.fg")),
-                                   gui.VGlobalColor.nameToColor(Configuration.get("colors.side_ruler.bg"))
-                                  )
 
         self._buffer = None
         self._icons = Icons.getCollection(Configuration.get("icons.collection"))
