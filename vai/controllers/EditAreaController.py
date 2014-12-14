@@ -268,7 +268,13 @@ class BookmarkState:
 
         if Key.Key_A <= event.key() <= Key.Key_Z:
             marker = vaitk.vaiKeyCodeToText(event.key())
-            buffer.document.lineMetaInfo("Bookmark").setDataForLines({buffer.cursor.line : marker})
+
+            data_dict = {}
+            found = buffer.document.lineMetaInfo("Bookmark").findWhere(lambda x: x == marker)
+            for line_num in found:
+                data_dict[line_num] = None
+            data_dict[buffer.cursor.line] = marker
+            buffer.document.lineMetaInfo("Bookmark").setDataForLines(data_dict)
 
         return CommandState
 
