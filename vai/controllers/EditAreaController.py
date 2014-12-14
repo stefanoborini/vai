@@ -17,6 +17,7 @@ DIRECTIONAL_KEYS = [ Key.Key_Up,
                      ]
 
 class CommandState:
+
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
         # No commands. only movement and no-command operations
@@ -71,6 +72,9 @@ class CommandState:
 
         if key == Key.Key_Z and modifiers & KeyModifier.ShiftModifier:
             return ZetaState
+
+        if key == Key.Key_M and modifiers == 0:
+            return BookmarkState
 
         if key == Key.Key_Dollar:
             buffer.cursor.toLineEnd()
@@ -256,6 +260,16 @@ class GoState:
 
         return CommandState
 
+class BookmarkState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+
+        if Key.Key_A <= event.key() <= Key.Key_Z:
+            marker = chr(event.key())
+            buffer.document.lineMetaInfo("Bookmark").setDataForLines({buffer.cursor.line : marker})
+
+        return CommandState
+
 class ReplaceState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
@@ -294,7 +308,8 @@ MODE_TO_STATE = {
     EditorMode.YANK: YankState,
     EditorMode.GO: GoState,
     EditorMode.REPLACE: ReplaceState,
-    EditorMode.ZETA: ZetaState
+    EditorMode.ZETA: ZetaState,
+    EditorMode.BOOKMARK: BookmarkState,
 }
 
 STATE_TO_MODE = { v : k for k,v in MODE_TO_STATE.items() }

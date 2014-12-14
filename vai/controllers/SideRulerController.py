@@ -28,6 +28,7 @@ class SideRulerController:
             self._buffer.document.numLinesChanged.disconnect(self.updateWidget)
             self._buffer.document.lineMetaInfo("LinterResult").contentChanged.disconnect(self.updateWidget)
             self._buffer.document.lineMetaInfo("Change").contentChanged.disconnect(self.updateWidget)
+            self._buffer.document.lineMetaInfo("Bookmark").contentChanged.disconnect(self.updateWidget)
 
         self._buffer = buffer
 
@@ -36,6 +37,7 @@ class SideRulerController:
         self._buffer.document.numLinesChanged.connect(self.updateWidget)
         self._buffer.document.lineMetaInfo("LinterResult").contentChanged.connect(self.updateWidget)
         self._buffer.document.lineMetaInfo("Change").contentChanged.connect(self.updateWidget)
+        self._buffer.document.lineMetaInfo("Bookmark").contentChanged.connect(self.updateWidget)
 
         # Refresh
         self.updateWidget()
@@ -69,6 +71,17 @@ class SideRulerController:
                 badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_after"],
                                          fg_color=gui.VGlobalColor.red,
                                          bg_color=gui.VGlobalColor.black)
+
+        bookmarks = self._buffer.document.lineMetaInfo("Bookmark").dataForLines(needed_lines)
+
+        for line, mark in bookmarks.items():
+            if mark is None:
+                continue
+
+            badges[line] = LineBadge(marker="X",
+                                  fg_color=gui.VGlobalColor.red,
+                                  bg_color=gui.VGlobalColor.black
+                        )
 
         lint_data = self._buffer.document.lineMetaInfo("LinterResult").dataForLines(needed_lines)
 

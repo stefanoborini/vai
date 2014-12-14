@@ -41,7 +41,3 @@ class GlobalState(core.VObject):
     def clipboard(self, text):
         self._clipboard = text
 
-
-
-
-
