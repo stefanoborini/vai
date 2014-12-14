@@ -1,5 +1,4 @@
 import re
-from . import flags
 
 class SearchDirection:
     FORWARD = 1

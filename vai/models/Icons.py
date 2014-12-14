@@ -26,7 +26,7 @@ class Icons:
                                  "SideRuler.modified"        : ".",
                                  "SideRuler.unexistent_line" : "~",
                                  "SideRuler.border"          : "|",
-                                 "SideRuler.bookmarks"       : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                                 "SideRuler.bookmarks"       : "abcdefghijklmnopqrstuvwxyz"
                                 }
 
         cls._ICONS["unicode1"] = {
@@ -40,32 +40,7 @@ class Icons:
                                  "SideRuler.modified"        : "\u25a0", # Square
                                  "SideRuler.unexistent_line" : "~",
                                  "SideRuler.border"          : "\u2551", # double line
-                                 "SideRuler.bookmarks"       : "\u24B6"+
-                                                               "\u24B7"+
-                                                               "\u24B8"+
-                                                               "\u24B9"+
-                                                               "\u24BA"+
-                                                               "\u24BB"+
-                                                               "\u24BC"+
-                                                               "\u24BD"+
-                                                               "\u24BE"+
-                                                               "\u24BF"+
-                                                               "\u24C0"+
-                                                               "\u24C1"+
-                                                               "\u24C2"+
-                                                               "\u24C3"+
-                                                               "\u24C4"+
-                                                               "\u24C5"+
-                                                               "\u24C6"+
-                                                               "\u24C7"+
-                                                               "\u24C8"+
-                                                               "\u24C9"+
-                                                               "\u24CA"+
-                                                               "\u24CB"+
-                                                               "\u24CC"+
-                                                               "\u24CD"+
-                                                               "\u24CE"+
-                                                               "\u24CF"+
+                                 "SideRuler.bookmarks"       :
                                                                "\u24D0"+
                                                                "\u24D1"+
                                                                "\u24D2"+
@@ -91,7 +66,33 @@ class Icons:
                                                                "\u24E6"+
                                                                "\u24E7"+
                                                                "\u24E8"+
-                                                               "\u24E9"
+                                                               "\u24E9"+
+                                                               "\u24B6"+
+                                                               "\u24B7"+
+                                                               "\u24B8"+
+                                                               "\u24B9"+
+                                                               "\u24BA"+
+                                                               "\u24BB"+
+                                                               "\u24BC"+
+                                                               "\u24BD"+
+                                                               "\u24BE"+
+                                                               "\u24BF"+
+                                                               "\u24C0"+
+                                                               "\u24C1"+
+                                                               "\u24C2"+
+                                                               "\u24C3"+
+                                                               "\u24C4"+
+                                                               "\u24C5"+
+                                                               "\u24C6"+
+                                                               "\u24C7"+
+                                                               "\u24C8"+
+                                                               "\u24C9"+
+                                                               "\u24CA"+
+                                                               "\u24CB"+
+                                                               "\u24CC"+
+                                                               "\u24CD"+
+                                                               "\u24CE"+
+                                                               "\u24CF"
                                 }
 
 

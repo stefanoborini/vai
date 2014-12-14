@@ -188,6 +188,7 @@ class KeyModifier:
     Mask            = 0x3F000000
 
 def nativeToVaiKeyCode(native_key_code):
+    """Transforms the keycode from native (ncurses) to vaitk representation"""
     key_mapper = {
       1                    : Key.Key_A | KeyModifier.ControlModifier,
       2                    : Key.Key_B | KeyModifier.ControlModifier,

@@ -265,7 +265,7 @@ class BookmarkState:
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
 
         if Key.Key_A <= event.key() <= Key.Key_Z:
-            marker = chr(event.key())
+            marker = vaitk.vaiKeyCodeToText(event.key())
             buffer.document.lineMetaInfo("Bookmark").setDataForLines({buffer.cursor.line : marker})
 
         return CommandState
