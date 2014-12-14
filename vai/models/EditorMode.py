@@ -16,4 +16,5 @@ class EditorMode:
     YANK = 11           # When y has been pressed and waiting for the second y.
     ZETA = 12           # When capital Z has been pressed and waiting for the second Z
     BOOKMARK = 13       #
+    GOTOBOOKMARK = 14   #
 
