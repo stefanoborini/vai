@@ -16,7 +16,7 @@ class TestDeleteLineAtCursorCommand(unittest.TestCase):
         result = command.execute()
         self.assertNotEqual(result, None)
         self.assertTrue(result.success)
-        self.assertEqual(result.info, [ ({}, '#!python\n'), {'LinterResult': None, 'Change': None}])
+        self.assertEqual(result.info, [ ({}, '#!python\n'), {'LinterResult': None, 'Change': None, 'Bookmark': None}])
 
         self.assertEqual(self.buffer.document.numLines(), 3)
         self.assertNotEqual(self.buffer.document.lineText(1), removed_line)
