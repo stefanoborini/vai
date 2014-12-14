@@ -14,6 +14,9 @@ class SideRuler(gui.VWidget):
         self._skip_intervals = []
         self._badges = {}
         self._icons = Icons.getCollection(Configuration.get("icons.collection"))
+        self.setColors(gui.VGlobalColor.nameToColor(Configuration.get("colors.side_ruler.fg")),
+                       gui.VGlobalColor.nameToColor(Configuration.get("colors.side_ruler.bg"))
+                       )
 
     def paintEvent(self, event):
         w, h = self.size()

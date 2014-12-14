@@ -1,3 +1,4 @@
+from .. import models
 from vaitk import gui, core, utils
 
 class StatusBar(gui.VLabel):
@@ -10,6 +11,10 @@ class StatusBar(gui.VLabel):
         self._remove_message_timer = core.VTimer()
         self._remove_message_timer.setSingleShot(True)
         self._remove_message_timer.timeout.connect(self.clearMessage)
+        self.setColors(
+                       gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.fg")),
+                       gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.bg"))
+                       )
 
     def setMessage(self, message, timeout=None):
         if self._remove_message_timer.isRunning():
