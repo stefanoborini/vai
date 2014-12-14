@@ -22,11 +22,15 @@ class BufferList(core.VObject):
         return buffer
 
     def bufferForFilename(self, path):
+        """
+        Given a path, finds the currently open buffer that is associated to that path.
+        Returns None if no such buffer exists
+        """
         for buffer in self._buffers:
             if buffer.document.filename() is None:
                 continue
 
-            
+
             try:
                 if os.path.samefile(
                         os.path.abspath(
@@ -37,10 +41,10 @@ class BufferList(core.VObject):
                     return buffer
             except:
                 pass
-            
+
             if path == buffer.document.filename():
                 return buffer
-        
+
         return None
 
     def select(self, buffer):

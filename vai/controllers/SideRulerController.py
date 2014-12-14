@@ -78,8 +78,8 @@ class SideRulerController:
             if mark is None:
                 continue
 
-            badges[line] = LineBadge(marker="X",
-                                  fg_color=gui.VGlobalColor.red,
+            badges[line] = LineBadge(marker=self._icons["SideRuler.bookmarks"][ord(mark)-ord('a')],
+                                  fg_color=gui.VGlobalColor.yellow,
                                   bg_color=gui.VGlobalColor.black
                         )
 
@@ -107,3 +107,5 @@ class SideRulerController:
 
         self._side_ruler.setBadges(badges)
         self._side_ruler.update()
+
+
