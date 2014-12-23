@@ -317,6 +317,7 @@ class VGlobalColor:
     term_255      = VColor(rgb=(0xee,0xee,0xee))
 
 
+    @staticmethod
     def nameToColor(name):
         return VGlobalColor.__dict__.get(name)
 
