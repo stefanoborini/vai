@@ -161,14 +161,15 @@ class VScreen(object):
         return curses.COLORS
 
     def getColorAttributeCode(self, fg=None, bg=None):
+        """Given fg and bg colors, find and return the correct attribute code to apply with chgat"""
         fg_screen = None if fg is None else self._findClosestColor(fg)
         bg_screen = None if bg is None else self._findClosestColor(bg)
 
         if (fg_screen, bg_screen) in self._attr_lookup_cache:
             return self._attr_lookup_cache[(fg_screen, bg_screen)]
 
-        fg_index = 0 if fg_screen is None else fg_screen.colorIdx()
-        bg_index = 0 if bg_screen is None else bg_screen.colorIdx()
+        fg_index = -1 if fg_screen is None else fg_screen.colorIdx()
+        bg_index = -1 if bg_screen is None else bg_screen.colorIdx()
 
         attr = self._getPairAttrFromColors(fg_index, bg_index)
 
@@ -187,8 +188,6 @@ class VScreen(object):
         else:
             pair_index = len(self._color_pairs)
             with self._curses_lock:
-                with open("XX", "a") as f:
-                    f.write("%d %d %d\n" % (pair_index, fg_index, bg_index))
                 curses.init_pair(pair_index, fg_index, bg_index)
             self._color_pairs.append((fg_index, bg_index))
 
@@ -255,7 +254,7 @@ class VScreenColor(object):
 class VGlobalScreenColor(object):
     @classmethod
     def init(cls, num_colors):
-        if num_colors == 8 or num_colors == 16:
+        if num_colors == 8 or num_colors == 256:
             cls.term_0        = VScreenColor(0  , None, (0x00,0x00,0x00))
             cls.term_1        = VScreenColor(1  , None, (0x80,0x00,0x00))
             cls.term_2        = VScreenColor(2  , None, (0x00,0x80,0x00))
@@ -265,13 +264,6 @@ class VGlobalScreenColor(object):
             cls.term_6        = VScreenColor(6  , None, (0x00,0x80,0x80))
             cls.term_6        = VScreenColor(7  , None, (0xc0,0xc0,0xc0))
             cls.term_8        = VScreenColor(8  , None, (0x80,0x80,0x80))
-            cls.term_9        = VScreenColor(9  , None, (0xff,0x00,0x00))
-            cls.term_10       = VScreenColor(10 , None, (0x00,0xff,0x00))
-            cls.term_11       = VScreenColor(11 , None, (0xff,0xff,0x00))
-            cls.term_12       = VScreenColor(12 , None, (0x00,0x00,0xff))
-            cls.term_13       = VScreenColor(13 , None, (0xff,0x00,0xff))
-            cls.term_14       = VScreenColor(14 , None, (0x00,0xff,0xff))
-            cls.term_15       = VScreenColor(15 , None, (0xff,0xff,0xff))
 
             cls.black        = VScreenColor(curses.COLOR_BLACK, None, (0,0,0))
             cls.darkred      = VScreenColor(curses.COLOR_RED, None, (170,0,0))
@@ -298,7 +290,14 @@ class VGlobalScreenColor(object):
             cls.cyan         = cls.lightcyan
             cls.gray         = cls.lightgray
 
-        if num_colors == 16:
+        if num_colors == 256:
+            cls.term_9        = VScreenColor(9  , None, (0xff,0x00,0x00))
+            cls.term_10       = VScreenColor(10 , None, (0x00,0xff,0x00))
+            cls.term_11       = VScreenColor(11 , None, (0xff,0xff,0x00))
+            cls.term_12       = VScreenColor(12 , None, (0x00,0x00,0xff))
+            cls.term_13       = VScreenColor(13 , None, (0xff,0x00,0xff))
+            cls.term_14       = VScreenColor(14 , None, (0x00,0xff,0xff))
+            cls.term_15       = VScreenColor(15 , None, (0xff,0xff,0xff))
             cls.term_16       = VScreenColor(16 , None, (0x00,0x00,0x00))
             cls.term_17       = VScreenColor(17 , None, (0x00,0x00,0x5f))
             cls.term_18       = VScreenColor(18 , None, (0x00,0x00,0x87))

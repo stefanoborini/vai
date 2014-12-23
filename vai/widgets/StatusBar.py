@@ -11,10 +11,12 @@ class StatusBar(gui.VLabel):
         self._remove_message_timer = core.VTimer()
         self._remove_message_timer.setSingleShot(True)
         self._remove_message_timer.timeout.connect(self.clearMessage)
-        self.setColors(
-                       gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.fg")),
-                       gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.bg"))
-                       )
+
+
+        fg_color = gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.fg"))
+        bg_color = gui.VGlobalColor.nameToColor(models.Configuration.get("colors.status_bar.bg"))
+        
+        self.setColors(fg_color, bg_color)
 
     def setMessage(self, message, timeout=None):
         if self._remove_message_timer.isRunning():
