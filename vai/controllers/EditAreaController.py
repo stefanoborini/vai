@@ -177,7 +177,6 @@ class CommandState:
 class InsertState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
-
         command = None
         document = buffer.document
         cursor = buffer.cursor
@@ -204,6 +203,21 @@ class InsertState:
                             text = os.path.commonprefix(lookup)
                         else:
                             text = ''
+            elif event.key() == Key.Key_ParenLeft: 
+                text = "()"
+                command = commands.InsertStringCommand(buffer, text)
+                result = command.execute()
+                if result.success:
+                    buffer.command_history.add(command)
+                
+                cursor.toCharPrev()
+                return InsertState
+            elif event.key() == Key.Key_ParenRight:
+                if document.charAt(cursor.pos) == ')':
+                    cursor.toCharNext()
+                    return InsertState
+                else: 
+                    text = ')'
             else:
                 text = event.text()
 
