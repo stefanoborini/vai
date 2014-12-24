@@ -32,6 +32,16 @@ class SideRulerTest(unittest.TestCase):
         self.assertEqual(self.screen.stringAt(0,9,10),  " 10   ║...")
         self.assertEqual(self.screen.stringAt(0,10,10), " 11   ║...")
 
+    def testSetTopLine(self):
+        ruler = SideRuler(parent=None)
+        ruler.setTopLine(10)
+        ruler.setNumLines(20)
+        ruler.setGeometry((0,0,7,40))
+        ruler.show()
+        self.app.processEvents()
+        self.assertEqual(self.screen.stringAt(0,0,10),  "10    ║...")
+        self.assertEqual(self.screen.stringAt(0,1,10),  "11    ║...")
+
 
 if __name__ == '__main__':
     unittest.main()
