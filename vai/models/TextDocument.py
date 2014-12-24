@@ -188,6 +188,18 @@ class TextDocument(core.VObject):
 
         return ('', None)
 
+    def charAt(self, pos):
+        """
+        find the full word at a given document position.
+        Returns a tuple with the full word and the document column where the
+        word starts
+        """
+        self._checkPos(pos)
+
+        line_text = self.lineText(pos[0])
+
+        return line_text[pos[1]-1]
+        
     ## Modify document routines
     # Line operations
     def newLineAfter(self, line_number):
