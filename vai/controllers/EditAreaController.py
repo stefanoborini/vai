@@ -203,8 +203,31 @@ class InsertState:
                             text = os.path.commonprefix(lookup)
                         else:
                             text = ''
-            elif event.key() == Key.Key_ParenLeft: 
-                text = "()"
+            elif event.key() in (Key.Key_ParenRight, 
+                                 Key.Key_BraceRight,
+                                 Key.Key_BracketRight,
+                                 Key.Key_QuoteDbl,
+                                ): 
+
+                text = { Key.Key_ParenRight: ")",
+                         Key.Key_BraceRight: "}",
+                         Key.Key_BracketRight: "]",
+                       }[event.key()]
+                if document.charAt(cursor.pos) == text:
+                    cursor.toCharNext()
+                    return InsertState
+                else:
+                    # Keep text. let it be used.
+                    pass
+            elif event.key() in (Key.Key_ParenLeft, 
+                                 Key.Key_BraceLeft,
+                                 Key.Key_BracketLeft,
+                                ): 
+                text = { Key.Key_ParenLeft: "()",
+                         Key.Key_BraceLeft: "{}",
+                         Key.Key_BracketLeft: "[]",
+                       }[event.key()]
+
                 command = commands.InsertStringCommand(buffer, text)
                 result = command.execute()
                 if result.success:
@@ -212,12 +235,6 @@ class InsertState:
                 
                 cursor.toCharPrev()
                 return InsertState
-            elif event.key() == Key.Key_ParenRight:
-                if document.charAt(cursor.pos) == ')':
-                    cursor.toCharNext()
-                    return InsertState
-                else: 
-                    text = ')'
             else:
                 text = event.text()
 
