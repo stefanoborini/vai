@@ -23,6 +23,7 @@ def main():
                                            version='vai {0}'.format(__version__))
     args = parser.parse_args()
 
+    app = None
     try:
 
         if args.dump_default_config:
@@ -60,9 +61,11 @@ def main():
         import traceback
         import contextlib
 
-        saved_files = app.dumpBuffers()
+        saved_files = []
+        if app is not None:
+            saved_files = app.dumpBuffers()
 
-        app.resetScreen()
+            app.resetScreen()
 
         with contextlib.closing(open("vai_crashreport.out", "w")) as f:
             f.write(traceback.format_exc())

@@ -30,8 +30,6 @@ class SideRuler(gui.VWidget):
             painter.bg_color = current_bg
 
             if current > self._num_lines:
-                painter.fg_color = current_fg
-                painter.bg_color = None
                 painter.drawText( (0, i), self._icons["SideRuler.unexistent_line"].ljust(num_digits).ljust(w-1))
                 painter.drawText( (w-1, i), self._icons["SideRuler.border"])
                 continue
