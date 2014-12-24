@@ -1,11 +1,13 @@
 from . import VColor
 from ..consts import Index
-import curses
+import curses, _curses
 import select
 import sys
 import os
 import logging
 import threading
+
+class VException(Exception): pass
 
 class VScreen(object):
     def __init__(self):
@@ -13,7 +15,10 @@ class VScreen(object):
         # the start of a escape command. We need this to exit insert mode in vai, and
         # it makes sense overall
         os.environ["ESCDELAY"] = "25"
-        self._curses_screen = curses.initscr()
+        try:
+            self._curses_screen = curses.initscr()
+        except:
+            raise VException("Cannot initialize screen") 
         curses.start_color()
         curses.use_default_colors()
         curses.noecho()
@@ -180,7 +185,6 @@ class VScreen(object):
         return attr
 
     def _getPairAttrFromColors(self, fg_index, bg_index):
-
         t = (fg_index, bg_index)
 
         if t in self._color_pairs:
@@ -206,7 +210,6 @@ class VScreen(object):
 
     def cursorPos(self):
         return self._cursor_pos
-
 
     def _findClosestColor(self, color):
         screen_color = self._color_lookup_cache.get(color.rgb)

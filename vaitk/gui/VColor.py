@@ -30,8 +30,10 @@ class VColor:
         def distance(color1, color2):
             return (color1[0] - color2[0])**2 + (color1[1] - color2[1])**2 + (color1[2] - color2[2])**2
 
-
 class VGlobalColor:
+    """This class defines colors according to the rgb palette"""
+    transparent = None
+
     black = VColor(rgb=(0,0,0))
 
     darkred = VColor(rgb=(170,0,0))
@@ -315,7 +317,6 @@ class VGlobalColor:
     term_253      = VColor(rgb=(0xda,0xda,0xda))
     term_254      = VColor(rgb=(0xe4,0xe4,0xe4))
     term_255      = VColor(rgb=(0xee,0xee,0xee))
-
 
     @staticmethod
     def nameToColor(name):

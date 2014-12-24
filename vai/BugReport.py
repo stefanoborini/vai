@@ -7,10 +7,11 @@ def report(saved_files):
         print(f.read())
 
     print("---------------------------")
-    print("Your buffers have been dumped to the following files")
-    print("")
-    for f in saved_files:
-        print("  "+str(f))
+    if len(saved_files) != 0:
+        print("Your buffers have been dumped to the following files")
+        print("")
+        for f in saved_files:
+            print("  "+str(f))
     print("")
     print("The traceback has been saved in vai_crashreport.out")
 
