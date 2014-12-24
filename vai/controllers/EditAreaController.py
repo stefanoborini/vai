@@ -206,7 +206,6 @@ class InsertState:
             elif event.key() in (Key.Key_ParenRight, 
                                  Key.Key_BraceRight,
                                  Key.Key_BracketRight,
-                                 Key.Key_QuoteDbl,
                                 ): 
 
                 text = { Key.Key_ParenRight: ")",
