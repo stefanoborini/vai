@@ -36,7 +36,7 @@ class TestInsertLineAfterCommands(unittest.TestCase):
 
         cursor.toPos((4,1))
         result = command.execute()
-        self.assertEqual(cursor.pos, (2,1))
+        self.assertEqual(cursor.pos, (3,1))
 
 if __name__ == '__main__':
     unittest.main()

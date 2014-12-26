@@ -7,8 +7,10 @@ class BreakLineCommand(BufferCommand):
     def execute(self):
         cursor = self._cursor
         document = self._document
-        pos = cursor.pos
-        self.saveCursorPos()
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
+        
+        pos = self.savedCursorPos()
 
         if pos[1] == document.lineLength(pos[0]):
             command = NewLineAfterCommand(self._buffer)

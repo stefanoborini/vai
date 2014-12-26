@@ -10,14 +10,18 @@ class InsertLineAfterCommand(BufferCommand):
         document = self._buffer.document
         cursor = self._buffer.cursor
 
-        self.saveCursorPos()
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
 
-        document.insertLine(cursor.pos[0]+1, self._text)
-        document.lineMetaInfo("Change").setData("added", cursor.pos[0]+1)
+        pos = self.savedCursorPos()
+        cursor.toPos(pos)
+
+        document.insertLine(pos[0]+1, self._text)
+        document.lineMetaInfo("Change").setData("added", pos[0]+1)
         cursor.toLineNext()
         return CommandResult(True, None)
 
     def undo(self):
-        self._buffer.document.deleteLine(self._saved_cursor_pos[0]+1)
+        self._buffer.document.deleteLine(self.savedCursorPos()[0]+1)
         self.restoreCursorPos()
 
