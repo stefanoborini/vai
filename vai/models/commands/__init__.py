@@ -15,3 +15,4 @@ from .NewLineCommand import NewLineCommand
 from .ReplaceSingleCharCommand import ReplaceSingleCharCommand
 from .InsertFileCommand import InsertFileCommand
 from .IndentCommand import IndentCommand
+from .DedentCommand import DedentCommand

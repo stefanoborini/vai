@@ -191,6 +191,8 @@ class InsertState:
             command = commands.BreakLineCommand(buffer)
         elif event.key() == Key.Key_T and event.modifiers() & KeyModifier.ControlModifier:
             command = commands.IndentCommand(buffer)
+        elif event.key() == Key.Key_D and event.modifiers() & KeyModifier.ControlModifier:
+            command = commands.DedentCommand(buffer)
         else:
             if event.key() == Key.Key_Tab:
                 if cursor.pos[1] == 1:
