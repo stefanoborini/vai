@@ -189,6 +189,8 @@ class InsertState:
             command = commands.DeleteSingleCharAfterCommand(buffer)
         elif event.key() == Key.Key_Return:
             command = commands.BreakLineCommand(buffer)
+        elif event.key() == Key.Key_T and event.modifiers() & KeyModifier.ControlModifier:
+            command = commands.IndentCommand(buffer)
         else:
             if event.key() == Key.Key_Tab:
                 if cursor.pos[1] == 1:
