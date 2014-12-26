@@ -14,11 +14,30 @@ class _VExceptionEvent:
         self.exception = exception
 
 class _KeyEventThread(threading.Thread):
+    """
+    Separate thread class to handle keyboard events
+    extracted from ncurses.
+    It communicates to the main thread in three ways:
+    - with a queue, where it puts all the key events
+    - and with an event flag, which is set when key events are available
+    - with the stop_thread flag, which stops the loop
+   
+    the reason why we use the event_available_flag is because we have two
+    queues, one for the key events, and the other for the other events (timer etc).
+    We can't check the queues without altering them, so we need a flag to communicate
+    when either of the queues has something to fetch. (to be verified, I remember
+    I had to devise this solution due to limits of the queue object)
+
+    Important thing (for future resolution): the stop_event is pretty useless
+    since the thread stay stopped in getKeyCode and can't check the flag until
+    it leaves. Either I need to add a timer, or come up with a better solution.
+    In any case, the self.daemon flag should solve the problem, since the main
+    thread is free to quit even if the secondary daemon thread is still running.
+    """
     def __init__(self, screen, key_event_queue, event_available_flag):
         super().__init__()
         self.daemon = True
         self.stop_event = threading.Event()
-        self.throttle = threading.Event()
         self.exception = None
 
         self._screen = screen
@@ -27,6 +46,12 @@ class _KeyEventThread(threading.Thread):
 
 
     def run(self):
+        """
+        Runs on the separate thread. Fetches key events from ncurses,
+        converts them into vaitk key events, and post them into the key
+        event queue for further processing from the main thread.
+        """
+            
         while not self.stop_event.is_set():
             last_event = (None, time.time())
             try:
@@ -40,12 +65,7 @@ class _KeyEventThread(threading.Thread):
                 if event is not None:
                     self._key_event_queue.put(event)
                     self._event_available_flag.set()
-                else:
-                    if hasattr(self, "debug"):
-                        logging.info("Unknown key code "+str(c))
 
-                self.throttle.wait()
-                self.throttle.clear()
             except Exception as e:
                 event = _VExceptionEvent(e)
                 self._key_event_queue.put(event)
@@ -55,7 +75,7 @@ class _KeyEventThread(threading.Thread):
         pass
 
 class VApplication(core.VCoreApplication):
-
+    debug=True
     def __init__(self, argv, screen=None):
         from . import VWidget
         super().__init__(argv)
@@ -88,7 +108,6 @@ class VApplication(core.VCoreApplication):
             self._event_available_flag.clear()
             self.logger.info("Event available")
             self.processEvents(True)
-            self._key_event_thread.throttle.set()
 
         self._exitCleanup()
 
@@ -282,8 +301,6 @@ class VApplication(core.VCoreApplication):
         for w in self.rootWidget().depthFirstFullTree():
             if w.needsUpdate():
                 w.event(events.VPaintEvent())
-
-
 
     def _exitCleanup(self):
         self._key_event_thread.stop_event.set()

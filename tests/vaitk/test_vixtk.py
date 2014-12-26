@@ -5,6 +5,7 @@ class TestVaiTk(unittest.TestCase):
     def testNativeToVaiKeyCode(self):
         self.assertEqual(vaitk.nativeToVaiKeyCode(ord('a')), vaitk.Key.Key_A)
         self.assertEqual(vaitk.nativeToVaiKeyCode(ord('A')), vaitk.Key.Key_A | vaitk.KeyModifier.ShiftModifier)
+        self.assertEqual(vaitk.nativeToVaiKeyCode(337), None)
 
     def testIsKeyCodePrintable(self):
         self.assertTrue(vaitk.isKeyCodePrintable(vaitk.Key.Key_A))

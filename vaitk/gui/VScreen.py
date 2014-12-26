@@ -84,6 +84,9 @@ class VScreen(object):
 
         with self._curses_lock:
             c = self._curses_screen.getch()
+            # 27 = Escape character, but it's also used to create multikeys.
+            # So we detect a pure escape by getting again. If it returns
+            # -1, it means there's no additional keys and it's a pure escape
             if c == 27:
                 next_c = self._curses_screen.getch()
                 if next_c == -1:
