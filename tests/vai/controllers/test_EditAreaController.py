@@ -52,5 +52,20 @@ class TestEditAreaController(unittest.TestCase):
         self.assertEqual(buffer.cursor.line, last_line_number-1)
         self.assertEqual(buffer.document.lineText(buffer.cursor.line), second_to_last_line)
 
+    def testShiftJ(self):
+        buffer = fixtures.buffer("basic_python.py")
+        controller = controllers.EditAreaController(self.mock_edit_area,
+                                                    self.mock_global_state,
+                                                    self.mock_editor_controller)
+        controller.buffer = buffer
+        buffer.cursor.toFirstLine()
+        type(self.mock_global_state).editor_mode = PropertyMock(return_value=models.EditorMode.COMMAND)
+
+        self.assertEqual(buffer.document.numLines(), 4)
+
+        event = events.VKeyEvent(vaitk.Key.Key_J | vaitk.KeyModifier.ShiftModifier)
+        controller.handleKeyEvent(event)
+        self.assertEqual(buffer.document.numLines(), 3)
+    
 if __name__ == '__main__':
     unittest.main()
