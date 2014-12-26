@@ -36,5 +36,19 @@ class TestNewLineCommand(unittest.TestCase):
         cursor.toLineNext()
         self.assertEqual(cursor.pos, (5,5))
 
+    def testRedo(self):
+        doc = self.buffer.document
+        cursor = self.buffer.cursor
+
+        cursor.toPos((2,1))
+        command = commands.NewLineCommand(self.buffer)
+        command.execute()
+        command.undo()
+        cursor.toPos((4,1))
+        command.execute()
+        self.assertEqual(doc.numLines(), 5)
+        self.assertEqual(cursor.pos, (2,1))
+
+
 if __name__ == '__main__':
     unittest.main()

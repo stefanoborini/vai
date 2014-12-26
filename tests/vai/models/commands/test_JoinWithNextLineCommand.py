@@ -27,7 +27,40 @@ class TestJoinWithNextLineCommand(unittest.TestCase):
         result = command.execute()
         self.assertFalse(result.success)
 
-        # FIXME test undo
+    def testUndo(self):
+        cursor = self.buffer.cursor
+        document = self.buffer.document
+        cursor = self.buffer.cursor
+        cursor.toPos((1,1))
+        line_1 = document.lineText(1)
+        line_2 = document.lineText(2)
+
+        command = commands.JoinWithNextLineCommand(self.buffer)
+        result = command.execute()
+        command.undo()
+
+        self.assertEqual(line_1, document.lineText(1))
+        self.assertEqual(line_2, document.lineText(2))
+
+    def testRedo(self):
+        cursor = self.buffer.cursor
+        document = self.buffer.document
+        cursor = self.buffer.cursor
+        cursor.toPos((1,1))
+        line_1 = document.lineText(1)
+        line_2 = document.lineText(2)
+
+        command = commands.JoinWithNextLineCommand(self.buffer)
+        result = command.execute()
+        command.undo()
+
+        cursor.toPos((3,1))
+
+        command.execute()
+
+        self.assertEqual(self.buffer.document.lineText(1), line_1[:-1]+line_2)
+        self.assertEqual(cursor.pos, (1,1))
+        self.assertEqual(self.buffer.document.numLines(), 3)
 
 if __name__ == '__main__':
     unittest.main()

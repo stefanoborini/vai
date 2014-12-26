@@ -28,5 +28,34 @@ class TestDeleteSingleCharAfterCommand(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.info, None)
 
+    def testUndo(self):
+        self.buffer.cursor.toPos((1,1))
+        line = self.buffer.document.lineText(1)
+        command = commands.DeleteSingleCharAfterCommand(self.buffer)
+        result = command.execute()
+        self.buffer.cursor.toPos((2,1))
+
+        command.undo()
+
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+        self.assertEqual(self.buffer.document.lineText(1), line)
+
+    def testRedoAppliesToOldPos(self):
+
+        self.buffer.cursor.toPos((1,1))
+        command = commands.DeleteSingleCharAfterCommand(self.buffer)
+        result = command.execute()
+
+        line = self.buffer.document.lineText(1)
+
+        command.undo()
+
+        self.buffer.cursor.toPos((3,1))
+
+        command.execute()
+
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
+        self.assertEqual(self.buffer.document.lineText(1), line)
+
 if __name__ == '__main__':
     unittest.main()

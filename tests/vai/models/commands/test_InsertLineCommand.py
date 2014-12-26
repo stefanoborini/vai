@@ -27,5 +27,16 @@ class TestInsertLineCommands(unittest.TestCase):
         command1.undo()
         self.assertEqual(self.buffer.document.numLines(), 4)
 
+    def testRedo(self):
+        self.buffer.cursor.toPos((2,1))
+        command = commands.InsertLineCommand(self.buffer, '1234')
+        command.execute()
+        command.undo()
+
+        self.buffer.cursor.toPos((4,1))
+        command.execute()
+        self.assertEqual(self.buffer.cursor.pos, (2,1))
+
+
 if __name__ == '__main__':
     unittest.main()

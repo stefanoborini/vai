@@ -14,5 +14,31 @@ class TestInsertStringCommand(unittest.TestCase):
         result = command.execute()
         self.assertTrue(result.success)
 
+    def testUndo(self):
+        cursor = self.buffer.cursor
+        document = self.buffer.document
+        cursor.toPos((3,1))
+        command = commands.InsertStringCommand(self.buffer, 'hello')
+        result = command.execute()
+
+        self.assertTrue(result.success)
+        self.assertEqual(document.lineText(3), 'hellodef foo():\n')
+
+        command.undo()
+        self.assertEqual(document.lineText(3), 'def foo():\n')
+
+    def testRedo(self):
+        cursor = self.buffer.cursor
+        document = self.buffer.document
+        cursor.toPos((3,1))
+        command = commands.InsertStringCommand(self.buffer, 'hello')
+        result = command.execute()
+        command.undo()
+
+        cursor.toPos((1,1))
+        command.execute()
+
+        self.assertEqual(document.lineText(3), 'hellodef foo():\n')
+
 if __name__ == '__main__':
     unittest.main()

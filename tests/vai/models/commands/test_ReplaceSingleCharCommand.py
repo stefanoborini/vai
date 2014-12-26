@@ -27,5 +27,19 @@ class TestReplaceSingleCharCommand(unittest.TestCase):
         self.assertEqual(cursor.pos, (1,1))
         self.assertEqual(doc.lineText(1), '#!python\n')
 
+    def testRedo(self):
+        doc = self.buffer.document
+        cursor = self.buffer.cursor
+
+        command = commands.ReplaceSingleCharCommand(self.buffer, 'r')
+        status = command.execute()
+
+        command.undo()
+        cursor.toPos((3,1))
+        command.execute()
+
+        self.assertEqual(cursor.pos, (1,1))
+        self.assertEqual(doc.lineText(1), 'r!python\n')
+
 if __name__ == '__main__':
     unittest.main()
