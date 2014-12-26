@@ -23,11 +23,22 @@ class CommandState:
         key = event.key()
         modifiers = event.modifiers()
 
+        if key == Key.Key_A:
+            if modifiers == 0:
+                buffer.cursor.toCharNext()
+                return InsertState
+
+            elif modifiers & KeyModifier.ShiftModifier:
+                buffer.cursor.toLineEnd()
+                return InsertState
+
+            return UnknownState
+
         if key == Key.Key_H:
             buffer.cursor.toCharPrev()
             return CommandState
 
-        if key == Key.Key_J:
+        if key == Key.Key_J and modifiers == 0:
             buffer.cursor.toLineNext()
             return CommandState
 
@@ -103,17 +114,6 @@ class CommandState:
 
             command.execute()
             return CommandState
-
-        if key == Key.Key_A:
-            if modifiers == 0:
-                buffer.cursor.toCharNext()
-                return InsertState
-
-            elif modifiers & KeyModifier.ShiftModifier:
-                buffer.cursor.toLineEnd()
-                return InsertState
-
-            return UnknownState
 
         if key == Key.Key_N:
             if global_state.current_search is not None:
