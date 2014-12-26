@@ -9,13 +9,14 @@ class InsertLineCommand(BufferCommand):
     def execute(self):
         document = self._document
         cursor = self._cursor
-        pos = cursor.pos
-        line_meta = document.lineMetaInfo("Change")
 
-        self.saveCursorPos()
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
 
+        pos = self.savedCursorPos()
+        
         document.insertLine(pos[0], self._text)
-        line_meta.setData("added", pos[0])
+        document.lineMetaInfo("Change").setData("added", pos[0])
         cursor.toPos((pos[0], 1))
         return CommandResult(True, None)
 

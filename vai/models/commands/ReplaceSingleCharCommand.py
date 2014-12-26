@@ -9,13 +9,16 @@ class ReplaceSingleCharCommand(BufferCommand):
     def execute(self):
         document = self._buffer.document
         cursor = self._buffer.cursor
-        pos = cursor.pos
-        meta_info = document.lineMetaInfo("Change")
-
-        self.saveCursorPos()
+        
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
+        
+        pos = self.savedCursorPos()
+        cursor.toPos(pos)
+         
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
-        meta_info.setData('modified', pos[0])
+        document.lineMetaInfo("Change").setData('modified', pos[0])
         deleted = document.replaceChars(pos, 1, self._char)
         return CommandResult(True, deleted)
 

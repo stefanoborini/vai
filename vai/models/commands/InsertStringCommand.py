@@ -12,11 +12,15 @@ class InsertStringCommand(BufferCommand):
     def execute(self):
         cursor = self._cursor
         document = self._document
-        pos = cursor.pos
+
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
+
+        pos = self.savedCursorPos()
+
         line_meta = document.lineMetaInfo("Change")
         changed = line_meta.data(pos[0])
 
-        self.saveCursorPos()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         if changed is None:
@@ -24,5 +28,6 @@ class InsertStringCommand(BufferCommand):
 
         document.insertChars(pos, self._text)
         cursor.toPos( (pos[0], pos[1]+len(self._text)) )
+
         return CommandResult(success=True, info=None)
 

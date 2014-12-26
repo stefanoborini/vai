@@ -19,6 +19,7 @@ class TestDeleteSingleCharAfterCommand(unittest.TestCase):
         self.assertTrue(result.success)
         self.assertEqual(result.info, ('#', {}))
 
+        command = commands.DeleteSingleCharAfterCommand(self.buffer)
         line = self.buffer.document.lineText(1)
         self.buffer.cursor.toLineEnd()
         end_pos = self.buffer.cursor.pos
@@ -41,7 +42,6 @@ class TestDeleteSingleCharAfterCommand(unittest.TestCase):
         self.assertEqual(self.buffer.document.lineText(1), line)
 
     def testRedoAppliesToOldPos(self):
-
         self.buffer.cursor.toPos((1,1))
         command = commands.DeleteSingleCharAfterCommand(self.buffer)
         result = command.execute()

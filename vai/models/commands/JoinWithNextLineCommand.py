@@ -3,14 +3,18 @@ from .CommandResult import CommandResult
 
 class JoinWithNextLineCommand(BufferCommand):
     def execute(self):
-        cursor = self._cursor
         document = self._document
-        pos = cursor.pos
-
+       
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
+        
+        pos = self.savedCursorPos() 
+        
         if pos[0] == document.numLines():
             return CommandResult(success=False, info=None)
 
-        self.saveCursorPos()
+        self._cursor.toPos(pos)
+
         line_meta = document.lineMetaInfo("Change")
 
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)

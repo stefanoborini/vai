@@ -13,7 +13,7 @@ class TestInsertFileCommand(unittest.TestCase):
         cursor = self.buffer.cursor
         document = self.buffer.document
 
-        cursor.toPos((2,1))
+        cursor.toPos((1,1))
         command = commands.InsertFileCommand(self.buffer, fixtures.get("basic_python.py"))
 
         result = command.execute()
@@ -27,22 +27,23 @@ class TestInsertFileCommand(unittest.TestCase):
 
         old_lines = [document.lineText(i) for i in range(1,5)]
 
-        cursor.toPos((2,1))
+        cursor.toPos((1,1))
         command = commands.InsertFileCommand(self.buffer, fixtures.get("basic_python.py"))
 
         result = command.execute()
         
         command.undo() 
+
         self.assertEqual(document.numLines(), 4)
         for i in range(1,5):
-            self.assertEqual(document.lineText(i), old_lines[i])
+            self.assertEqual(document.lineText(i), old_lines[i-1])
 
     def testRedo(self):
         cursor = self.buffer.cursor
         document = self.buffer.document
 
 
-        cursor.toPos((2,1))
+        cursor.toPos((1,1))
         command = commands.InsertFileCommand(self.buffer, fixtures.get("basic_python.py"))
 
         result = command.execute()
@@ -54,7 +55,7 @@ class TestInsertFileCommand(unittest.TestCase):
 
         self.assertEqual(document.numLines(), 8)
         for i in range(1,9):
-            self.assertEqual(document.lineText(i), old_lines[i])
+            self.assertEqual(document.lineText(i), old_lines[i-1])
 
 if __name__ == '__main__':
     unittest.main()

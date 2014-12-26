@@ -50,22 +50,26 @@ class TestDeleteLineAtCursorCommand(unittest.TestCase):
         command = commands.DeleteLineAtCursorCommand(self.buffer)
         command.execute()
         self.assertEqual(self.buffer.document.numLines(), 3)
-        self.assertEqual(self.buffer.cursor.pos, (3,2))
+        self.assertEqual(self.buffer.cursor.pos, (3,1))
 
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
         command.execute()
         self.assertEqual(self.buffer.document.numLines(), 2)
         self.assertEqual(self.buffer.cursor.pos, (2,1))
 
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
         command.execute()
         self.assertEqual(self.buffer.document.numLines(), 1)
         self.assertNotEqual(self.buffer.document.lineLength(1), 1)
-        self.assertEqual(self.buffer.cursor.pos, (1,2))
+        self.assertEqual(self.buffer.cursor.pos, (1,1))
 
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
         command.execute()
         self.assertEqual(self.buffer.document.numLines(), 1)
         self.assertEqual(self.buffer.document.lineLength(1), 1)
         self.assertEqual(self.buffer.cursor.pos, (1,1))
 
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
         status = command.execute()
         self.assertFalse(status.success)
         self.assertEqual(self.buffer.document.numLines(), 1)

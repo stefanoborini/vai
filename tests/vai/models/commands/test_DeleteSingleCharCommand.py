@@ -19,6 +19,7 @@ class TestDeleteSingleCharCommands(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertEqual(result.info, None)
 
+        command = commands.DeleteSingleCharCommand(self.buffer)
         self.buffer.cursor.toPos((1,2))
         result = command.execute()
         self.assertEqual(self.buffer.cursor.pos, (1,1))

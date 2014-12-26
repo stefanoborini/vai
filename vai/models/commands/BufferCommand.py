@@ -14,7 +14,6 @@ class BufferCommand(object):
 
     def restoreCursorPos(self):
         self._cursor.toPos(self._saved_cursor_pos)
-        self._saved_cursor_pos = None
 
     def savedCursorPos(self):
         return self._saved_cursor_pos
@@ -35,6 +34,14 @@ class BufferCommand(object):
     def lastSavedMemento(self):
         return self._line_memento_data[-1]
 
+    def executeSubCommand(self, subcommand_type):
+        sub_command = subcommand_type(self._buffer)
+        result = sub_command.execute()
+        if result.success:
+            self._sub_command = sub_command
+        
+        return result
+    
     def undo(self):
         if self._sub_command is not None:
             self._sub_command.undo()

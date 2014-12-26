@@ -8,7 +8,12 @@ class DeleteSingleCharCommand(BufferCommand):
     def execute(self):
         document = self._document
         cursor = self._cursor
-        pos = cursor.pos
+
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
+        
+        pos = self.savedCursorPos()
+        cursor.toPos(pos)
 
         if pos == (1,1):
             return CommandResult(success=False, info=None)
@@ -23,7 +28,6 @@ class DeleteSingleCharCommand(BufferCommand):
             else:
                 return CommandResult(False, None)
 
-        self.saveCursorPos()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         line_meta = document.lineMetaInfo("Change")

@@ -8,8 +8,12 @@ class DeleteToEndOfWordCommand(BufferCommand):
         cursor = self._buffer.cursor
         document = self._buffer.document
 
-        pos = cursor.pos
-        self.saveCursorPos()
+        if self.savedCursorPos() is None:
+            self.saveCursorPos()
+
+        pos = self.savedCursorPos()
+        cursor.toPos(pos)
+
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         line_meta = document.lineMetaInfo("Change")
