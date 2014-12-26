@@ -18,7 +18,10 @@ class ReplaceSingleCharCommand(BufferCommand):
          
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
-        document.lineMetaInfo("Change").setData('modified', pos[0])
+        meta_info = document.lineMetaInfo("Change")
+        if meta_info.data(pos[0]) is None:
+            meta_info.setData('modified', pos[0])
+
         deleted = document.replaceChars(pos, 1, self._char)
         return CommandResult(True, deleted)
 
