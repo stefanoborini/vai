@@ -41,5 +41,18 @@ class TestReplaceSingleCharCommand(unittest.TestCase):
         self.assertEqual(cursor.pos, (1,1))
         self.assertEqual(doc.lineText(1), 'r!python\n')
 
+    def testBug152(self):
+        doc = self.buffer.document
+        cursor = self.buffer.cursor
+
+        command = commands.NewLineCommand(self.buffer)
+        command.execute()
+        
+        self.assertEqual(doc.lineMetaInfo("Change").data(1), "added")
+        command = commands.ReplaceSingleCharCommand(self.buffer, 'r')
+        status = command.execute()
+
+        self.assertEqual(doc.lineMetaInfo("Change").data(1), "added")
+
 if __name__ == '__main__':
     unittest.main()
