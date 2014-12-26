@@ -69,6 +69,7 @@ class TestBreakLineCommands(unittest.TestCase):
         command.undo()
 
     def testBreakStripsSpaces(self):
+        """Test if breaking a line removes the excess spaces"""
         doc = self.buffer.document
         cursor = self.buffer.cursor
 
@@ -79,6 +80,32 @@ class TestBreakLineCommands(unittest.TestCase):
         self.assertEqual(doc.lineText(1), "foo  \n")
         self.assertEqual(doc.lineText(2), "bar\n")
 
+    def testRedoAppliesToOldPlace(self):
+        doc = self.buffer.document
+        cursor = self.buffer.cursor
+
+        saved_line_1 = doc.lineText(1)
+        saved_line_3 = doc.lineText(3)
+        self.assertEqual(doc.numLines(), 4)
+
+        cursor.toPos((1,4))
+        command = commands.BreakLineCommand(self.buffer)
+        result = command.execute()
+        self.assertTrue(result.success)
+        self.assertEqual(doc.lineText(1), saved_line_1[:3]+'\n')
+        self.assertEqual(doc.lineText(2), saved_line_1[3:])
+
+        command.undo()
+
+        cursor.toPos((3,1))
+        
+        result = command.execute()
+        self.assertTrue(result.success)
+        self.assertEqual(doc.lineText(1), saved_line_1[:3]+'\n')
+        self.assertEqual(doc.lineText(2), saved_line_1[3:])
+        self.assertEqual(doc.lineText(4), saved_line_3)
+        self.assertEqual(cursor.pos, (2,1))
+        
 
 if __name__ == '__main__':
     unittest.main()
