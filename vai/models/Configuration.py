@@ -1,6 +1,7 @@
 import copy
 import os
 import json
+import locale
 
 def _defaultConfigPath():
     """
@@ -72,6 +73,10 @@ class Configuration:
 
     @classmethod
     def get(cls, key):
+        # We override, but not alter, the configuration if the current encoding
+        # is not supporting utf-8 encoding.
+        if key == "icons.collection" and locale.getpreferredencoding(False) != "UTF-8":
+            return "ascii"
         return cls.instance()[key]
 
 

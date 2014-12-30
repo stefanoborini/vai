@@ -9,8 +9,12 @@ import os
 import sys
 import io
 import argparse
+import locale
 
 def main():
+    # Sets the locale to the default (user specified) locale, as suggested by ncurses docs
+    locale.setlocale(locale.LC_ALL, "")
+    
     parser = argparse.ArgumentParser(description="A Vim-like editor, with big dreams.")
     parser.add_argument("filename", nargs="?", help="The filename to open")
     parser.add_argument("--dump-default-config",
