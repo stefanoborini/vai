@@ -194,6 +194,7 @@ class InsertState:
         elif event.key() == Key.Key_D and event.modifiers() & KeyModifier.ControlModifier:
             command = commands.DedentCommand(buffer)
         else:
+            text = ""
             if event.key() == Key.Key_Tab:
                 if cursor.pos[1] == 1:
                     text = " "*4
@@ -238,6 +239,29 @@ class InsertState:
                 
                 cursor.toCharPrev()
                 return InsertState
+            elif event.key() in (Key.Key_QuoteDbl, Key.Key_Apostrophe):
+                key = event.text()
+                surroundings = {}
+                for x in range(-2, 3):
+                    surroundings[x] = document.charAt((cursor.pos[0], cursor.pos[1]+x)) \
+                                      if document.isValidPos( (cursor.pos[0], cursor.pos[1]+x)) \
+                                      else None
+                if surroundings[-2] == key and surroundings[-1] == key:
+                    text = event.text()
+                elif surroundings[-2] != key and surroundings[-1] == key and surroundings[0] == key:
+                    cursor.toCharNext()
+                else:
+                    text = { Key.Key_QuoteDbl: '""',
+                             Key.Key_Apostrophe: "''"
+                           }[event.key()]
+
+                    command = commands.InsertStringCommand(buffer, text)
+                    result = command.execute()
+                    if result.success:
+                        buffer.command_history.add(command)
+                    
+                    cursor.toCharPrev()
+                    return InsertState
             else:
                 text = event.text()
 
