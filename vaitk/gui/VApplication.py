@@ -42,6 +42,7 @@ class _KeyEventThread(threading.Thread):
 
         self._screen = screen
         self._key_event_queue = key_event_queue
+        self.throttle = threading.Event()
         self._event_available_flag = event_available_flag
 
 
@@ -65,6 +66,9 @@ class _KeyEventThread(threading.Thread):
                 if event is not None:
                     self._key_event_queue.put(event)
                     self._event_available_flag.set()
+
+                    self.throttle.wait()
+                    self.throttle.clear()
 
             except Exception as e:
                 event = _VExceptionEvent(e)
@@ -108,6 +112,7 @@ class VApplication(core.VCoreApplication):
             self._event_available_flag.clear()
             self.logger.info("Event available")
             self.processEvents(True)
+            self._key_event_thread.throttle.set()
 
         self._exitCleanup()
 
