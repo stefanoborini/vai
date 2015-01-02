@@ -75,22 +75,18 @@ class TestTextDocument(unittest.TestCase):
     def testDocumentMeta(self):
         doc = TextDocument()
         doc.open(fixtures.get("basic_nonempty_file.txt"))
-        self.assertEqual(type(doc.documentMeta()), dict)
+        doc.createDocumentMetaInfo("Hello")
+        self.assertEqual(doc.documentMetaInfo("Hello").data(), None)
+
+        doc.createDocumentMetaInfo("Hello2", 2)
+        self.assertEqual(doc.documentMetaInfo("Hello2").data(), 2)
 
     def testUpdateDocumentMeta(self):
         doc = TextDocument()
         doc.open(fixtures.get("basic_nonempty_file.txt"))
-        doc.updateDocumentMeta({"Hello": 5})
-        self.assertEqual(type(doc.documentMeta()), dict)
-        self.assertEqual(doc.documentMeta()["Hello"], 5)
-
-    def testDeleteDocumentMeta(self):
-        doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
-        doc.updateDocumentMeta({"Hello": 5})
-        self.assertEqual(doc.documentMeta()["Hello"], 5)
-        doc.deleteDocumentMeta("Hello")
-        self.assertNotIn("Hello", doc.documentMeta())
+        doc.createDocumentMetaInfo("Hello")
+        doc.documentMetaInfo("Hello").setData(5)
+        self.assertEqual(doc.documentMetaInfo("Hello").data(), 5)
 
     def testLastModified(self):
         doc = TextDocument()
