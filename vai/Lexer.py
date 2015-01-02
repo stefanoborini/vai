@@ -57,6 +57,9 @@ class Lexer:
         filename = self._document.filename()
         self._lexer = _getLexerInstance(filename)
         self._document.contentChanged.connect(self._lexContents)
+        file_type_meta = self._document.documentMetaInfo("FileType")
+        if file_type_meta.data() is None:
+            file_type_meta.setData(self._lexer.name)
         self._lexContents()
 
     def _lexContents(self):
