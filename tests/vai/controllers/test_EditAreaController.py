@@ -66,6 +66,36 @@ class TestEditAreaController(unittest.TestCase):
         event = events.VKeyEvent(vaitk.Key.Key_J | vaitk.KeyModifier.ShiftModifier)
         controller.handleKeyEvent(event)
         self.assertEqual(buffer.document.numLines(), 3)
+
+    def testDw(self):
+        buffer = fixtures.buffer("basic_python.py")
+        controller = controllers.EditAreaController(self.mock_edit_area,
+                                                    self.mock_global_state,
+                                                    self.mock_editor_controller)
+        controller.buffer = buffer
+        buffer.cursor.toFirstLine()
+        type(self.mock_global_state).editor_mode = PropertyMock(return_value=models.EditorMode.DELETE)
+
+        event = events.VKeyEvent(vaitk.Key.Key_W)
+        controller.handleKeyEvent(event)
+
+        self.assertEqual(buffer.document.lineText(1), "!python\n")            
+        self.assertEqual(self.mock_global_state.clipboard, '#')
+
+        event = events.VKeyEvent(vaitk.Key.Key_W)
+        controller.handleKeyEvent(event)
+        self.assertEqual(buffer.document.lineText(1), "python\n")            
+        self.assertEqual(self.mock_global_state.clipboard, '!')
+
+        event = events.VKeyEvent(vaitk.Key.Key_W)
+        controller.handleKeyEvent(event)
+        self.assertEqual(buffer.document.lineText(1), "\n")            
+        self.assertEqual(self.mock_global_state.clipboard, 'python')
+
+        event = events.VKeyEvent(vaitk.Key.Key_W)
+        controller.handleKeyEvent(event)
+        self.assertEqual(buffer.document.lineText(1), "\n")            
+        self.assertEqual(self.mock_global_state.clipboard, '')
     
 if __name__ == '__main__':
     unittest.main()
