@@ -284,15 +284,17 @@ class DeleteState:
             result = command.execute()
             if result.success:
                 buffer.command_history.add(command)
-                global_state.clipboard = result.info[0][1]
+                global_state.clipboard = result.info[0]
 
         if event.key() == Key.Key_W:
             command = commands.DeleteToEndOfWordCommand(buffer)
             result = command.execute()
             if result.success:
                 buffer.command_history.add(command)
-                global_state.clipboard = result.info[0][1]
-
+                try:
+                    global_state.clipboard = result.info[0]
+                except:
+                    raise Exception(str(result.info))
         # Reset if we don't recognize it.
         return CommandState
 
