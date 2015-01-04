@@ -30,6 +30,8 @@ class Configuration:
     # The file where to read the data
     _filename = None
 
+    flags = { "has_wide_ncurses" : True }
+
     @classmethod
     def instance(cls):
         if cls._instance is None:
@@ -74,8 +76,9 @@ class Configuration:
     @classmethod
     def get(cls, key):
         # We override, but not alter, the configuration if the current encoding
-        # is not supporting utf-8 encoding.
-        if key == "icons.collection" and locale.getpreferredencoding(False) != "UTF-8":
+        # is not supporting utf-8 encoding, or if we don't have wide ncurses
+        if (key == "icons.collection" and locale.getpreferredencoding(False) != "UTF-8") \
+            or not cls.flags.get("has_wide_ncurses"):
             return "ascii"
         return cls.instance()[key]
 
