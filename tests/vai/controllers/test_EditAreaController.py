@@ -67,7 +67,7 @@ class TestEditAreaController(unittest.TestCase):
         controller.handleKeyEvent(event)
         self.assertEqual(buffer.document.numLines(), 3)
 
-    def testDw(self):
+    def testdw(self):
         buffer = fixtures.buffer("basic_python.py")
         controller = controllers.EditAreaController(self.mock_edit_area,
                                                     self.mock_global_state,
@@ -96,6 +96,23 @@ class TestEditAreaController(unittest.TestCase):
         controller.handleKeyEvent(event)
         self.assertEqual(buffer.document.lineText(1), "\n")            
         self.assertEqual(self.mock_global_state.clipboard, '')
+
+    def testdd(self):
+        global_state = models.GlobalState()
+        buffer = fixtures.buffer("basic_python.py")
+        controller = controllers.EditAreaController(self.mock_edit_area,
+                                                    global_state,
+                                                    self.mock_editor_controller)
+        controller.buffer = buffer
+        buffer.cursor.toFirstLine()
+
+        event = events.VKeyEvent(vaitk.Key.Key_D)
+        controller.handleKeyEvent(event)
+
+        event = events.VKeyEvent(vaitk.Key.Key_D)
+        controller.handleKeyEvent(event)
+
+        self.assertEqual(global_state.clipboard, '#!python\n')
     
 if __name__ == '__main__':
     unittest.main()

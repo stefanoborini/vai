@@ -42,7 +42,6 @@ class TestDeleteToEndOfWordCommands(unittest.TestCase):
         self.assertEqual(self.buffer.cursor.pos, (1,6))
         self.assertEqual(self.buffer.document.lineText(1), "#!pyt\n")
 
-
     def testParenthesisPreserved(self):
         """Check if parentheses are preserved (#124)"""
         self.buffer = models.Buffer()
