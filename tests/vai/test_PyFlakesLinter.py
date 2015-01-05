@@ -1,8 +1,4 @@
 import unittest
-import os
-import inspect
-import sys
-from vaitk import test, gui, core
 from vai.linting import PyFlakesLinter
 from vai.models import TextDocument
 from tests import fixtures

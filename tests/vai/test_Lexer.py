@@ -1,8 +1,4 @@
 import unittest
-import os
-import inspect
-import sys
-from vaitk import test, gui, core
 from vai import Lexer
 from vai.models import TextDocument
 from pygments import token

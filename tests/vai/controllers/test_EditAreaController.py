@@ -1,11 +1,9 @@
 import unittest
 from unittest.mock import Mock, PropertyMock
-from vaitk import gui, test, core
 from vai.EditArea import EditArea
 from vai import models
 from vaitk.gui import events
 import vaitk
-from vai import flags
 from tests import fixtures
 
 from vai import controllers
