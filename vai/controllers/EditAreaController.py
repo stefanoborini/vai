@@ -284,7 +284,10 @@ class DeleteState:
             result = command.execute()
             if result.success:
                 buffer.command_history.add(command)
-                global_state.clipboard = result.info[0]
+                # FIXME: need [0][1] because the info in the DeleteLineAtCursor has
+                # the memento, which contains line/char info. Need reform of the
+                # result content for uniformity. See issue #168
+                global_state.clipboard = result.info[0][1]
 
         if event.key() == Key.Key_W:
             command = commands.DeleteToEndOfWordCommand(buffer)
