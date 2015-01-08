@@ -17,6 +17,7 @@ def _defaultConfigPath():
 
 class Configuration:
     DEFAULTS = {
+                 "colors.syntax_schema"     : "default",
                  "colors.status_bar.fg"     : "yellow",
                  "colors.status_bar.bg"     : "darkblue",
                  "colors.side_ruler.fg"     : "darkcyan",
