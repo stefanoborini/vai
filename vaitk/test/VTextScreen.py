@@ -81,3 +81,6 @@ class VTextScreen(object):
 
     def stringAt(self, x, y, l):
         return ''.join(self._render_output[y][x:x+l])
+
+    def numColors(self):
+        return 8
