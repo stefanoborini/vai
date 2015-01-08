@@ -2,7 +2,7 @@ import vaitk
 from vaitk import gui, utils
 from . import controllers
 from .models.TextDocument import CharMeta
-from .models import DefaultColorSchema
+from .models import SyntaxColor
 from .models import Configuration
 from . import Search
 from .models import Icons
@@ -14,7 +14,10 @@ class EditArea(gui.VWidget):
         self._buffer = None
 
         self._controller = controllers.EditAreaController(self, global_state, editor_controller)
-        self._color_schema = DefaultColorSchema()
+        self._color_schema = SyntaxColor(
+                                    Configuration.get("colors.syntax_schema"),
+                                    gui.VApplication.vApp.screen().numColors()
+                             ).colorMap()
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
@@ -91,7 +94,7 @@ class EditArea(gui.VWidget):
 
             char_meta = document.charMeta( (doc_line_num,1))
             if CharMeta.LexerToken in char_meta:
-                colors = [self._color_schema.COLORMAP[tok] for tok in char_meta.get(CharMeta.LexerToken)]
+                colors = [self._color_schema[tok] for tok in char_meta.get(CharMeta.LexerToken)]
 
             for i in range(5, indent_spaces, 4):
                 colors[i-1] = (gui.VGlobalColor.blue, None)

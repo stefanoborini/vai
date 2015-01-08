@@ -545,6 +545,8 @@ class VGlobalScreenColor(object):
             cls.term_254      = VScreenColor(254, None, (0xe4,0xe4,0xe4))
             cls.term_255      = VScreenColor(255, None, (0xee,0xee,0xee))
 
+            cls.pink = cls.term_210
+
     @classmethod
     def allColors(cls):
         return [c for c in list(cls.__dict__.values()) if isinstance(c, VScreenColor)]

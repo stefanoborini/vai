@@ -317,6 +317,7 @@ class VGlobalColor:
     term_253      = VColor(rgb=(0xda,0xda,0xda))
     term_254      = VColor(rgb=(0xe4,0xe4,0xe4))
     term_255      = VColor(rgb=(0xee,0xee,0xee))
+    pink = term_210
 
     @staticmethod
     def nameToColor(name):

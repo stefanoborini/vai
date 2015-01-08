@@ -84,13 +84,7 @@ def _workaroundNCurses():
     # Finally, trigger the import of curses, so that the ncurses library gets loaded
     import _curses 
 
-
-
-
-
 _workaroundNCurses()
-
-
 
 from vaitk import core, gui
 from . import EditorApp

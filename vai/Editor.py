@@ -9,6 +9,11 @@ from .InfoHoverBox import InfoHoverBox
 
 
 class Editor(gui.VWidget):
+    """
+    Widget responsible for handling the overall aspect of the editor,
+    aggregating the different components.
+    """
+
     def __init__(self, global_state, buffer_list, parent=None):
         super().__init__(parent=parent)
 
