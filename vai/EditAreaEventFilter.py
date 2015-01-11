@@ -2,7 +2,6 @@ import vaitk
 from vaitk import core, gui
 
 from .models import EditorMode
-import logging
 
 class EditAreaEventFilter(core.VObject):
     """
