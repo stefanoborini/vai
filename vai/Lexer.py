@@ -48,11 +48,17 @@ def _getLexerInstance(filename):
 
 
 class Lexer:
+    """
+    Observes the TextDocument for changes, and performs lexing
+    of its contents synchronously. The text is parsed with the 
+    lexer as specified by the document meta information FileType.
+    """
     def __init__(self):
         self._document = None
         self._lexer = None
 
     def setModel(self, document):
+        """Sets the textdocument as a model for the lexer"""
         self._document = document
         filename = self._document.filename()
         self._lexer = _getLexerInstance(filename)
@@ -62,7 +68,13 @@ class Lexer:
             file_type_meta.setData(self._lexer.name)
         self._lexContents()
 
+
     def _lexContents(self):
+        """
+        Perform lexing of the document every time it changes.
+        Fills the meta information on the document.
+        """
+
         if self._lexer is None:
             return
 
