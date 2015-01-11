@@ -6,7 +6,7 @@ class SearchDirection:
 
 def findAll(document, search_text, line_interval=None, case_sensitive=True, word=False):
     """
-    Find all occurrences of a given search text (evt. regexp text)
+    Find all occurrences of a given search text (evt. regexp text).
     """
     match_pos = []
     if line_interval is None:
@@ -32,6 +32,12 @@ def findAll(document, search_text, line_interval=None, case_sensitive=True, word
     return match_pos
 
 def find(buffer, text, direction):
+    """
+    Find the next occurrence of text in the buffer, with a given direction.
+    If found, it moves the cursor to the appropriate position and returns True
+    If not found, it returns false.
+    """
+
     document = buffer.document
     cursor = buffer.cursor
 
@@ -39,6 +45,9 @@ def find(buffer, text, direction):
 
     current_line, current_col = pos
 
+    # We do either forward or reverse search all with the same code.
+    # We just switch the lookup function depending on the direction.
+    # and apply it to each line string.
     if direction == SearchDirection.FORWARD:
         first_half, second_half = ((pos[0], document.numLines()+1), (1, pos[0]+1))
         find_routine = "find"
@@ -47,6 +56,7 @@ def find(buffer, text, direction):
         find_routine = "rfind"
 
 
+    # Perform the lookup in the first half.
     for line_num in range(*first_half):
         start, stop = (None, None)
         if line_num == current_line:
