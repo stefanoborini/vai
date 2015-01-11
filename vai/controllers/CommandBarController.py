@@ -1,5 +1,6 @@
 import shlex
 from .. import models
+import sys
 import os
 
 class CommandBarController:
