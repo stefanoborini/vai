@@ -62,6 +62,8 @@ class InfoHoverBox(core.VObject):
     def _toolTipTimeOut(self):
         """Callback to hide the tooltip after a few seconds"""
         gui.VToolTip.hideText()
+        # Don't nullify the current show line, so that we don't show again 
+        # when moving along the line
 
 
 
