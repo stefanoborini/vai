@@ -1,7 +1,12 @@
 from vaitk import gui, core
 
 class InfoHoverBox(core.VObject):
-    def __init__(self, buffer):
+    """
+    View class that observes the buffer. If the cursor hovers a line where the
+    Linting has information, shows a popup containing the associated message
+    """
+
+    def __init__(self):
         self._buffer = None
         self._current_shown_line = None
 
@@ -38,4 +43,4 @@ class InfoHoverBox(core.VObject):
             gui.VToolTip.showText((0, cursor.pos[0]-pos_at_top[0]+1), lint.message)
         else:
             self._current_shown_line = None
-            gui.VToolTip.hide()
+            gui.VToolTip.hideText()

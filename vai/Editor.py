@@ -88,5 +88,5 @@ class Editor(gui.VWidget):
         self._edit_area.resize((self.width()-4, self.height()-2) )
 
     def _createInfoHoverBox(self):
-        self._info_hover_box = InfoHoverBox(self)
+        self._info_hover_box = InfoHoverBox()
 

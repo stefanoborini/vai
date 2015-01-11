@@ -7,14 +7,21 @@ class VToolTip(VLabel):
     _instance = None
     @classmethod
     def showText(cls, pos, text):
+        """
+        Shows the tooltip text at screen position pos.
+        Only one tooltip is allowed. If another tooltip is already present,
+        it will be moved and the text changed.
+        """
         if cls._instance is None:
             cls._instance = VToolTip(text, parent=None)
         cls._instance.setText(text)
         cls._instance.resize((len(text),1))
         cls._instance.move(pos)
         cls._instance.show()
+
     @classmethod
-    def hide(cls):
+    def hideText(cls):
+        """Hides the tooltip if present"""
         if cls._instance is not None:
             VLabel.hide(cls._instance)
 
