@@ -24,13 +24,8 @@ We love vim, but we want more. We want a terminal-based IDE that looks like vim,
 handles like vim, but has all those nice features of Eclipse and Sublime, is
 integrated with git, and is fully coded in python. 
 
-   - `Implemented Features`_
-   - `Screenshots`_
-   - `Release Notes`_
-   - `Download`_
-   - `Contributors`_
-   - `Rationale, Development methodology and planned features`_
-
+For more information about the Rationale behind the project, the development
+methodology and the planned features see the `RATIONALE document <https://github.com/stefanoborini/vai/blob/master/RATIONALE.rst>`_.
 
 Implemented Features
 --------------------
@@ -50,7 +45,10 @@ Implemented Features
    - Cursor position restored between runs.
    - Autoindent
 
-Note: vai is currently focused mostly on Python editing. Future additions will handle other languages.
+See the current vim keys compatibility list in the `FEATURES document <https://github.com/stefanoborini/vai/blob/master/FEATURES.rst>`_.
+
+**Note**: vai is currently focused mostly on Python editing. Future additions will handle other languages.
+
 
 Screenshots
 -----------
@@ -63,75 +61,6 @@ Vai 1.2/1.3
 
 .. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.2.gif
 
-Vai 1.1
-
-.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.1.png
-
-Release Notes
--------------
-
-Vai 1.4
-~~~~~~~
-
-   - Unicode icons for the Side Ruler. Can be disabled with appropriate setting in the .config/vai/vairc file.
-   - Command line option ``--dump-default-config`` to create a default vairc file.
-   - Dumping of current open buffers in case of crash.
-   - More performance improvements.
-   - Now tooltip messages don't stay when you move around or start typing.
-   - Parentheses are no longer removed when using ``dw``
-   - Improved color schema
-   - Implemented vim movements ``hjkl``
-   - Removing leading spaces when breaking a line.
-   - Implemented :x to write and quit.
-   - Implementation of XDG Base Directory Specification.
-   - Command bar tabbing autocompletes filenames and directory names.
-   - Markers added when a line is deleted.
-   - Refactorings
-   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.4+is%3Aclosed+label%3ABug>`_
-
-Vai 1.3
-~~~~~~~
-
-   - Deleting to end of word should also delete the spaces following it.
-   - Implemented redo with Ctrl+R
-   - :r command to read and include a file
-   - Performance improvements
-   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.3+is%3Aclosed+label%3ABug>`_
-
-Vai 1.2
-~~~~~~~
-
-   - Reset optimistic column when adding new line.
-   - Indentation markers proof of concept.
-   - Restore cursor position at load
-   - Introduced ZZ command
-   - Initial Configuration file infrastructure. Basic colors of StatusBar/SideRuler can be changed.
-   - Handle long filenames in StatusBar
-   - Major refactoring of the MVC structure
-   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=milestone%3Av1.2+label%3ABug>`_
-
-Vai 1.1
-~~~~~~~
-
-   - Highlight of False/True  
-   - Change name to prevent issues with Vix video editor
-   - Highlighting of current identifier 
-   - copy/cut/paste (single line)
-   - Hovering tooltip
-   - Replace commands
-   - Delete word 
-   - Asterisk search
-   - Add ^N ^P as shortcuts for buffer nav 
-   - Delete tabspaces on backspace
-   - Autoindent
-   - Tab completion
-   - Solved color difference on Mac vs Linux
-   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=milestone%3Av1.1+label%3ABug>`_
-
-Vai 1.0
-~~~~~~~
-
-   - First release
 
 Download
 --------
@@ -144,19 +73,17 @@ or via pip
 
 **Important Note**: you need python 3.4. Python 3.3 will not work. 
 
-Rationale, Development methodology and planned features
--------------------------------------------------------
-
-You can read about the rationale behind vai, the development
-strategy, and additional information on the `RATIONALE <https://github.com/stefanoborini/vai/blob/master/RATIONALE.rst>`_ 
-document.
-
+See the `Release Notes <https://github.com/stefanoborini/vai/blob/master/RELEASE_NOTES.rst>`_ for details
+about the release changes.
 
 Contributors
 ------------
 
+If you want to contribute to Vai, a good place to start is to read the `DESIGN
+document <https://github.com/stefanoborini/vai/blob/master/DESIGN.rst>`_.
+
 Main development:
-- Stefano Borini
+- `Stefano Borini <http://forthescience.org>`_
 
 Additional contributes:
 - `Carl George (cgtx) <https://github.com/cgtx>`_
