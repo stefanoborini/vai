@@ -54,5 +54,6 @@ setup(
             'vai=vai:main',
         ],
     },
+    zip_safe=True,
 )
 
