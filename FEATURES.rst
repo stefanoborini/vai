@@ -1,10 +1,10 @@
+Vim compatibility list
+======================
+
 Here you will find a list of implemented and still not implemented features, shortcuts and modes.
 
-Actions in command mode
-=======================
-
-Movements
----------
+Command mode movements
+----------------------
 
 =======    =================================  ==========
   Key        Operation                          Status
