@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Vai 1.5
+~~~~~~~
+
+   - Bookmarks (ma and 'a vim keys)
+   - Initial support for 256 colors.
+   - Automatically add closing parenthesis/quote
+   - Indent/dedent current line with Ctrl-T/Ctrl-D in insert mode
+   - Fixed a potential deadlock condition
+   - Tooltip linter now disappears automatically after timeout.
+
 Vai 1.4
 ~~~~~~~
 
