@@ -10,6 +10,7 @@ Vai 1.5
    - Indent/dedent current line with Ctrl-T/Ctrl-D in insert mode
    - Fixed a potential deadlock condition
    - Tooltip linter now disappears automatically after timeout.
+   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.5+is%3Aclosed+label%3ABug>`_
 
 Vai 1.4
 ~~~~~~~
