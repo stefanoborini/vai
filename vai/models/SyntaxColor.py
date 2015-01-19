@@ -1,7 +1,10 @@
+import os
+import json
 from vaitk import gui
-from pygments import token
+from . import SyntaxTokens as token
 import collections
 from .. import Debug
+from .. import paths
 
 class SyntaxColor:
     def __init__(self, schema_name, num_colors):
@@ -17,7 +20,36 @@ class SyntaxColor:
             self._installDefault(num_colors) 
 
     def _tryLoad(self, schema_name, num_colors):
-        return False 
+        schema_file = os.path.join(paths.syntaxColorDir(), "%s_%d.json" % (schema_name, num_colors))
+        if not os.path.isfile(schema_file):
+            return False
+
+        with open(schema_file, "r") as f:
+            data = json.loads(f.read())
+
+        color_map = {}
+        try:
+            for k, v in data.items():
+                if not hasattr(token, k):
+                    continue
+                
+                fg_string, bg_string = v
+                if fg_string is not None and hasattr(gui.VGlobalColor, fg_string):
+                    fg = getattr(gui.VGlobalColor, fg_string)
+                else:
+                    fg = None
+
+                if bg_string is not None and hasattr(gui.VGlobalColor, bg_string):
+                    bg = getattr(gui.VGlobalColor, bg_string)
+                else:
+                    bg = None
+
+                color_map[getattr(token, k)] = (fg, bg)
+        except:
+            return False
+
+        self._color_map.update(color_map)
+        return True
 
     def _installDefault(self, num_colors):
         if num_colors == 8:
