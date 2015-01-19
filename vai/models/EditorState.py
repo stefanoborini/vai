@@ -1,20 +1,16 @@
 import os
 import copy
-import contextlib
 import json
+from .. import paths
 
 class EditorState:
-    _instance = None
+    """
+    Class containing recoverable state that wants to survive quit/reopen of the editor.
+    The state is dumped to a file in json format.
+    """
 
-    @staticmethod
-    def editorStatePath():
-        _home = os.path.expanduser('~')
-        xdg_state_home = os.environ.get('XDG_STATE_HOME') or \
-                         os.path.join(_home, '.local', 'state')
-        state_dir = os.path.join(xdg_state_home, 'vai')
-        if not os.path.isdir(state_dir):
-            os.makedirs(state_dir)
-        return os.path.join(state_dir, 'vaistate')
+    # We use a singleton to prevent multiple competing accesses to the file.
+    _instance = None
 
     @classmethod
     def instance(cls):
@@ -28,7 +24,7 @@ class EditorState:
 
         self._state = {}
         try:
-            with contextlib.closing(open(self.editorStatePath(), "r")) as f:
+            with open(paths.stateFile(), "r") as f:
                 self._state = json.loads(f.read())
         except:
             self._state = {}
@@ -57,6 +53,7 @@ class EditorState:
         return None
 
     def save(self):
-        with contextlib.closing(open(self.editorStatePath(),"w")) as f:
+        """Store the contained state onto the state file"""
+        with open(paths.stateFile(), "w") as f:
             f.write(json.dumps(self._state))
 

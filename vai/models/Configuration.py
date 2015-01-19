@@ -2,18 +2,7 @@ import copy
 import os
 import json
 import locale
-
-def _defaultConfigPath():
-    """
-    Returns the default configuration path in agreement with XDG rules
-    """
-    home = os.path.expanduser('~')
-    xdg_config_home = os.environ.get('XDG_CONFIG_HOME') or \
-                      os.path.join(home, '.config')
-    config_dir = os.path.join(xdg_config_home, 'vai')
-    if not os.path.isdir(config_dir):
-        os.makedirs(config_dir)
-    return os.path.join(config_dir, 'vairc')
+from .. import paths
 
 class Configuration:
     DEFAULTS = {
@@ -49,7 +38,7 @@ class Configuration:
     @classmethod
     def filename(cls):
         if cls._filename is None:
-            cls._filename = _defaultConfigPath()
+            cls._filename = paths.configFile()
         return cls._filename
 
     @classmethod
