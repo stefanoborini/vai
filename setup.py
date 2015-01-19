@@ -1,13 +1,15 @@
 #!/usr/bin/env python3.4
-import os
-import codecs
-import re
-from setuptools import setup, find_packages
 import sys
 
 if '3.4' not in sys.version.split()[0]:
     print("Needs python 3.4")
     sys.exit(0)
+
+import os
+import codecs
+import re
+from setuptools import setup, find_packages
+
 
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
