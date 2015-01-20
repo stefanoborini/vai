@@ -1,9 +1,7 @@
-import pygments
-import pygments.lexers
-from .SymbolLookupDb import SymbolLookupDb
-from .models.TextDocument import CharMeta
-import pygments.token
 from pygments import lexers, util
+from ..SymbolLookupDb import SymbolLookupDb
+from ..models.TextDocument import CharMeta
+from . import token
 import os
 
 # Faster lookup than the one provided in lexers.get_lexer_for_filename.
@@ -68,7 +66,6 @@ class Lexer:
             file_type_meta.setData(self._lexer.name)
         self._lexContents()
 
-
     def _lexContents(self):
         """
         Perform lexing of the document every time it changes.
@@ -84,10 +81,12 @@ class Lexer:
         SymbolLookupDb.clear()
         # Skip the space token
 
-        for token in tokens:
-            ttype, token_string = token
-            if ttype in [pygments.token.Name, pygments.token.Name.Class, pygments.token.Name.Function]:
+        for tok in tokens:
+            ttype, token_string = tok
+            if ttype in [token.Name, token.Name.Class, token.Name.Function]:
                 SymbolLookupDb.add(token_string)
+
+            ttype = self._postProcessToken(ttype, token_string)
 
             token_lines = token_string.splitlines(True)
             for token_line in token_lines:
@@ -99,3 +98,15 @@ class Lexer:
                     current_line += 1
                     current_col = 1
 
+    def _postProcessToken(self, ttype, token_string):
+        if token_string.startswith("__") and token_string.endswith("__"):
+            return token.Name.Function.PythonMagic
+        elif token_string.startswith("_"):
+            if ttype is token.Name.Class:
+                return token.Name.Class.PythonPrivate
+            elif ttype is token.Name.Function:
+                return token.Name.Function.PythonPrivate
+        elif token_string == "self":
+            return token.Name.Builtin.Pseudo.PythonSelf
+
+        return ttype

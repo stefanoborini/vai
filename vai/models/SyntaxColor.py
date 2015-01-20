@@ -1,10 +1,10 @@
 import os
 import json
 from vaitk import gui
-from . import SyntaxTokens as token
 import collections
 from .. import Debug
 from .. import paths
+from ..lexer import token
 
 class SyntaxColor:
     def __init__(self, schema_name, num_colors):
@@ -24,15 +24,14 @@ class SyntaxColor:
         if not os.path.isfile(schema_file):
             return False
 
-        with open(schema_file, "r") as f:
-            data = json.loads(f.read())
-
-        color_map = {}
         try:
+            with open(schema_file, "r") as f:
+                data = json.loads(f.read())
+
+            color_map = {}
             for k, v in data.items():
-                if not hasattr(token, k):
-                    continue
-                
+                tok = token.string_to_tokentype(k)
+
                 fg_string, bg_string = v
                 if fg_string is not None and hasattr(gui.VGlobalColor, fg_string):
                     fg = getattr(gui.VGlobalColor, fg_string)
@@ -44,8 +43,9 @@ class SyntaxColor:
                 else:
                     bg = None
 
-                color_map[getattr(token, k)] = (fg, bg)
+                color_map[tok] = (fg, bg)
         except:
+            raise
             return False
 
         self._color_map.update(color_map)

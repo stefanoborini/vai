@@ -3,7 +3,7 @@ import os
 from vaitk import gui
 from .. import Search
 from .. import linting
-from ..Lexer import Lexer
+from ..lexer import Lexer
 from .. import models
 from ..models import commands
 
