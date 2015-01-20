@@ -1,3 +1,7 @@
+"""
+Module that centralizes specific paths we have an interest on.
+"""
+
 import os
 
 def configFile():
