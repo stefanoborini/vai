@@ -11,14 +11,3 @@ PythonPrivate = Name.Function.PythonPrivate
 PythonMagic = Name.Function.PythonMagic
 
 
-def getTokenByString(token_fqname):
-    components = token_fqname.split(".")
-    current = globals()
-    for c in components:
-        if c not in current:
-            return None
-        else:
-            current = current.__dict__[c]
-    
-    return current
-
