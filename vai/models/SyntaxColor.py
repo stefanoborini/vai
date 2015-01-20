@@ -10,46 +10,31 @@ class SyntaxColor:
     def __init__(self, schema_name, num_colors):
         self._color_map = collections.defaultdict(lambda : (None, None))
         
-        if schema_name == "default":
-            self._installDefault(num_colors)
-            return
+        self._installDefault(num_colors)
 
-        found = self._tryLoad(schema_name, num_colors)
+        if schema_name != "default":
+            self._tryLoad(schema_name, num_colors)
 
-        if not found:
-            self._installDefault(num_colors) 
 
     def _tryLoad(self, schema_name, num_colors):
         schema_file = os.path.join(paths.syntaxColorDir(), "%s_%d.json" % (schema_name, num_colors))
         if not os.path.isfile(schema_file):
-            return False
+            return 
 
         try:
             with open(schema_file, "r") as f:
                 data = json.loads(f.read())
 
-            color_map = {}
             for k, v in data.items():
                 tok = token.string_to_tokentype(k)
 
                 fg_string, bg_string = v
-                if fg_string is not None and hasattr(gui.VGlobalColor, fg_string):
-                    fg = getattr(gui.VGlobalColor, fg_string)
-                else:
-                    fg = None
+                fg = gui.VGlobalColor.nameToColor(fg_string)
+                bg = gui.VGlobalColor.nameToColor(bg_string)
 
-                if bg_string is not None and hasattr(gui.VGlobalColor, bg_string):
-                    bg = getattr(gui.VGlobalColor, bg_string)
-                else:
-                    bg = None
-
-                color_map[tok] = (fg, bg)
+                self._color_map[tok] = (fg, bg)
         except:
-            raise
-            return False
-
-        self._color_map.update(color_map)
-        return True
+            pass
 
     def _installDefault(self, num_colors):
         if num_colors == 8:

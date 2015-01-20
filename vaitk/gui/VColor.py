@@ -321,5 +321,6 @@ class VGlobalColor:
 
     @staticmethod
     def nameToColor(name):
+        """Perform lookup of the color by string. Returns None if the lookup fails."""
         return VGlobalColor.__dict__.get(name)
 
