@@ -15,7 +15,6 @@ class SyntaxColor:
         if schema_name != "default":
             self._tryLoad(schema_name, num_colors)
 
-
     def _tryLoad(self, schema_name, num_colors):
         schema_file = os.path.join(paths.syntaxColorDir(), "%s_%d.json" % (schema_name, num_colors))
         if not os.path.isfile(schema_file):

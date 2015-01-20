@@ -59,6 +59,10 @@ class CommandState:
             buffer.cursor.toCharPrev()
             return CommandState
 
+        if key == Key.Key_Space:
+            buffer.cursor.toCharNext()
+            return CommandState
+
         if key == Key.Key_G:
             if modifiers == 0:
                 return GoState
