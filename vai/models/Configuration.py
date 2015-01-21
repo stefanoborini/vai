@@ -8,8 +8,8 @@ class Configuration:
     DEFAULTS = {
                  "colors.syntax_schema"     : "default",
                  "colors.status_bar.fg"     : "yellow",
-                 "colors.status_bar.bg"     : "darkblue",
-                 "colors.side_ruler.fg"     : "darkcyan",
+                 "colors.status_bar.bg"     : "blue",
+                 "colors.side_ruler.fg"     : "cyan",
                  "colors.side_ruler.bg"     : "transparent",
                  "icons.collection"         : "unicode1",
                  }

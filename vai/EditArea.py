@@ -97,7 +97,7 @@ class EditArea(gui.VWidget):
                 colors = [self._color_schema[tok] for tok in char_meta.get(CharMeta.LexerToken)]
 
             for i in range(5, indent_spaces, 4):
-                colors[i-1] = (gui.VGlobalColor.blue, None)
+                colors[i-1] = (gui.VGlobalColor.term_1c1c1c, None)
 
             # Then, if there's a word, replace (None, None) entries with the highlight color
             word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]

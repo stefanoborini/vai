@@ -1,6 +1,0 @@
-{
-    "Name.Function"       : ["green", null],
-    "Name.Function.PythonPrivate" : ["red", null],
-    "Name.Function.PythonMagic" : ["blue", null],
-    "Name.Builtin.Pseudo.PythonSelf" : ["pink", null]
-}

@@ -81,12 +81,13 @@ class Lexer:
         SymbolLookupDb.clear()
         # Skip the space token
 
+        tokens = self._processTokens(tokens)
         for tok in tokens:
             ttype, token_string = tok
             if ttype in [token.Name, token.Name.Class, token.Name.Function]:
                 SymbolLookupDb.add(token_string)
 
-            ttype = self._postProcessToken(ttype, token_string)
+            ttype = self._processToken(ttype, token_string)
 
             token_lines = token_string.splitlines(True)
             for token_line in token_lines:
@@ -98,7 +99,7 @@ class Lexer:
                     current_line += 1
                     current_col = 1
 
-    def _postProcessToken(self, ttype, token_string):
+    def _processToken(self, ttype, token_string):
         if token_string.startswith("__") and token_string.endswith("__"):
             return token.Name.Function.PythonMagic
         elif token_string.startswith("_"):
@@ -110,3 +111,6 @@ class Lexer:
             return token.Name.Builtin.Pseudo.PythonSelf
 
         return ttype
+
+    def _processTokens(self, tokens):
+        return tokens 
