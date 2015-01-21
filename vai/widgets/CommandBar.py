@@ -75,7 +75,7 @@ class CommandBar(gui.VWidget):
         if self._editor_mode == EditorMode.INSERT:
             text = "-- INSERT --"
         elif self._editor_mode == EditorMode.COMMAND_INPUT:
-            text = ":"
+            text = "Command: "
         elif self._editor_mode == EditorMode.REPLACE:
             text = "-- REPLACE --"
         elif self._editor_mode == EditorMode.VISUAL_BLOCK:
@@ -85,9 +85,17 @@ class CommandBar(gui.VWidget):
         elif self._editor_mode == EditorMode.VISUAL:
             text = "-- VISUAL --"
         elif self._editor_mode == EditorMode.SEARCH_FORWARD:
-            text = "/"
+            text = "Search: "
         elif self._editor_mode == EditorMode.SEARCH_BACKWARD:
-            text = "?"
+            text = "Search backward: "
+        elif self._editor_mode == EditorMode.BOOKMARK:
+            text = "Set bookmark ..."
+        elif self._editor_mode == EditorMode.GOTOBOOKMARK:
+            text = "Go to bookmark ..."
+        elif self._editor_mode == EditorMode.DELETE:
+            text = "Delete ..."
+        elif self._editor_mode == EditorMode.GO:
+            text = "Go to ..."
         else:
             text = ""
 
