@@ -125,6 +125,11 @@ class EditorController:
     def setMode(self, mode):
         self._global_state.edit_mode = mode
 
+    def interpretCommandLine(self, command):
+        plugin = models.PluginRegistry.commandPluginForKeyword(command[0])
+        if plugin is not None:
+            return plugin.invoke(str(command), self._editor.editor_app)
+        return False
     # Private
 
     def _doLint(self):

@@ -14,10 +14,10 @@ class EditorApp(gui.VApplication):
         # for coordinating the async system in the future.
         self._global_model = models.GlobalState()
         self._buffer_list = models.BufferList()
-        
+
         models.PluginRegistry.initialize()
 
-        self._editor = Editor(self._global_model, self._buffer_list)
+        self._editor = Editor(self, self._global_model, self._buffer_list)
 
         self._editor.show()
 
@@ -51,4 +51,4 @@ class EditorApp(gui.VApplication):
     @property
     def editor(self):
         return self._editor
-        
+

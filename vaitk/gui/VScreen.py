@@ -18,7 +18,7 @@ class VScreen(object):
         try:
             self._curses_screen = curses.initscr()
         except:
-            raise VException("Cannot initialize screen") 
+            raise VException("Cannot initialize screen")
         curses.start_color()
         curses.use_default_colors()
         curses.noecho()
@@ -50,9 +50,9 @@ class VScreen(object):
         VGlobalScreenColor.init(self.numColors())
 
     def reset(self):
-        curses.nocbreak()
         self._curses_screen.keypad(0)
         curses.echo()
+        curses.nocbreak()
         curses.endwin()
 
     def refresh(self):

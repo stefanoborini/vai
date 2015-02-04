@@ -16,7 +16,6 @@ class CommandBarController:
 
         self._global_state.editorModeChanged.connect(self.editorModeChanged)
 
-
     def parseCommandBar(self):
         command_text = self._command_bar.command_text
         mode = self._global_state.editor_mode
@@ -83,8 +82,7 @@ class CommandBarController:
         elif command[0] == "bn":
             self._editor_controller.selectNextBuffer()
         else:
-            self._reportError("Unknown command")
-            return False
+            return self._editor_controller.interpretCommandLine(command)
         return True
 
     def _reportError(self, error_string):

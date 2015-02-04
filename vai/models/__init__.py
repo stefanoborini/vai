@@ -9,3 +9,4 @@ from .Configuration import Configuration
 from .EditorState import EditorState
 from .SyntaxColor import SyntaxColor
 from .Icons import Icons
+from .PluginRegistry import PluginRegistry

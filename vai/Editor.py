@@ -14,9 +14,10 @@ class Editor(gui.VWidget):
     aggregating the different components.
     """
 
-    def __init__(self, global_state, buffer_list, parent=None):
+    def __init__(self, editor_app, global_state, buffer_list, parent=None):
         super().__init__(parent=parent)
 
+        self._editor_app = editor_app
         self._global_state = global_state
         self._buffer_list = buffer_list
         self._controller = controllers.EditorController(self, self._global_state, self._buffer_list)
@@ -40,6 +41,10 @@ class Editor(gui.VWidget):
         self._edit_area.setFocus()
 
     # properties
+
+    @property
+    def editor_app(self):
+        return self._editor_app
 
     @property
     def status_bar(self):

@@ -21,7 +21,7 @@ class _KeyEventThread(threading.Thread):
     - with a queue, where it puts all the key events
     - and with an event flag, which is set when key events are available
     - with the stop_thread flag, which stops the loop
-   
+
     the reason why we use the event_available_flag is because we have two
     queues, one for the key events, and the other for the other events (timer etc).
     We can't check the queues without altering them, so we need a flag to communicate
@@ -52,7 +52,7 @@ class _KeyEventThread(threading.Thread):
         converts them into vaitk key events, and post them into the key
         event queue for further processing from the main thread.
         """
-            
+
         while not self.stop_event.is_set():
             last_event = (None, time.time())
             try:
