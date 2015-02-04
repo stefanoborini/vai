@@ -39,12 +39,26 @@ def stateFile():
 def syntaxColorDir():
     """Where to search for syntax highlight schemes"""
     path = os.path.join(os.path.expanduser('~'),
-                        '.local', 
-                        'share', 
-                        'vai', 
+                        '.local',
+                        'share',
+                        'vai',
                         'syntax'
                        )
     if not os.path.isdir(path):
         os.makedirs(path)
-    
+
     return path
+
+def pluginsDir():
+    """Where to search for plugins"""
+    path = os.path.join(os.path.expanduser('~'),
+                        '.local',
+                        'share',
+                        'vai',
+                        'plugins'
+                       )
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    return path
+

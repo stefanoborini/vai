@@ -1,6 +1,7 @@
 from vaitk import gui
 from .Editor import Editor
 from . import models
+from . import paths
 import random
 import os
 
@@ -13,6 +14,8 @@ class EditorApp(gui.VApplication):
         # for coordinating the async system in the future.
         self._global_model = models.GlobalState()
         self._buffer_list = models.BufferList()
+        
+        models.PluginRegistry.initialize()
 
         self._editor = Editor(self._global_model, self._buffer_list)
 
@@ -44,3 +47,8 @@ class EditorApp(gui.VApplication):
             file_list.append(path)
 
         return file_list
+
+    @property
+    def editor(self):
+        return self._editor
+        

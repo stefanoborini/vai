@@ -2,7 +2,6 @@ import os
 import json
 from vaitk import gui
 import collections
-from .. import Debug
 from .. import paths
 from ..lexer import token
 
