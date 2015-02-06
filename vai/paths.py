@@ -36,20 +36,7 @@ def stateFile():
     state_dir = stateDir()
     return os.path.join(state_dir, 'vaistate')
 
-def syntaxColorDir():
-    """Where to search for syntax highlight schemes"""
-    path = os.path.join(os.path.expanduser('~'),
-                        '.local',
-                        'share',
-                        'vai',
-                        'syntax'
-                       )
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
-    return path
-
-def pluginsDir():
+def userPluginsDir():
     """Where to search for plugins"""
     path = os.path.join(os.path.expanduser('~'),
                         '.local',
@@ -62,3 +49,18 @@ def pluginsDir():
 
     return path
 
+def userSyntaxColorsDir():
+    """Where to search for syntax highlight schemes"""
+    path = os.path.join( userPluginsDir(), 'syntaxcolors')
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+    return path
+
+def systemPluginsDir():
+    """Where to search for plugins"""
+    return os.path.join( os.path.dirname(os.path.abspath(__file__)), 'plugins')
+
+def systemSyntaxColorsDir():
+    """Where to search for syntax highlight schemes"""
+    return os.path.join( systemPluginsDir(), 'syntaxcolors')

@@ -7,6 +7,6 @@ from .TextDocument import TextDocument
 from .EditorMode import EditorMode
 from .Configuration import Configuration
 from .EditorState import EditorState
-from .SyntaxColor import SyntaxColor
+from .SyntaxColors import SyntaxColors
 from .Icons import Icons
 from .PluginRegistry import PluginRegistry
