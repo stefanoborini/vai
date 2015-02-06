@@ -1,4 +1,4 @@
-from yapsy import IPlugin
+from yapsy.IPlugin import IPlugin
 from ..models import SyntaxColors
 
 class SyntaxColorsPlugin(IPlugin):
@@ -15,3 +15,9 @@ class SyntaxColorsPlugin(IPlugin):
         To be reimplement in the plugin to return a new schema.
         """
         raise NotImplementedError()
+
+    def name(self):
+        raise NotImplementedError()
+
+    def supportsNumColors(self, num_colors):
+        return False

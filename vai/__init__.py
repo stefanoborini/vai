@@ -68,6 +68,8 @@ import sys
 import io
 import argparse
 import locale
+import logging
+logging.basicConfig(filename="foo", level=logging.DEBUG)
 
 def main():
     # Sets the locale to the default (user specified) locale, as suggested by ncurses docs

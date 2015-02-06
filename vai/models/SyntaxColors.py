@@ -17,6 +17,7 @@ class SyntaxColors:
     def _tryLoad(self, schema_name, num_colors):
         Debug.log("trying loading "+str(schema_name))
         plugin_manager = PluginManager()
+        plugin_manager.getPluginLocator().setPluginInfoExtension("ini")
         plugin_manager.setPluginPlaces([paths.userSyntaxColorsDir(), paths.systemSyntaxColorsDir()])
         plugin_manager.collectPlugins()
 
@@ -25,7 +26,7 @@ class SyntaxColors:
             plugin_manager.activatePluginByName(plugin_info.name)
 
             plugin_object = plugin_info.plugin_object
-            if plugin_object.schemaName() == schema_name and plugin_object.supportsNumColors(num_colors):
+            if plugin_object.name() == schema_name and plugin_object.supportsNumColors(num_colors):
                 self._color_map.update(plugin_object.colorSchema(num_colors))
                 return True
 
