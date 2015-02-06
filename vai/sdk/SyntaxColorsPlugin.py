@@ -8,7 +8,7 @@ class SyntaxColorsPlugin(IPlugin):
         or for the current number of colors if not specified
         """
         num_colors = num_colors or self.numColors()
-        return SyntaxColor.defaultColorSchema(num_colors)
+        return SyntaxColors.defaultColorSchema(num_colors)
 
     def getSchema(self, num_colors):
         """

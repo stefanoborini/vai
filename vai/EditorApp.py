@@ -15,8 +15,6 @@ class EditorApp(gui.VApplication):
         self._global_model = models.GlobalState()
         self._buffer_list = models.BufferList()
 
-        models.PluginRegistry.initialize()
-
         self._editor = Editor(self, self._global_model, self._buffer_list)
 
         self._editor.show()

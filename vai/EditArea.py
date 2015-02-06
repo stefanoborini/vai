@@ -2,10 +2,8 @@ import vaitk
 from vaitk import gui, utils
 from . import controllers
 from .models.TextDocument import CharMeta
-from .models import SyntaxColor
-from .models import Configuration
+from . import models
 from . import Search
-from .models import Icons
 
 
 class EditArea(gui.VWidget):
@@ -14,16 +12,16 @@ class EditArea(gui.VWidget):
         self._buffer = None
 
         self._controller = controllers.EditAreaController(self, global_state, editor_controller)
-        self._color_schema = SyntaxColor(
-                                    Configuration.get("colors.syntax_schema"),
+        self._color_schema = models.SyntaxColors(
+                                    models.Configuration.get("colors.syntax_schema"),
                                     gui.VApplication.vApp.screen().numColors()
                              ).colorMap()
 
         self._visual_cursor_pos = (0,0)
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
 
-        self._icons = Icons.getCollection(
-                                Configuration.get("icons.collection")
+        self._icons = models.Icons.getCollection(
+                                models.Configuration.get("icons.collection")
                                 )
 
     # properties

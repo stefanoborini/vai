@@ -126,9 +126,9 @@ class EditorController:
         self._global_state.edit_mode = mode
 
     def interpretCommandLine(self, command):
-        plugin = models.PluginRegistry.commandPluginForKeyword(command[0])
-        if plugin is not None:
-            return plugin.invoke(str(command), self._editor.editor_app)
+        #plugin = models.PluginRegistry.commandPluginForKeyword(command[0])
+        #if plugin is not None:
+        #    return plugin.invoke(str(command), self._editor.editor_app)
         return False
     # Private
 
