@@ -27,3 +27,5 @@ def token(token_string):
 def color(color_string):
     return gui.VGlobalColor.__dict__.get(color_string)
 
+def statusBar():
+    return application().editor.status_bar

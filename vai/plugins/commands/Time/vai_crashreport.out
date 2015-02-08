@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/home/sbo/Work/vai/vai/__init__.py", line 111, in main
+    app.exec_()
+  File "/home/sbo/Work/vai/vaitk/gui/VApplication.py", line 114, in exec_
+    self.processEvents(True)
+  File "/home/sbo/Work/vai/vaitk/gui/VApplication.py", line 121, in processEvents
+    self._processKeyEvents()
+  File "/home/sbo/Work/vai/vaitk/gui/VApplication.py", line 239, in _processKeyEvents
+    self._processSingleKeyEvent(event)
+  File "/home/sbo/Work/vai/vaitk/gui/VApplication.py", line 262, in _processSingleKeyEvent
+    widget.keyEvent(key_event)
+  File "/home/sbo/Work/vai/vaitk/gui/widgets/VLineEdit.py", line 130, in keyEvent
+    self.returnPressed.emit()
+  File "/home/sbo/Work/vai/vaitk/core/VSignal.py", line 25, in emit
+    slot(*args, **kwargs)
+  File "/home/sbo/Work/vai/vaitk/core/VSignal.py", line 25, in emit
+    slot(*args, **kwargs)
+  File "/home/sbo/Work/vai/vai/controllers/CommandBarController.py", line 25, in parseCommandBar
+    if self._interpretLine(command_text):
+  File "/home/sbo/Work/vai/vai/controllers/CommandBarController.py", line 87, in _interpretLine
+    return self._editor_controller.interpretCommandLine(command_text)
+  File "/home/sbo/Work/vai/vai/controllers/EditorController.py", line 148, in interpretCommandLine
+    command_tokens = shlex.split(command_line)
+NameError: name 'shlex' is not defined

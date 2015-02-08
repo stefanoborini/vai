@@ -1,4 +1,5 @@
 import os
+import shlex
 
 from vaitk import gui
 from .. import Search
