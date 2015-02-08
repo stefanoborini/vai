@@ -8,7 +8,7 @@ class Fancy(sdk.SyntaxColorsPlugin):
         To be reimplement in the plugin to return a new schema.
         """
         return {
-                token("Keyword")):             (color("blue"), None),
+                token("Keyword"):              (color("blue"), None),
                 token("Keyword.Constant"):     (color("blue"), None),
                 token("Keyword.Pseudo"):       (color("blue"), None),
                 token("Keyword.Namespace"):    (color("blue"), None),
