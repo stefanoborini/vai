@@ -1,7 +1,6 @@
 from vaitk import gui
 from .Editor import Editor
 from . import models
-from . import paths
 import random
 import os
 

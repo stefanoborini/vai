@@ -42,6 +42,8 @@ class CommandBarController:
         self._command_bar.editor_mode = self._global_state.editor_mode
 
     def _interpretLine(self, command_text):
+
+        # FIXME all this code must be moved to the editor controller.
         if len(command_text.strip()) == 0:
             return True
 
@@ -82,7 +84,7 @@ class CommandBarController:
         elif command[0] == "bn":
             self._editor_controller.selectNextBuffer()
         else:
-            return self._editor_controller.interpretCommandLine(command)
+            return self._editor_controller.interpretCommandLine(command_text)
         return True
 
     def _reportError(self, error_string):

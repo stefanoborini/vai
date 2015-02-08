@@ -1,69 +1,37 @@
 from vai import sdk
 from vaitk import gui
-from vai.lexer import token
+from vai.sdk import token, color
 
 class Fancy(sdk.SyntaxColorsPlugin):
     def colorSchema(self, num_colors):
         """
         To be reimplement in the plugin to return a new schema.
         """
-        if num_colors == 8:
-            return {
-                token.Keyword:              (gui.VGlobalColor.yellow, None),
-                token.Keyword.Constant:     (gui.VGlobalColor.red, None),
-                token.Keyword.Pseudo:       (gui.VGlobalColor.red, None),
-                token.Keyword.Namespace:    (gui.VGlobalColor.magenta, None),
-                token.Keyword.Reserved:     (gui.VGlobalColor.magenta, None),
-                token.Keyword.Type:         (gui.VGlobalColor.magenta, None),
-                token.Comment:              (gui.VGlobalColor.cyan, None),
-                token.Comment.Single:       (gui.VGlobalColor.cyan, None),
-                token.Name.Function:        (gui.VGlobalColor.cyan, None),
-                token.Name.Class:           (gui.VGlobalColor.cyan, None),
-                token.Name.Builtin:         (gui.VGlobalColor.cyan, None),
-                token.Name.Exception:       (gui.VGlobalColor.cyan, None),
-                token.String:               (gui.VGlobalColor.red, None),
-                token.Literal:              (gui.VGlobalColor.red, None),
-                token.Literal.String.Doc:   (gui.VGlobalColor.red, None),
-                token.Number:               (gui.VGlobalColor.red, None),
-                token.Number.Integer:       (gui.VGlobalColor.red, None),
-                token.Number.Float:         (gui.VGlobalColor.red, None),
-                token.Number.Hex:           (gui.VGlobalColor.red, None),
-                token.Number.Oct:           (gui.VGlobalColor.red, None),
-                token.Operator.Word:        (gui.VGlobalColor.yellow, None),
-                token.Name.Decorator:       (gui.VGlobalColor.blue, None),
-                token.Name.Builtin.Pseudo:  (gui.VGlobalColor.green, None),
-            }
-
-        elif num_colors == 256:
-            return {
-                token.Keyword:                        (gui.VGlobalColor.blue, None),
-                token.Keyword.Constant:               (gui.VGlobalColor.blue, None),
-                token.Keyword.Pseudo:                 (gui.VGlobalColor.blue, None),
-                token.Keyword.Namespace:              (gui.VGlobalColor.blue, None),
-                token.Keyword.Reserved:               (gui.VGlobalColor.blue, None),
-                token.Keyword.Type:                   (gui.VGlobalColor.blue, None),
-                token.Comment:                        (gui.VGlobalColor.blue, None),
-                token.Comment.Single:                 (gui.VGlobalColor.blue, None),
-                token.Name.Class:                     (gui.VGlobalColor.blue, None),
-                token.Name.Class.PythonPrivate:       (gui.VGlobalColor.blue, None),
-                token.Name.Builtin:                   (gui.VGlobalColor.blue, None),
-                token.Name.Exception:                 (gui.VGlobalColor.blue, None),
-                token.String:                         (gui.VGlobalColor.blue, None),
-                token.Literal:                        (gui.VGlobalColor.blue, None),
-                token.Literal.String.Doc:             (gui.VGlobalColor.blue, None),
-                token.Number:                         (gui.VGlobalColor.blue, None),
-                token.Number.Integer:                 (gui.VGlobalColor.blue, None),
-                token.Number.Float:                   (gui.VGlobalColor.blue, None),
-                token.Number.Hex:                     (gui.VGlobalColor.blue, None),
-                token.Number.Oct:                     (gui.VGlobalColor.blue, None),
-                token.Operator.Word:                  (gui.VGlobalColor.blue, None),
-                token.Name.Decorator:                 (gui.VGlobalColor.blue, None),
-                token.Name.Builtin.Pseudo:            (gui.VGlobalColor.blue, None),
-                token.Name.Builtin.Pseudo.PythonSelf: (gui.VGlobalColor.blue, None),
-                token.Name.Function:                  (gui.VGlobalColor.blue, None),
-                token.Name.Function.PythonPrivate:    (gui.VGlobalColor.blue, None),
-                token.Name.Function.PythonMagic:      (gui.VGlobalColor.blue, None),
-            }
+        return {
+                token("Keyword")):             (color("blue"), None),
+                token("Keyword.Constant"):     (color("blue"), None),
+                token("Keyword.Pseudo"):       (color("blue"), None),
+                token("Keyword.Namespace"):    (color("blue"), None),
+                token("Keyword.Reserved"):     (color("blue"), None),
+                token("Keyword.Type"):         (color("blue"), None),
+                token("Comment"):              (color("blue"), None),
+                token("Comment.Single"):       (color("blue"), None),
+                token("Name.Function"):        (color("blue"), None),
+                token("Name.Class"):           (color("blue"), None),
+                token("Name.Builtin"):         (color("blue"), None),
+                token("Name.Exception"):       (color("blue"), None),
+                token("String"):               (color("blue"), None),
+                token("Literal"):              (color("blue"), None),
+                token("Literal.String.Doc"):   (color("blue"), None),
+                token("Number"):               (color("blue"), None),
+                token("Number.Integer"):       (color("blue"), None),
+                token("Number.Float"):         (color("blue"), None),
+                token("Number.Hex"):           (color("blue"), None),
+                token("Number.Oct"):           (color("blue"), None),
+                token("Operator.Word"):        (color("blue"), None),
+                token("Name.Decorator"):       (color("blue"), None),
+                token("Name.Builtin.Pseudo"):  (color("blue"), None),
+        }
 
     def name(self):
         """

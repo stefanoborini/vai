@@ -3,9 +3,12 @@ import os
 from vaitk import gui
 from .. import Search
 from .. import linting
+from .. import paths
 from ..lexer import Lexer
 from .. import models
 from ..models import commands
+
+from yapsy.PluginManager import PluginManager
 
 class EditorController:
     def __init__(self, editor, global_state, buffer_list):
@@ -13,6 +16,16 @@ class EditorController:
         self._global_state = global_state
         self._buffer_list = buffer_list
         self._lexer = Lexer()
+        self._plugin_manager = PluginManager()
+        self._plugin_manager.getPluginLocator().setPluginInfoExtension("ini")
+        self._plugin_manager.setPluginPlaces([paths.pluginsDir("user", "commands"), paths.pluginsDir("system", "commands")])
+        self._plugin_manager.collectPlugins()
+
+        for plugin_info in self._plugin_manager.getAllPlugins():
+            self._plugin_manager.activatePluginByName(plugin_info.name)
+
+        # To speed up resolution, we cache the keyword->plugin association. It is filled lazy
+        self._keyword_to_plugin_cache = {}
 
         self._buffer_list.currentBufferChanged.connect(self.registerCurrentBuffer)
 
@@ -125,11 +138,29 @@ class EditorController:
     def setMode(self, mode):
         self._global_state.edit_mode = mode
 
-    def interpretCommandLine(self, command):
-        #plugin = models.PluginRegistry.commandPluginForKeyword(command[0])
-        #if plugin is not None:
-        #    return plugin.invoke(str(command), self._editor.editor_app)
-        return False
+    def interpretCommandLine(self, command_line):
+        """
+        Interprets and dispatch the command line to the plugin system
+        (for now. In the future this controller will just handle all commandline execution)
+        command_line contains the full command line as specified by the user, as a string.
+        """
+
+        command_tokens = shlex.split(command_line)
+        keyword = command_tokens[0]
+
+        if keyword not in self._keyword_to_plugin_cache:
+            for plugin_info in self._plugin_manager.getAllPlugins():
+                plugin_object = plugin_info.plugin_object
+                if plugin_object.keyword() == keyword:
+                    self._keyword_to_plugin_cache[keyword] = plugin_object
+
+        plugin_object = self._keyword_to_plugin_cache[keyword]
+        plugin_object.execute(command_line)
+
+        # Always return True, regardless. Even if the plugin execution
+        # fails, the command was parsed and interpreted correctly
+        return True
+
     # Private
 
     def _doLint(self):

@@ -18,7 +18,7 @@ class SyntaxColors:
         Debug.log("trying loading "+str(schema_name))
         plugin_manager = PluginManager()
         plugin_manager.getPluginLocator().setPluginInfoExtension("ini")
-        plugin_manager.setPluginPlaces([paths.userSyntaxColorsDir(), paths.systemSyntaxColorsDir()])
+        plugin_manager.setPluginPlaces([paths.pluginsDir("user", "syntaxcolors"), paths.pluginsDir("system", "syntaxcolors")])
         plugin_manager.collectPlugins()
 
         for plugin_info in plugin_manager.getAllPlugins():
