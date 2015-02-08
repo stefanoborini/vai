@@ -37,7 +37,7 @@ class Icons:
                                  "SideRuler.added"           : "+",
                                  "SideRuler.deletion_before" : "\u2304", # Arrow
                                  "SideRuler.deletion_after"  : "\u2303", # Arrow
-                                 "SideRuler.modified"        : "\u25a0", # Square
+                                 "SideRuler.modified"        : "\u25fe", # Square
                                  "SideRuler.unexistent_line" : "~",
                                  "SideRuler.border"          : "\u2551", # double line
                                  "SideRuler.bookmarks"       :
