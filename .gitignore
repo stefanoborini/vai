@@ -1,7 +1,7 @@
 *.pyc
-vix_crashreport.out
-crashreport.out
-vixtk.log
-vix.egg-info
+vai_crashreport.out
+vai.log
+vai.egg-info
 build
 dist
+foo
