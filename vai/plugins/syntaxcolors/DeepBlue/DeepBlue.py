@@ -2,7 +2,7 @@ from vai import sdk
 from vaitk import gui
 from vai.sdk import token, color
 
-class Fancy(sdk.SyntaxColorsPlugin):
+class DeepBlue(sdk.SyntaxColorsPlugin):
     def colorSchema(self, num_colors):
         """
         To be reimplement in the plugin to return a new schema.
@@ -37,7 +37,7 @@ class Fancy(sdk.SyntaxColorsPlugin):
         """
         To be reimplement in the plugin
         """
-        return "Fancy"
+        return "DeepBlue"
 
     def supportsNumColors(self, num_colors):
         """
