@@ -48,7 +48,7 @@ def _getLexerInstance(filename):
 class Lexer:
     """
     Observes the TextDocument for changes, and performs lexing
-    of its contents synchronously. The text is parsed with the 
+    of its contents synchronously. The text is parsed with the
     lexer as specified by the document meta information FileType.
     """
     def __init__(self):
@@ -100,7 +100,7 @@ class Lexer:
                     current_col = 1
 
     def _processToken(self, ttype, token_string):
-        if token_string.startswith("__") and token_string.endswith("__"):
+        if token_string.startswith("__") and token_string.endswith("__") and ttype is token.Name.Function:
             return token.Name.Function.PythonMagic
         elif token_string.startswith("_"):
             if ttype is token.Name.Class:
@@ -113,4 +113,4 @@ class Lexer:
         return ttype
 
     def _processTokens(self, tokens):
-        return tokens 
+        return tokens
