@@ -56,6 +56,7 @@ setup(
             'vai_exec=vai:main',
         ],
     },
+    scripts=['bin/vai'],
     zip_safe=False,
 )
 
