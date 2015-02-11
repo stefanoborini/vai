@@ -3,7 +3,7 @@ Writing plugins for vai
 
 **Updated to vai 1.6**
 
-Vai has a, for now, simple plugin system based on yapsy. Vai supports two types of plugins at the moment
+Vai has a for now simple plugin system based on yapsy. Vai supports two types of plugins at the moment
 
 - Command plugins, which are activated when the user types :sometext while in command mode and presses enter, and
 - Syntaxcolor plugins, which are activated on startup to determine the personalized color highlighting of syntax.
@@ -62,23 +62,22 @@ This class must define three methods:
 
 To better explain the last method, see the following examples:
 
-    token("Keyword"):              color("blue"),
+   "Keyword": "blue",
 
 This entry associates the "Keyword" token, to the color blue. All keywords will appear as blue, if not specified otherwise with a more specific Keyword identification.
 
-    token("Keyword.Constant"):     (color("white"), color("blue")),
+   "Keyword.Constant":     "white,blue",
 
-This entry will specialize Constant keywords. They will appear white on a blue background.
+Although not yet supported, this syntax will allow to specify font properties alterations
 
-The content of the value in the dictionary can be
+   "Keyword.Constant":     "white bold,blue",
 
-    - a single entry: that color will be the color of the identifier
-    - a tuple with two entries: the first color is the foreground, the second is the background. If the background is None, it is equivalent to the single entry option.
+The space separates alterations from the color. Alterations must come after the color.
 
-Always use the sdk.color() and sdk.token() functions to create the dictionary.
-
-You can obtain a list of the available tokens from the pygments documentation, and the list of the available colors from
-the module vaitk.gui.VColor.VGlobalColors distributed together with vai.
+You can obtain a list of the available tokens from the pygments documentation,
+and the list of the available colors from the module
+vaitk.gui.VColor.VGlobalColors distributed together with vai. At the moment,
+only named colors can be specified, not hex values.
 
 To install the syntaxcolor plugin you have to copy the plugin directory into
 ~/.local/share/vai/plugins/syntaxcolors/. The new colorscheme will only be used if chosen. You enable it

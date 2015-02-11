@@ -134,7 +134,8 @@ class VScreen(object):
     def setColors(self, pos, colors):
         """
         Sets the color attributes for a specific line, starting at pos and forward until the colors
-        array runs out
+        array runs out.
+
         """
 
         x,y = pos
@@ -159,8 +160,20 @@ class VScreen(object):
             self.logger.error("Out of bound in VScreen.setColors: pos=%s size=%s len=%d" % (str(pos), str(self.size()), len(colors)))
             out_colors = out_colors[:w-x]
 
-        for num, colors in enumerate(out_colors):
-            fg_color, bg_color = colors
+        for num, col in enumerate(out_colors):
+            if len(col) == 1:
+                fg_color = col[0]
+                bg_color = None
+                fg_font = None
+            elif len(col) == 2:
+                fg_color = col[0]
+                fg_font = None
+                bg_color = col[1]
+            else:
+                fg_color = col[0]
+                fg_font = None
+                bg_color = col[2]
+
             attr = self.getColorAttributeCode(fg_color, bg_color)
             with self._curses_lock:
                 self._curses_screen.chgat(y, x+num, 1, attr)
