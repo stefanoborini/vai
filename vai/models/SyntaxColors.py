@@ -88,7 +88,7 @@ def defaultColorSchema(num_colors):
             "Number.Float":                   "lightred",
             "Number.Hex":                     "lightred",
             "Number.Oct":                     "lightred",
-            "Operator.Word":                  "yellow",
+            "Operator.Word":                  "term_ffd75f",
             "Name.Decorator":                 "blue",
             "Name.Builtin.Pseudo":            "term_5fafd7",
             "Name.Builtin.Pseudo.PythonSelf": "pink",
@@ -100,11 +100,11 @@ def defaultColorSchema(num_colors):
 def _parseColorSchema(color_schema_dict):
     result = {}
     for tok, col in color_schema_dict.items():
-        result[token(tok)] = color(col)
+        result[_token(tok)] = _color(col)
 
     return result
 
-def token(token_string):
+def _token(token_string):
     """
     Returns a representation useful for the SyntaxColors Plugin.
     token_string is a string describing the token. The names are the one provides
@@ -134,7 +134,7 @@ def token(token_string):
 
     return target
 
-def color(color_string):
+def _color(color_string):
     """
     Ease method to produce a representation of a color for the syntax highlighting.
     It can be called in the following ways
