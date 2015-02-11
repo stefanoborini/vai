@@ -212,10 +212,10 @@ class InsertState:
                             text = os.path.commonprefix(lookup)
                         else:
                             text = ''
-            elif event.key() in (Key.Key_ParenRight, 
+            elif event.key() in (Key.Key_ParenRight,
                                  Key.Key_BraceRight,
                                  Key.Key_BracketRight,
-                                ): 
+                                ):
 
                 text = { Key.Key_ParenRight: ")",
                          Key.Key_BraceRight: "}",
@@ -227,10 +227,10 @@ class InsertState:
                 else:
                     # Keep text. let it be used.
                     pass
-            elif event.key() in (Key.Key_ParenLeft, 
+            elif event.key() in (Key.Key_ParenLeft,
                                  Key.Key_BraceLeft,
                                  Key.Key_BracketLeft,
-                                ): 
+                                ):
                 text = { Key.Key_ParenLeft: "()",
                          Key.Key_BraceLeft: "{}",
                          Key.Key_BracketLeft: "[]",
@@ -240,7 +240,7 @@ class InsertState:
                 result = command.execute()
                 if result.success:
                     buffer.command_history.add(command)
-                
+
                 cursor.toCharPrev()
                 return InsertState
             elif event.key() in (Key.Key_QuoteDbl, Key.Key_Apostrophe):
@@ -263,7 +263,7 @@ class InsertState:
                     result = command.execute()
                     if result.success:
                         buffer.command_history.add(command)
-                    
+
                     cursor.toCharPrev()
                     return InsertState
             else:
@@ -340,7 +340,8 @@ class BookmarkState:
             found = buffer.document.lineMetaInfo("Bookmark").findWhere(lambda x: x == marker)
             for line_num in found:
                 data_dict[line_num] = None
-            data_dict[buffer.cursor.line] = marker
+            if buffer.cursor.line not in found:
+                data_dict[buffer.cursor.line] = marker
             buffer.document.lineMetaInfo("Bookmark").setDataForLines(data_dict)
 
         return CommandState
