@@ -90,6 +90,14 @@ class TestDeleteLineAtCursorCommand(unittest.TestCase):
         command.execute()
         self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(), [None, 'deletion_before', 'deletion_after'])
 
+    def testDeleteLineAtCursorCommand6(self):
+        """testDeleteLineAtCursorCommand for a newly added line"""
+        self.buffer.cursor.toPos((3,2))
+        self.buffer.document.lineMetaInfo("Change").setData("added", 3)
+        command = commands.DeleteLineAtCursorCommand(self.buffer)
+        command.execute()
+        self.assertEqual(self.buffer.document.lineMetaInfo("Change").data(), [None, None, None])
+
     def testRedoAppliesToOldPosition(self):
         removed_line = self.buffer.document.lineText(1)
         second_line = self.buffer.document.lineText(2)
@@ -113,6 +121,6 @@ class TestDeleteLineAtCursorCommand(unittest.TestCase):
         self.assertEqual(self.buffer.cursor.pos, (1,1))
         self.assertEqual(self.buffer.document.lineText(1), second_line)
 
-        
+
 if __name__ == '__main__':
     unittest.main()

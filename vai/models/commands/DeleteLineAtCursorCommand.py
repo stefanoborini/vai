@@ -12,7 +12,7 @@ class DeleteLineAtCursorCommand(BufferCommand):
 
         if self.savedCursorPos() is None:
             self.saveCursorPos()
-        
+
         pos = self.savedCursorPos()
         cursor.toPos(pos)
 
@@ -24,14 +24,15 @@ class DeleteLineAtCursorCommand(BufferCommand):
             cursor.toLinePrev()
             cursor.toLineBeginning()
 
-        # Add markers above and below
-        if document.hasLine(pos[0]-1):
-            self._old_line_meta_info[-1] = document.lineMetaInfo("Change").data(pos[0]-1)
-            document.lineMetaInfo("Change").setData("deletion_before", pos[0]-1)
+        if document.lineMetaInfo("Change").data(pos[0]) != "added":
+            # Add markers above and below
+            if document.hasLine(pos[0]-1):
+                self._old_line_meta_info[-1] = document.lineMetaInfo("Change").data(pos[0]-1)
+                document.lineMetaInfo("Change").setData("deletion_before", pos[0]-1)
 
-        if document.hasLine(pos[0]+1):
-            self._old_line_meta_info[1] = document.lineMetaInfo("Change").data(pos[0]+1)
-            document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
+            if document.hasLine(pos[0]+1):
+                self._old_line_meta_info[1] = document.lineMetaInfo("Change").data(pos[0]+1)
+                document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
 
         # Delete the line
         document.deleteLine(pos[0])
