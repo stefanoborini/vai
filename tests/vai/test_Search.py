@@ -1,6 +1,5 @@
 import unittest
 from .. import fixtures
-from vai import flags
 from vai import Search
 
 class TestSearch(unittest.TestCase):

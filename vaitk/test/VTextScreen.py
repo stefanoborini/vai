@@ -41,8 +41,8 @@ class VTextScreen(object):
     def cursorPos(self):
         return self._cursor_pos
 
-    def setCursorPos(self, x, y):
-        self._cursor_pos = (x,y)
+    def setCursorPos(self, pos):
+        self._cursor_pos = pos
 
     def addstr(self, *args):
         pass
@@ -62,8 +62,10 @@ class VTextScreen(object):
 
     def write(self, pos, string, fg_color=None, bg_color=None):
         for pos_x in range(len(string)):
-            self._render_output[pos[1]][pos[0]+pos_x] = string[pos_x]
-
+            try:
+                self._render_output[pos[1]][pos[0]+pos_x] = string[pos_x]
+            except:
+                print("Invalid write position : ", str(pos), string)
     def dump(self):
         ret = []
         ret.append(" "+"".join(list(itertools.islice(itertools.cycle(list(map(str, list(range(10))))), self._size[0]+1))))
