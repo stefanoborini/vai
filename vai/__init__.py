@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 __version__ = "1.5"
 
+from vaitk import core, gui
+from . import EditorApp
+from . import models
+from . import BugReport
+import os
+import sys
+import io
+import argparse
+import locale
+import logging
+
 def _workaroundNCurses():
     """
     This routine works around the ncurses library.
@@ -57,20 +68,8 @@ def _workaroundNCurses():
     # Signals the shell script that the thing has been deployed and need to restart vai
     sys.exit(42)
 
-_workaroundNCurses()
-
-from vaitk import core, gui
-from . import EditorApp
-from . import models
-from . import BugReport
-import os
-import sys
-import io
-import argparse
-import locale
-import logging
-
 def main():
+    _workaroundNCurses()
     # Sets the locale to the default (user specified) locale, as suggested by ncurses docs
     locale.setlocale(locale.LC_ALL, "")
 
