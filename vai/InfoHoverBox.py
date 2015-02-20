@@ -9,10 +9,10 @@ class InfoHoverBox(core.VObject):
     def __init__(self):
         self._buffer = None
 
-        # The line for which the popup is visible 
+        # The line for which the popup is visible
         self._current_shown_line = None
         self._hide_timer = core.VTimer()
-        self._hide_timer.setInterval(2000)
+        self._hide_timer.setInterval(3000)
         self._hide_timer.setSingleShot(True)
         self._hide_timer.timeout.connect(self._toolTipTimeOut)
 
@@ -27,6 +27,8 @@ class InfoHoverBox(core.VObject):
 
         if self._hide_timer.isRunning():
             self._hide_timer.stop()
+
+        gui.VToolTip.hideText()
 
         if self._buffer is not None:
             self._buffer.cursor.positionChanged.disconnect(self._cursorPositionChanged)
@@ -54,15 +56,15 @@ class InfoHoverBox(core.VObject):
         if lint is not None:
             pos_at_top = self._buffer.edit_area_model.document_pos_at_top
             self._current_shown_line = cursor.pos[0]
-            gui.VToolTip.showText((0, cursor.pos[0]-pos_at_top[0]+1), lint.message)
+            gui.VToolTip.showText((0, cursor.pos[0]-pos_at_top[0]+1), " "+lint.message+" ")
             self._hide_timer.start()
         else:
             self._current_shown_line = None
-        
+
     def _toolTipTimeOut(self):
         """Callback to hide the tooltip after a few seconds"""
         gui.VToolTip.hideText()
-        # Don't nullify the current show line, so that we don't show again 
+        # Don't nullify the current show line, so that we don't show again
         # when moving along the line
 
 
