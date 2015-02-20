@@ -2,6 +2,10 @@ from .BufferCommand import BufferCommand
 from .CommandResult import CommandResult
 
 class InsertLineAfterCommand(BufferCommand):
+    """
+    Command to perform insertion of a line after the cursor current line
+    Moves the cursor to the first non-blank character of the newly added line
+    """
     def __init__(self, buffer, text):
         super().__init__(buffer)
         self._text = text
@@ -18,7 +22,7 @@ class InsertLineAfterCommand(BufferCommand):
 
         document.insertLine(pos[0]+1, self._text)
         document.lineMetaInfo("Change").setData("added", pos[0]+1)
-        cursor.toLineNext()
+        cursor.toCharFirstNonBlankForLine(pos[0]+1)
         return CommandResult(True, None)
 
     def undo(self):

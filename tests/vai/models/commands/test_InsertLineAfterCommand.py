@@ -38,5 +38,12 @@ class TestInsertLineAfterCommands(unittest.TestCase):
         result = command.execute()
         self.assertEqual(cursor.pos, (3,1))
 
+    def testInsertCursorPositioning(self):
+        cursor = self.buffer.cursor
+        cursor.toFirstLine()
+        command = commands.InsertLineAfterCommand(self.buffer, '    1234')
+        result = command.execute()
+        self.assertEqual(cursor.pos, (2,5))
+
 if __name__ == '__main__':
     unittest.main()

@@ -14,10 +14,10 @@ class InsertLineCommand(BufferCommand):
             self.saveCursorPos()
 
         pos = self.savedCursorPos()
-        
+
         document.insertLine(pos[0], self._text)
         document.lineMetaInfo("Change").setData("added", pos[0])
-        cursor.toPos((pos[0], 1))
+        cursor.toCharFirstNonBlankForLine(pos[0])
         return CommandResult(True, None)
 
     def undo(self):
