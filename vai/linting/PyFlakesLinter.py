@@ -23,17 +23,17 @@ class Reporter:
 
     def syntaxError(self, filename, msg, lineno, offset, text):
         self._errors.append( LinterResult(filename = filename,
-                                          level = LinterResult.Level.ERROR,
                                           line = lineno,
                                           column = offset,
+                                          level = "error",
                                           message = msg)
                             )
 
     def flake(self, msg):
         self._errors.append( LinterResult(filename = msg.filename,
-                                          level = LinterResult.Level.WARNING,
                                           line = msg.lineno,
                                           column = msg.col,
+                                          level = "warning",
                                           message = str(msg))
                             )
 

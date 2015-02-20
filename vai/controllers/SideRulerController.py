@@ -1,5 +1,4 @@
 from ..widgets import LineBadge
-from ..linting import LinterResult
 from ..models import Configuration, Icons
 from vaitk import gui
 
@@ -86,17 +85,17 @@ class SideRulerController:
             if lint is None:
                 continue
 
-            if lint.level == LinterResult.Level.ERROR:
+            if lint.level == "error":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.error"],
                                   fg_color=gui.VGlobalColor.red,
                                   bg_color=None
                         )
-            elif lint.level == LinterResult.Level.WARNING:
+            elif lint.level == "warning":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.warning"],
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=None
                         )
-            elif lint.level == LinterResult.Level.INFO:
+            elif lint.level == "info":
                 badges[line] = LineBadge(marker=self._icons["SideRuler.info"],
                                   fg_color=gui.VGlobalColor.cyan,
                                   bg_color=None
