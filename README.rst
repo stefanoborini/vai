@@ -44,6 +44,8 @@ Implemented Features
    - Minimal configuration of colors
    - Cursor position restored between runs.
    - Autoindent
+   - Syntax color plugins
+   - :command plugins
 
 See the current vim keys compatibility list in the `FEATURES document <https://github.com/stefanoborini/vai/blob/master/FEATURES.rst>`_.
 
@@ -53,7 +55,7 @@ See the current vim keys compatibility list in the `FEATURES document <https://g
 Screenshots
 -----------
 
-Vai 1.4
+Vai 1.4/1.5/1.6
 
 .. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.4.png
 
@@ -79,16 +81,17 @@ about the release changes.
 Contributors
 ------------
 
-If you want to contribute to Vai, a good place to start is to read the `DESIGN
-document <https://github.com/stefanoborini/vai/blob/master/DESIGN.rst>`_.
+If you want to contribute to Vai, a good place to start is to read the `Design
+document <https://github.com/stefanoborini/vai/blob/master/docs/Design.rst>`_.
+
+If you want to develop plugins, the document `WritingPlugins
+<https://github.com/stefanoborini/vai/blob/master/docs/WritingPlugins.rst>`_ is what you are
+looking for. Keep into account that the API is evolving, and at the moment, rather limited.
+
 
 Main development:
 - `Stefano Borini <http://forthescience.org>`_
 
 Additional contributes:
 - `Carl George (cgtx) <https://github.com/cgtx>`_
-
-Testing:
-- Maicon Lourenco
-
 

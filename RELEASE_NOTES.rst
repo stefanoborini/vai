@@ -1,6 +1,16 @@
 Release Notes
 =============
 
+Vai 1.6
+~~~~~~~
+
+   - Plugin system. Syntax color plugins allow you to personalize the colorization of syntax highlighting tokens.
+     The command plugins allows you to execute code whenever a user issues a :command
+   - Solved a pernicious issue with ncursesw on some linux distros.
+   - Pasting now brings the cursor forward to the first non-blank character.
+   - Python highlights public, private and dunder methods with different colors. Similar for classes.
+   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.6+is%3Aclosed+label%3ABug>`_
+
 Vai 1.5
 ~~~~~~~
 
