@@ -30,6 +30,16 @@ class TestSyntaxColors(unittest.TestCase):
             self.assertTrue(isinstance(color_map[token.Keyword], tuple))
             self.assertEqual(len(color_map[token.Keyword]), 3)
 
+    def testNonExistentEntryInColorMap(self):
+        with patch('vai.paths.pluginsDir') as mock:
+            mock.return_value = fixtures.localDir()
+
+            schema = SyntaxColors("default", 8)
+            color_map = schema.colorMap()
+            self.assertTrue(isinstance(color_map["whatever"], tuple))
+            self.assertEqual(len(color_map["whatever"]), 3)
+            self.assertTrue(all([ x is None for x in color_map["whatever"]]))
+
 
 if __name__ == '__main__':
     unittest.main()

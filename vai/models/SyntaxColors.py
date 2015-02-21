@@ -6,7 +6,7 @@ from ..lexer import token as lexertoken
 
 class SyntaxColors:
     def __init__(self, schema_name, num_colors):
-        self._color_map = collections.defaultdict(lambda : (None, None))
+        self._color_map = collections.defaultdict(lambda : (None, None, None))
 
         if schema_name != "default" and self._tryLoad(schema_name, num_colors):
             return
