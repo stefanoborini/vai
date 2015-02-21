@@ -55,7 +55,11 @@ See the current vim keys compatibility list in the `FEATURES document <https://g
 Screenshots
 -----------
 
-Vai 1.4/1.5/1.6
+Vai 1.6
+
+.. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.6.png
+
+Vai 1.4/1.5
 
 .. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.4.png
 
