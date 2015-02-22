@@ -1,7 +1,20 @@
 from vaitk import core
 
 class DocumentMetaInfo:
+    """
+    Information holder for meta information about the document as a whole.
+    """
     def __init__(self, meta_type, document, data=None):
+        """
+        Initializes the meta info.
+        Not publicly used. There's a factory method on the TextDocument.
+
+        Args:
+            meta_type (str) : A descriptive identifier string (e.g. CreationTime)
+            document (TextDocument) : the associated TextDocument instance.
+            data (Any, default None) : the value of the meta information.
+        """
+
         self._meta_type = meta_type
         self._document = document
         self._data = data
