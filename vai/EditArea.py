@@ -88,7 +88,7 @@ class EditArea(gui.VWidget):
             # Add markers for the indentation
             indent_spaces = len(line_text)-len(line_text.lstrip())
             for i in range(5, indent_spaces, 4):
-                line_text = line_text[:i-1]+self._icons["EditArea.tab"]+line_text[i:]
+                line_text = line_text[:i-1]+self._icons["tabulator"]+line_text[i:]
 
             char_meta = document.charMeta( (doc_line_num,1))
             if CharMeta.LexerToken in char_meta:

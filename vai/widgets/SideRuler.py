@@ -4,7 +4,7 @@ from ..models import Icons
 from ..models import Configuration
 from collections import namedtuple
 
-LineBadge = namedtuple('LineBadge', ["marker", "fg_color", "bg_color"])
+LineBadge = namedtuple('LineBadge', ["icon", "fg_color", "bg_color"])
 
 class SideRuler(gui.VWidget):
     def __init__(self, parent):
@@ -30,19 +30,19 @@ class SideRuler(gui.VWidget):
             painter.bg_color = current_bg
 
             if current > self._num_lines:
-                painter.drawText( (0, i), self._icons["SideRuler.unexistent_line"].ljust(num_digits).ljust(w-1))
-                painter.drawText( (w-1, i), self._icons["SideRuler.border"])
+                painter.drawText( (0, i), self._icons["unexistent_line"].ljust(num_digits).ljust(w-1))
+                painter.drawText( (w-1, i), self._icons["vertical_border"])
                 continue
 
 
             painter.drawText((0, i),
                                 (str(current).rjust(num_digits).ljust(w-2)
                                 + " "
-                                + self._icons["SideRuler.border"]))
+                                + self._icons["vertical_border"]))
 
             badge = self._badges.get(current)
             if badge is not None:
-                badge_mark = badge.marker
+                badge_mark = badge.icon
                 painter.fg_color = badge.fg_color
                 painter.bg_color = badge.bg_color
                 painter.drawText( (w-2, i), badge_mark)
@@ -84,8 +84,6 @@ class SideRuler(gui.VWidget):
 
     def _lineNumberWidth(self):
         return int(math.log10(self._num_lines))+1
-
-
 
 def _computeLineValues(start, how_many, skip):
     result = []

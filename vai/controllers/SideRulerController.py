@@ -52,19 +52,19 @@ class SideRulerController:
 
         for line, change in changed_data.items():
             if change == "added":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.added"],
+                badges[line] = LineBadge(icon=self._icons["added"],
                                          fg_color=gui.VGlobalColor.green,
                                          bg_color=None)
             elif change == "modified":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.modified"],
+                badges[line] = LineBadge(icon=self._icons["modified"],
                                          fg_color=gui.VGlobalColor.magenta,
                                          bg_color=None)
             elif change == "deletion_before":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_before"],
+                badges[line] = LineBadge(icon=self._icons["deletion_before"],
                                          fg_color=gui.VGlobalColor.red,
                                          bg_color=None)
             elif change == "deletion_after":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.deletion_after"],
+                badges[line] = LineBadge(icon=self._icons["deletion_after"],
                                          fg_color=gui.VGlobalColor.red,
                                          bg_color=None)
 
@@ -74,7 +74,7 @@ class SideRulerController:
             if mark is None:
                 continue
 
-            badges[line] = LineBadge(marker=self._icons["SideRuler.bookmarks"][ord(mark)-ord('a')],
+            badges[line] = LineBadge(icon=self._icons["bookmarks"][ord(mark)-ord('a')],
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=None,
                         )
@@ -86,17 +86,17 @@ class SideRulerController:
                 continue
 
             if lint.level == "error":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.error"],
+                badges[line] = LineBadge(icon=self._icons["error"],
                                   fg_color=gui.VGlobalColor.red,
                                   bg_color=None
                         )
             elif lint.level == "warning":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.warning"],
+                badges[line] = LineBadge(icon=self._icons["warning"],
                                   fg_color=gui.VGlobalColor.yellow,
                                   bg_color=None
                         )
             elif lint.level == "info":
-                badges[line] = LineBadge(marker=self._icons["SideRuler.info"],
+                badges[line] = LineBadge(icon=self._icons["info"],
                                   fg_color=gui.VGlobalColor.cyan,
                                   bg_color=None
                                 )
