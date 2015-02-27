@@ -54,7 +54,7 @@ setup(
                         "pylint==1.3.0",
                         'pyflakes==0.8.1',
                         'yapsy==1.10.423',
-                        "vaitk==1.6"],
+                        "vaitk==1.7"],
     entry_points={
         'console_scripts': [
             'vai_exec=vai:main',
