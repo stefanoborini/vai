@@ -2,6 +2,9 @@ language: python
 python:
   - "3.4"
 # command to install dependencies
-install: "python3 setup.py install"
+install: 
+    - git clone https://github.com/stefanoborini/vaitk.git vaitk
+    - cd vaitk && python setup.py install
+    - cd .. && "python3 setup.py install"
 # command to run tests
 script: nosetests
