@@ -1,5 +1,5 @@
 import vaitk
-from vaitk import gui, utils
+from vaitk import core, gui, utils
 from . import controllers
 from .models.TextDocument import CharMeta
 from . import models
@@ -18,6 +18,12 @@ class EditArea(gui.VWidget):
                              ).colorMap()
 
         self._visual_cursor_pos = (0,0)
+        self._highlight_current_identifier = False
+        self._current_identifier_highlight_timer = core.VTimer()
+        self._current_identifier_highlight_timer.setSingleShot(True)
+        self._current_identifier_highlight_timer.setInterval(500)
+        self._current_identifier_highlight_timer.timeout.connect(self.identifierHighlightTimeout)
+
         self.setFocusPolicy(vaitk.FocusPolicy.StrongFocus)
 
         self._icons = models.Icons.getCollection(
@@ -47,7 +53,15 @@ class EditArea(gui.VWidget):
         pos_x = utils.clamp(cursor_pos[0], 0, self.width()-1)
         pos_y = utils.clamp(cursor_pos[1], 0, self.height()-1)
         self._visual_cursor_pos = (pos_x, pos_y)
+        self._highlight_current_identifier = False
+        if self._current_identifier_highlight_timer.isRunning():
+            self._current_identifier_highlight_timer.stop()
+        self._current_identifier_highlight_timer.start()
         gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
+
+    def identifierHighlightTimeout(self):
+        self._highlight_current_identifier = True
+        self.update()
 
     def paintEvent(self, event):
         painter = gui.VPainter(self)
@@ -101,7 +115,7 @@ class EditArea(gui.VWidget):
             word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]
             for word_start in word_entries_for_line:
                 for pos in range(word_start-1, word_start-1+len(current_word)):
-                    if colors[pos] == (None, None, None):
+                    if colors[pos] == (None, None, None) and self._highlight_current_identifier:
                         colors[pos] = (gui.VGlobalColor.lightred, None, None)
 
             painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
