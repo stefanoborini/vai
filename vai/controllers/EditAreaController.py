@@ -111,7 +111,8 @@ class CommandState:
             return CommandState
 
         if key == Key.Key_V and modifiers & KeyModifier.ShiftModifier:
-            buffer.selection_start_pos = buffer.cursor.pos
+            buffer.selection.start_line = buffer.cursor.pos[0]
+            buffer.selection.end_line = None
             return VisualLineSelectionState
 
         if key == Key.Key_R and modifiers & KeyModifier.ControlModifier:
@@ -384,14 +385,8 @@ class ZetaState:
 class VisualLineSelectionState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
-        if event.key() == Key.Key_Y:
-            start_pos = buffer.selection_start_pos
-            current_pos = buffer.cursor.pos
-            global_state.clipboard = buffer.document.linesText(start_pos, current_pos)
-
-        buffer.selection_start_pos = None
+        buffer.selection.clear()
         return CommandState
-
 
 class UnknownState:
     """

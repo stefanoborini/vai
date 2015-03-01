@@ -2,6 +2,7 @@ from .TextDocument import TextDocument
 from .TextDocumentCursor import TextDocumentCursor
 from .EditAreaModel import EditAreaModel
 from .CommandHistory import CommandHistory
+from .Selection import Selection
 
 class Buffer:
     """
@@ -14,7 +15,7 @@ class Buffer:
         self._document_cursor = TextDocumentCursor(self._document)
         self._edit_area_model = EditAreaModel()
         self._command_history = CommandHistory()
-        self._selection_start_pos = None
+        self._selection = Selection()
         self._document.createLineMetaInfo("LinterResult")
         self._document.createLineMetaInfo("Change")
         self._document.createLineMetaInfo("Bookmark")
@@ -48,10 +49,6 @@ class Buffer:
         return self._command_history
 
     @property
-    def selection_start_pos(self):
-        return self._selection_start_pos
-    
-    @selection_start_pos.setter
-    def selection_start_pos(self, pos):
-        self._selection_start_pos = pos
-        
+    def selection(self):
+        return self._selection
+
