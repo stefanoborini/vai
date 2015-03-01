@@ -57,6 +57,13 @@ class TextDocument(core.VObject):
         line_index = line_number - 1
         return self._contents[line_index][TEXT_INDEX]
 
+    def linesText(self, start, end):
+        self._checkLineNumber(start)
+        self._checkLineNumber(end)
+        start_index = start - 1
+        end_index = end - 1
+        return [self._contents[line_index][TEXT_INDEX] for line_index in range(start_index, end_index+1)]
+
     def hasLine(self, line_number):
         try:
             self._checkLineNumber(line_number)
@@ -99,7 +106,7 @@ class TextDocument(core.VObject):
         # FIXME currently no safeguard around correct type. Not needed
         # as we will just have metaInfo() in the future
         return self._meta_info[meta_type]
-        
+
     # Line meta
 
     def createLineMetaInfo(self, meta_type):
@@ -197,7 +204,7 @@ class TextDocument(core.VObject):
         line_text = self.lineText(pos[0])
 
         return line_text[pos[1]-1]
-        
+
     ## Modify document routines
     # Line operations
     def newLineAfter(self, line_number):

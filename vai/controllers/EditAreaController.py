@@ -110,6 +110,10 @@ class CommandState:
             command.undo()
             return CommandState
 
+        if key == Key.Key_V and modifiers & KeyModifier.ShiftModifier:
+            buffer.selection_start_pos = buffer.cursor.pos
+            return VisualLineSelectionState
+
         if key == Key.Key_R and modifiers & KeyModifier.ControlModifier:
             try:
                 command = buffer.command_history.next()
@@ -377,6 +381,18 @@ class ZetaState:
 
         return CommandState
 
+class VisualLineSelectionState:
+    @classmethod
+    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+        if event.key() == Key.Key_Y:
+            start_pos = buffer.selection_start_pos
+            current_pos = buffer.cursor.pos
+            global_state.clipboard = buffer.document.linesText(start_pos, current_pos)
+
+        buffer.selection_start_pos = None
+        return CommandState
+
+
 class UnknownState:
     """
     Represents a transition that is not valid.
@@ -398,6 +414,7 @@ MODE_TO_STATE = {
     EditorMode.ZETA: ZetaState,
     EditorMode.BOOKMARK: BookmarkState,
     EditorMode.GOTOBOOKMARK: GoToBookmarkState,
+    EditorMode.VISUAL_LINE: VisualLineSelectionState,
 }
 
 STATE_TO_MODE = { v : k for k,v in MODE_TO_STATE.items() }
