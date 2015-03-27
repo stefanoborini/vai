@@ -155,8 +155,9 @@ class EditorController:
                 if plugin_object.keyword() == keyword:
                     self._keyword_to_plugin_cache[keyword] = plugin_object
 
-        plugin_object = self._keyword_to_plugin_cache[keyword]
-        plugin_object.execute(command_line)
+        if keyword in self._keyword_to_plugin_cache:
+            plugin_object = self._keyword_to_plugin_cache[keyword]
+            plugin_object.execute(command_line)
 
         # Always return True, regardless. Even if the plugin execution
         # fails, the command was parsed and interpreted correctly
