@@ -25,6 +25,12 @@ class TestEditorController(unittest.TestCase):
         document.insertChars((3,9), ')')
         self.editor_controller._doLint()
         self.assertEqual(document.lineMetaInfo("LinterResult").data()[2], None)
-    
+
+    def testBug201(self):
+        """Check bug 201"""
+        
+        # This should not throw
+        self.editor_controller.interpretCommandLine("foo")
+        
 if __name__ == '__main__':
     unittest.main()
