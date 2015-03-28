@@ -111,8 +111,10 @@ class EditArea(gui.VWidget):
             for i in range(5, indent_spaces, 4):
                 colors[i-1] = (gui.VGlobalColor.term_303030, None, None)
 
-            if buffer.selection.start_line is not None and (buffer.selection.start_line <= doc_line_num <= cursor_pos[0]):
-                colors = [ (c[0], c[1], gui.VGlobalColor.term_303030) for c in colors]
+            if buffer.selection.start_line is not None and \
+                (buffer.selection.start_line <= doc_line_num <= cursor_pos[0] or \
+                 cursor_pos[0] <= doc_line_num <= buffer.selection.start_line):
+                colors = [ (c[0], c[1], gui.VGlobalColor.yellow) for c in colors]
 
             # Then, if there's a word, replace (None, None) entries with the highlight color
             word_entries_for_line = [x[1] for x in word_entries if x[0] == doc_line_num]

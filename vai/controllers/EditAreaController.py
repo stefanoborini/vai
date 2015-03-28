@@ -287,7 +287,6 @@ class InsertState:
 class DeleteState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
-
         if event.key() == Key.Key_D:
             command = commands.DeleteLineAtCursorCommand(buffer)
             result = command.execute()
@@ -385,6 +384,21 @@ class ZetaState:
 class VisualLineSelectionState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+        if event.key() == Key.Key_D:
+            pass
+#            command = commands.DeleteLinesCommand(buffer, from_line, num_lines)
+#            result = command.execute()
+#            if result.success:
+#                buffer.command_history.add(command)
+#                # FIXME: need [0][1] because the info in the DeleteLineAtCursor has
+#                # the memento, which contains line/char info. Need reform of the
+#                # result content for uniformity. See issue #168
+#                global_state.clipboard = result.info[0][1]
+
+        elif event.key() == Key.Key_Y:
+            pass
+#            global_state.clipboard = None
+
         buffer.selection.clear()
         return CommandState
 
