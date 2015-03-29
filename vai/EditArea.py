@@ -60,6 +60,7 @@ class EditArea(gui.VWidget):
         gui.VCursor.setPos(self.mapToGlobal((pos_x, pos_y)))
 
     def identifierHighlightTimeout(self):
+        self._current_identifier_highlight_timer.stop()
         self._highlight_current_identifier = True
         self.update()
 
@@ -126,7 +127,7 @@ class EditArea(gui.VWidget):
             painter.drawText( (0, visual_line_num), line_text.replace('\n', ' '))
             painter.recolor((0, visual_line_num), colors[pos_at_top[1]-1:])
 
-        self.visual_cursor_pos = (cursor_pos[1]-pos_at_top[1], cursor_pos[0]-pos_at_top[0])
+        #self.visual_cursor_pos = (cursor_pos[1]-pos_at_top[1], cursor_pos[0]-pos_at_top[0])
 
     def keyEvent(self, event):
         self._controller.handleKeyEvent(event)

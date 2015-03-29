@@ -67,13 +67,13 @@ class CommandState:
             if modifiers == 0:
                 return GoState
             elif modifiers & KeyModifier.ShiftModifier:
-                buffer.cursor.toLastLine()
                 buffer.edit_area_model.document_pos_at_top = (max(1,
                                                                     buffer.cursor.pos[0]
                                                                   - edit_area.height()
                                                                   + 1),
                                                                  1
                                                              )
+                buffer.cursor.toLastLine()
                 return CommandState
 
             return UnknownState
