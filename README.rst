@@ -96,6 +96,6 @@ looking for. Keep into account that the API is evolving, and at the moment, rath
 Main development:
 - `Stefano Borini <http://forthescience.org>`_
 
-Additional contributes:
+Additional contributions:
 - `Carl George (cgtx) <https://github.com/cgtx>`_
 
