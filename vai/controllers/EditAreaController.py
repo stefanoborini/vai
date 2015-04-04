@@ -16,9 +16,53 @@ DIRECTIONAL_KEYS = [ Key.Key_Up,
                      Key.Key_End,
                      ]
 
-class CommandState:
+class BaseState:
     @classmethod
     def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+        if event.key() in DIRECTIONAL_KEYS:
+            new_state = cls._handleDirectionalKey(event, buffer, global_state, edit_area, editor_controller)
+            event.accept()
+            return new_state
+
+        new_state = cls._handleNonDirectionalKey(event, buffer, global_state, edit_area, editor_controller)
+        event.accept()
+        return new_state
+
+    @classmethod
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        if buffer.document.isEmpty():
+            return cls
+
+        key = event.key()
+        doc_cursor = buffer.cursor
+
+        if key == Key.Key_Up:
+            doc_cursor.toLinePrev()
+        elif key == Key.Key_Down:
+            doc_cursor.toLineNext()
+        elif key == Key.Key_Left:
+            doc_cursor.toCharPrev()
+        elif key == Key.Key_Right:
+            doc_cursor.toCharNext()
+        elif key == Key.Key_End:
+            doc_cursor.toLineEnd()
+        elif key == Key.Key_Home:
+            doc_cursor.toLineBeginning()
+        elif key == Key.Key_PageUp:
+            doc_cursor.toLine(max( buffer.edit_area_model.document_pos_at_top[0] - edit_area.height(),
+                                    1)
+                            )
+        elif key == Key.Key_PageDown:
+            new_pos = min( buffer.edit_area_model.document_pos_at_top[0] + edit_area.height() - 1,
+                           buffer.document.numLines())
+            doc_cursor.toLine(new_pos)
+            buffer.edit_area_model.document_pos_at_top = (new_pos, 1)
+
+        return cls
+
+class CommandState(BaseState):
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         # No commands. only movement and no-command operations
         key = event.key()
         modifiers = event.modifiers()
@@ -112,7 +156,7 @@ class CommandState:
 
         if key == Key.Key_V and modifiers & KeyModifier.ShiftModifier:
             buffer.selection.start_line = buffer.cursor.pos[0]
-            buffer.selection.end_line = None
+            buffer.selection.end_line = buffer.cursor.pos[0]
             return VisualLineSelectionState
 
         if key == Key.Key_R and modifiers & KeyModifier.ControlModifier:
@@ -183,9 +227,9 @@ class CommandState:
 
         return UnknownState
 
-class InsertState:
+class InsertState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         command = None
         document = buffer.document
         cursor = buffer.cursor
@@ -284,9 +328,13 @@ class InsertState:
 
         return InsertState
 
-class DeleteState:
+class DeleteState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
+
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if event.key() == Key.Key_D:
             command = commands.DeleteLineAtCursorCommand(buffer)
             result = command.execute()
@@ -309,10 +357,13 @@ class DeleteState:
         # Reset if we don't recognize it.
         return CommandState
 
-class YankState:
+class YankState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
 
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if event.key() == Key.Key_Escape:
             return CommandState
 
@@ -324,19 +375,26 @@ class YankState:
         # Reset if we don't recognize it.
         return CommandState
 
-class GoState:
+class GoState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
+
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
 
         if event.key() == Key.Key_G:
             buffer.cursor.toFirstLine()
 
         return CommandState
 
-class BookmarkState:
+class BookmarkState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
 
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if Key.Key_A <= event.key() <= Key.Key_Z:
             marker = vaitk.vaiKeyCodeToText(event.key())
 
@@ -350,10 +408,13 @@ class BookmarkState:
 
         return CommandState
 
-class GoToBookmarkState:
+class GoToBookmarkState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
 
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if Key.Key_A <= event.key() <= Key.Key_Z:
             marker = vaitk.vaiKeyCodeToText(event.key())
             found = buffer.document.lineMetaInfo("Bookmark").findWhere(lambda x: x == marker)
@@ -362,9 +423,13 @@ class GoToBookmarkState:
 
         return CommandState
 
-class ReplaceState:
+class ReplaceState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
+
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if vaitk.isKeyCodePrintable(event.key()):
             command = commands.ReplaceSingleCharCommand(buffer, event.text())
             result = command.execute()
@@ -373,31 +438,38 @@ class ReplaceState:
 
         return CommandState
 
-class ZetaState:
+class ZetaState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        return CommandState
+
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if event.key() == Key.Key_Z and event.modifiers() & KeyModifier.ShiftModifier:
             editor_controller.doSaveAndExit()
 
         return CommandState
 
-class VisualLineSelectionState:
+class VisualLineSelectionState(BaseState):
     @classmethod
-    def handleEvent(cls, event, buffer, global_state, edit_area, editor_controller):
+    def _handleDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        super()._handleDirectionalKey(event, buffer, global_state, edit_area, editor_controller)
+        buffer.selection.end_line = buffer.cursor.pos[0]
+        return cls
+
+    @classmethod
+    def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
         if event.key() == Key.Key_D:
             pass
-#            command = commands.DeleteLinesCommand(buffer, from_line, num_lines)
+#            selection = buffer.selection
+#
+#            command = commands.DeleteLinesCommand(buffer, selection.low_line, selection.num_lines)
 #            result = command.execute()
 #            if result.success:
 #                buffer.command_history.add(command)
-#                # FIXME: need [0][1] because the info in the DeleteLineAtCursor has
-#                # the memento, which contains line/char info. Need reform of the
-#                # result content for uniformity. See issue #168
-#                global_state.clipboard = result.info[0][1]
 
         elif event.key() == Key.Key_Y:
             pass
-#            global_state.clipboard = None
 
         buffer.selection.clear()
         return CommandState
@@ -457,11 +529,6 @@ class EditAreaController(core.VObject):
             event.accept()
             return
 
-        if event.key() in DIRECTIONAL_KEYS:
-            self._handleDirectionalKey(event)
-            event.accept()
-            return
-
         state = MODE_TO_STATE.get(self._global_state.editor_mode)
         if not state:
             return
@@ -477,40 +544,6 @@ class EditAreaController(core.VObject):
         self._edit_area.update()
 
     # Private
-
-    def _handleDirectionalKey(self, event):
-        buffer = self._buffer
-
-        if buffer is None or buffer.document.isEmpty():
-            return
-
-        key = event.key()
-        buffer = self._buffer
-        doc_cursor = buffer.cursor
-
-        if key == Key.Key_Up:
-            doc_cursor.toLinePrev()
-        elif key == Key.Key_Down:
-            doc_cursor.toLineNext()
-        elif key == Key.Key_Left:
-            doc_cursor.toCharPrev()
-        elif key == Key.Key_Right:
-            doc_cursor.toCharNext()
-        elif key == Key.Key_End:
-            doc_cursor.toLineEnd()
-        elif key == Key.Key_Home:
-            doc_cursor.toLineBeginning()
-        elif key == Key.Key_PageUp:
-            doc_cursor.toLine(max( buffer.edit_area_model.document_pos_at_top[0]-self._edit_area.height(),
-                                    1)
-                            )
-        elif key == Key.Key_PageDown:
-            new_pos = min( buffer.edit_area_model.document_pos_at_top[0]+self._edit_area.height()-1,
-                           buffer.document.numLines())
-            doc_cursor.toLine(new_pos)
-            buffer.edit_area_model.document_pos_at_top = (new_pos, 1)
-        else:
-            raise Exception("Unknown direction flag %s", str(key))
 
     def _cursorPositionChanged(self, *args):
         # There are multiple zones where the cursor can be, and the behavior is
