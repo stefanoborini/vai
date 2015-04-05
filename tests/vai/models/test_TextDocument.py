@@ -412,7 +412,6 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.lineMetaInfo("whatever2").data(1), 'byebye')
 
     def testReplaceFromMemento(self):
-
         doc = TextDocument()
         doc.open(fixtures.get("basic_nonempty_file.txt"))
         doc.createLineMetaInfo("whatever")
@@ -428,6 +427,85 @@ class TestTextDocument(unittest.TestCase):
         self.assertEqual(doc.documentText(), initial_text)
         self.assertEqual(meta_info1.data(1), "hello")
 
+    def testLineMetaInfoMemento(self):
+        doc = TextDocument()
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
+
+        meta_info1 = doc.lineMetaInfo("whatever")
+        meta_info2 = doc.lineMetaInfo("whatever2")
+        doc.newLineAfter(1)
+        doc.newLine(1)
+
+        meta_info1.setData("hello", 1)
+        meta_info2.setData("byebye", 1)
+
+        memento = doc.lineMemento(1)
+
+        doc.deleteLine(1)
+        self.assertEqual(doc.lineMetaInfo("whatever").data(1), None)
+        self.assertEqual(doc.lineMetaInfo("whatever2").data(1), None)
+
+        doc.insertFromMemento(1, memento)
+        self.assertEqual(doc.lineText(1), '\n')
+        self.assertEqual(doc.lineMetaInfo("whatever").data(1), 'hello')
+        self.assertEqual(doc.lineMetaInfo("whatever2").data(1), 'byebye')
+
+    def testReplaceFromMemento(self):
+        doc = TextDocument()
+        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        doc.createLineMetaInfo("whatever")
+        initial_text = doc.documentText()
+        meta_info1 = doc.lineMetaInfo("whatever")
+        meta_info1.setData("hello", 1)
+
+        memento = doc.lineMemento(1)
+        doc.insertChars((1,1), 'gnakgnak')
+        meta_info1.setData("byebye", 1)
+        doc.replaceFromMemento(1, memento)
+
+        self.assertEqual(doc.documentText(), initial_text)
+        self.assertEqual(meta_info1.data(1), "hello")
+
+    def testExtractFragment(self):
+        doc = TextDocument()
+        doc.open(fixtures.get("bigfile.py"))
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
+
+        fragment = doc.extractFragment(2)
+        self.assertEqual(fragment.numLines(), 1)
+        self.assertEqual(fragment.lineText(1), doc.lineText(2))
+        self.assertTrue(fragment.hasLineMetaInfo("whatever"))
+        self.assertTrue(fragment.hasLineMetaInfo("whatever2"))
+
+        fragment = doc.extractFragment(2, 3)
+        self.assertEqual(fragment.numLines(), 3)
+        self.assertEqual(fragment.lineText(1), doc.lineText(2))
+        self.assertEqual(fragment.lineText(2), doc.lineText(3))
+        self.assertEqual(fragment.lineText(3), doc.lineText(4))
+        self.assertTrue(fragment.hasLineMetaInfo("whatever"))
+        self.assertTrue(fragment.hasLineMetaInfo("whatever2"))
+
+    def testInsertFragment(self):
+        doc = TextDocument()
+        doc.open(fixtures.get("numbers.txt"))
+        doc.createLineMetaInfo("whatever")
+        doc.createLineMetaInfo("whatever2")
+
+        fragment = doc.extractFragment(2)
+        self.assertNotEqual(fragment.lineText(1), doc.lineText(15))
+        doc.insertFragment(15, fragment)
+        self.assertEqual(fragment.lineText(1), doc.lineText(15))
+
+        fragment = doc.extractFragment(2,4)
+        self.assertNotEqual(fragment.lineText(1), doc.lineText(10))
+        doc.insertFragment(10, fragment)
+
+        self.assertEqual(fragment.lineText(1), doc.lineText(10))
+        self.assertEqual(fragment.lineText(2), doc.lineText(11))
+        self.assertEqual(fragment.lineText(3), doc.lineText(12))
+        self.assertEqual(fragment.lineText(4), doc.lineText(13))
 
 if __name__ == '__main__':
     unittest.main()

@@ -18,7 +18,7 @@ class TestInsertFileCommand(unittest.TestCase):
 
         result = command.execute()
         self.assertTrue(result.success)
-        self.assertEqual(document.lineText(1), document.lineText(2))
+        self.assertEqual(document.lineText(1), document.lineText(1))
         self.assertEqual(document.numLines(), 8)
 
     def testUndo(self):
@@ -31,8 +31,8 @@ class TestInsertFileCommand(unittest.TestCase):
         command = commands.InsertFileCommand(self.buffer, fixtures.get("basic_python.py"))
 
         result = command.execute()
-        
-        command.undo() 
+
+        command.undo()
 
         self.assertEqual(document.numLines(), 4)
         for i in range(1,5):
@@ -49,8 +49,8 @@ class TestInsertFileCommand(unittest.TestCase):
         result = command.execute()
 
         old_lines = [document.lineText(i) for i in range(1,9)]
-        
-        command.undo() 
+
+        command.undo()
         command.execute()
 
         self.assertEqual(document.numLines(), 8)

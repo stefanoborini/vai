@@ -57,12 +57,19 @@ class TextDocument(core.VObject):
         line_index = line_number - 1
         return self._contents[line_index][TEXT_INDEX]
 
+    # deprecated
     def linesText(self, start, end):
         self._checkLineNumber(start)
         self._checkLineNumber(end)
         start_index = start - 1
         end_index = end - 1
         return [self._contents[line_index][TEXT_INDEX] for line_index in range(start_index, end_index+1)]
+
+    def linesText2(self, start, how_many):
+        self._checkLineNumber(start)
+        self._checkLineNumber(start+how_many-1)
+        start_index = start - 1
+        return [self._contents[line_index][TEXT_INDEX] for line_index in range(start_index, start_index+how_many)]
 
     def hasLine(self, line_number):
         try:
@@ -97,10 +104,10 @@ class TextDocument(core.VObject):
 
     # New interface for document meta info. Will replace the above one
     def createDocumentMetaInfo(self, meta_type, data=None):
-        if meta_type in self._meta_info:
-            return
+        if meta_type not in self._meta_info:
+            self._meta_info[meta_type] = DocumentMetaInfo(meta_type, self, data)
 
-        self._meta_info[meta_type] = DocumentMetaInfo(meta_type, self, data)
+        return self._meta_info[meta_type]
 
     def documentMetaInfo(self, meta_type):
         # FIXME currently no safeguard around correct type. Not needed
@@ -110,15 +117,18 @@ class TextDocument(core.VObject):
     # Line meta
 
     def createLineMetaInfo(self, meta_type):
-        if meta_type in self._meta_info:
-            return
+        if meta_type not in self._meta_info:
+            self._meta_info[meta_type] = LineMetaInfo(meta_type, self)
 
-        self._meta_info[meta_type] = LineMetaInfo(meta_type, self)
+        return self._meta_info[meta_type]
 
     def lineMetaInfo(self, meta_type):
         # FIXME currently no safeguard around correct type. Not needed
         # as we will just have metaInfo() in the future
         return self._meta_info[meta_type]
+
+    def hasLineMetaInfo(self, meta_type):
+        return meta_type in self._meta_info
 
     def allLineMetaInfo(self):
         return { k: v for k, v in self._meta_info.items() if isinstance(v, LineMetaInfo) }
@@ -269,7 +279,7 @@ class TextDocument(core.VObject):
 
         insert_at_index = insert_at - 1
         for idx, text in enumerate(text_lines):
-            self._contents.insert(insert_at+idx, ( {}, _withEOL(text)))
+            self._contents.insert(insert_at_index+idx, ( {}, _withEOL(text)))
 
         for meta in self.allLineMetaInfo().values():
             meta.addLines(insert_at, len(text_lines))
@@ -302,7 +312,7 @@ class TextDocument(core.VObject):
 
     def deleteLines(self, from_line, how_many):
         self._checkLineNumber(from_line)
-        self._checkLineNumber(from_line+how_many)
+        self._checkLineNumber(from_line+how_many-1)
         from_line_index = from_line - 1
         self._contents = self._contents[:from_line_index] + self._contents[from_line_index+how_many:]
 
@@ -616,7 +626,6 @@ class TextDocument(core.VObject):
         return (self.isValidLine(pos[0]) and (1 <= pos[1] <= self.lineLength(pos[0])))
 
     # Memento extraction for a line
-
     def lineMemento(self, line_number):
         memento = [ copy.deepcopy(self._contents[line_number-1]) ]
         meta_info = {}
@@ -648,6 +657,62 @@ class TextDocument(core.VObject):
 
         self.contentChanged.emit()
         self.metaContentChanged.emit()
+
+    # Fragments. Will replace mementos.
+    def extractFragment(self, from_line, how_many=1):
+        """
+        Extract a fragment of a document, together with its line and char metainfo.
+        Returns a new TextDocument containing the extracted data.
+        """
+        fragment = TextDocument()
+
+        for frag_line_number, line_number in enumerate(range(from_line, from_line+how_many), 2):
+            fragment.insertLine(frag_line_number, self.lineText(line_number), copy.deepcopy(self.charMeta( (line_number,1) )))
+
+        # Remove the top line that contains an empty line
+        fragment.deleteLine(1)
+
+        for name, meta_info in self.allLineMetaInfo().items():
+            fragment_meta = fragment.createLineMetaInfo(name)
+            fragment_meta.setData(copy.deepcopy(meta_info.data(from_line, how_many)))
+
+        return fragment
+
+    def insertFragment(self, line_number, fragment):
+        """
+        Insert a fragment in the document at the specified line
+        """
+        self.insertLines(line_number, fragment.linesText2(1, fragment.numLines()))
+        for frag_num, num in enumerate(range(line_number, line_number+fragment.numLines()),1):
+            self.updateCharMeta((num, 1), fragment.charMeta((frag_num,1)))
+
+        for frag_meta_info_name, frag_meta_info in fragment.allLineMetaInfo().items():
+            self_meta_info = self.createLineMetaInfo(frag_meta_info_name)
+            self_meta_info.setData(frag_meta_info.data(), line_number)
+
+        for meta in self.allLineMetaInfo().values():
+            meta.notifyObservers()
+
+        self.contentChanged.emit()
+        self.metaContentChanged.emit()
+        self.numLinesChanged.emit()
+
+#    def replaceWithFragment(self, line_number, fragment):
+#        for frag_num, num in enumerate(range(line_number, line_number+fragment.numLines()),1):
+#            self.replaceLine(num,
+#                             fragment.linesText2(1, fragment.numLines()),
+#                             fragment.charMeta((frag_num,1))
+#                             )
+#        for frag_meta_info_name, frag_meta_info in fragment.allLineMetaInfo().items():
+#            self_meta_info = self.createLineMetaInfo(frag_meta_info_name)
+#            self_meta_info.setData(frag_meta_info.data(), line_number)
+
+#
+#        for meta in self.allLineMetaInfo().values():
+#            meta.notifyObservers()
+#
+#        self.contentChanged.emit()
+#        self.metaContentChanged.emit()
 
     # Private
 
