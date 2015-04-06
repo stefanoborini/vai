@@ -4,10 +4,7 @@ from .CommandResult import CommandResult
 class InsertLineCommand(BufferCommand):
     def __init__(self, buffer, text):
         super().__init__(buffer)
-        if isinstance(text, list):
-            self._text = text
-        else:
-            self._text = [ text ]
+        self._text = text
 
     def execute(self):
         document = self._document
@@ -18,11 +15,9 @@ class InsertLineCommand(BufferCommand):
 
         pos = self.savedCursorPos()
 
-        for text in reversed(self._text):
-            document.insertLine(pos[0], text)
-            document.lineMetaInfo("Change").setData("added", pos[0])
-            cursor.toCharFirstNonBlankForLine(pos[0])
-
+        document.insertLine(pos[0], self._text)
+        document.lineMetaInfo("Change").setData("added", pos[0])
+        cursor.toCharFirstNonBlankForLine(pos[0])
         return CommandResult(True, None)
 
     def undo(self):
