@@ -212,11 +212,17 @@ class CommandState(BaseState):
             command = commands.DeleteToEndOfLineCommand(buffer)
 
         elif key == Key.Key_P:
-            if global_state.clipboard is not None:
+            if isinstance(global_state.clipboard, str):
                 if modifiers == 0:
                     command = commands.InsertLineAfterCommand(buffer, global_state.clipboard)
                 elif modifiers & KeyModifier.ShiftModifier:
                     command = commands.InsertLineCommand(buffer, global_state.clipboard)
+            elif isinstance(global_state.clipboard, list):
+                position = commands.InsertMultiLineCommand.AFTER_CURSOR
+                if modifiers & KeyModifier.ShiftModifier:
+                    position = commands.InsertMultiLineCommand.AT_CURSOR
+
+                command = commands.InsertMultiLineCommand(buffer, global_state.clipboard, position)
 
         if command is not None:
             result = command.execute()

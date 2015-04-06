@@ -8,6 +8,7 @@ from .DeleteToEndOfLineCommand import DeleteToEndOfLineCommand
 from .DeleteToEndOfWordCommand import DeleteToEndOfWordCommand
 from .InsertLineAfterCommand import InsertLineAfterCommand
 from .InsertLineCommand import InsertLineCommand
+from .InsertMultiLineCommand import InsertMultiLineCommand
 from .InsertStringCommand import InsertStringCommand
 from .JoinWithNextLineCommand import JoinWithNextLineCommand
 from .NewLineAfterCommand import NewLineAfterCommand
