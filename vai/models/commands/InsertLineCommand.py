@@ -21,7 +21,6 @@ class InsertLineCommand(BufferCommand):
         return CommandResult(True, None)
 
     def undo(self):
-        self._document.deleteLine(self._saved_cursor_pos[0])
+        self._document.deleteLine(self.savedCursorPos()[0])
         self.restoreCursorPos()
-
 
