@@ -459,9 +459,8 @@ class VisualLineSelectionState(BaseState):
 
     @classmethod
     def _handleNonDirectionalKey(cls, event, buffer, global_state, edit_area, editor_controller):
+        selection = buffer.selection
         if event.key() == Key.Key_D:
-            selection = buffer.selection
-
             command = commands.DeleteLinesCommand(buffer, selection.low_line, selection.num_lines)
             result = command.execute()
             if result.success:
@@ -470,9 +469,9 @@ class VisualLineSelectionState(BaseState):
             global_state.clipboard = result.info.documentText().split('\n')
 
         elif event.key() == Key.Key_Y:
-            pass
+            global_state.clipboard = buffer.document.extractFragment(selection.low_line, selection.num_lines).documentText().split('\n')
 
-        buffer.selection.clear()
+        selection.clear()
         return CommandState
 
 class UnknownState:
