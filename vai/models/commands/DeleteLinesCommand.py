@@ -52,14 +52,17 @@ class DeleteLinesCommand(BufferCommand):
         return CommandResult(success=True, info=self._fragment)
 
     def undo(self):
-        return
-#        document = self._document
-#        cursor = self._cursor
-#        pos = cursor.pos
-#
-#        if -1 in self._old_line_meta_info:
-#            document.lineMetaInfo("Change").setData(self._old_line_meta_info[-1], pos[0]-1)
-#
-#        if 1 in self._old_line_meta_info:
-#            document.lineMetaInfo("Change").setData(self._old_line_meta_info[1], pos[0]+1)
+        super().undo()
+        document = self._document
+        cursor = self._cursor
+        pos = cursor.pos
+
+        if -1 in self._old_line_meta_info:
+            document.lineMetaInfo("Change").setData(self._old_line_meta_info[-1], pos[0]-1)
+
+        if 1 in self._old_line_meta_info:
+            document.lineMetaInfo("Change").setData(self._old_line_meta_info[1], pos[0]+1)
+
+        document.insertFragment(self._from_line, self._fragment)
+        self._fragment = None
 
