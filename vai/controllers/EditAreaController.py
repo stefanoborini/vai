@@ -471,8 +471,7 @@ class VisualLineSelectionState(BaseState):
             result = command.execute()
             if result.success:
                 buffer.command_history.add(command)
-
-            global_state.clipboard = result.info.documentText().split('\n')
+                global_state.clipboard = result.info.documentText().split('\n')
 
         elif event.key() == Key.Key_Y:
             global_state.clipboard = buffer.document.extractFragment(selection.low_line, selection.num_lines).documentText().split('\n')
