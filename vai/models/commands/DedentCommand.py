@@ -24,12 +24,15 @@ class DedentCommand(BufferCommand):
         line_meta = document.lineMetaInfo("Change")
         changed = line_meta.data(pos[0])
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         # Naive implementation. Needs improvement.
-        document.deleteChars((pos[0], 1), 4) 
+        document.deleteChars((pos[0], 1), 4)
         if changed is None:
             line_meta.setData("modified", pos[0])
+
+        document.documentMetaInfo("Modified").setData(True)
 
         cursor.toPos((pos[0], pos[1]-4))
 

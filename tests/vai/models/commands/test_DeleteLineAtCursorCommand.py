@@ -7,7 +7,8 @@ from tests import fixtures
 class TestDeleteLineAtCursorCommand(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testDeleteLineAtCursorCommand1(self):
         removed_line = self.buffer.document.lineText(1)

@@ -6,7 +6,8 @@ from tests import fixtures
 class TestDeleteToEndOfWordCommands(unittest.TestCase):
     def testDeleteToEndOfWordCommand(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"),'r') as f:
+            self.buffer.document.read(f)
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfWordCommand(self.buffer)
         result = command.execute()
@@ -15,7 +16,8 @@ class TestDeleteToEndOfWordCommands(unittest.TestCase):
 
     def testUndo(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"),'r') as f:
+            self.buffer.document.read(f)
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfWordCommand(self.buffer)
         result = command.execute()
@@ -29,7 +31,8 @@ class TestDeleteToEndOfWordCommands(unittest.TestCase):
 
     def testRedo(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"),'r') as f:
+            self.buffer.document.read(f)
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfWordCommand(self.buffer)
         result = command.execute()
@@ -45,7 +48,8 @@ class TestDeleteToEndOfWordCommands(unittest.TestCase):
     def testParenthesisPreserved(self):
         """Check if parentheses are preserved (#124)"""
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("issue_124"))
+        with open(fixtures.get("issue_124"), 'r') as f:
+            self.buffer.document.read(f)
         self.buffer.cursor.toPos((1,6))
         command = commands.DeleteToEndOfWordCommand(self.buffer)
         result = command.execute()

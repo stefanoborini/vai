@@ -5,8 +5,7 @@ from tests import fixtures
 
 class PyFlakesLinterTest(unittest.TestCase):
     def setUp(self):
-        self.document = TextDocument()
-        self.document.open(fixtures.get("basic_python.py"))
+        self.document = fixtures.buffer("basic_python.py").document
 
     def testBasicFunctionality(self):
         linter = PyFlakesLinter(self.document)

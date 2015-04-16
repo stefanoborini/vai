@@ -21,12 +21,14 @@ class InsertFileCommand(BufferCommand):
         if self.savedCursorPos() is None:
             self.saveCursorPos()
 
+        self.saveModifiedState()
         pos = self.savedCursorPos()
         cursor.toPos(pos)
 
         self._how_many = len(lines)
         document.insertLines(line_pos, lines)
         document.lineMetaInfo("Change").setData(["added"] * self._how_many, line_pos)
+        document.documentMetaInfo("Modified").setData(True)
 
         return CommandResult(True, None)
 

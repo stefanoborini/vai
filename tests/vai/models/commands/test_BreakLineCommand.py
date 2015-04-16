@@ -7,7 +7,8 @@ from tests import fixtures
 class TestBreakLineCommands(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testAtBeginningOfLine(self):
         doc = self.buffer.document
@@ -98,14 +99,14 @@ class TestBreakLineCommands(unittest.TestCase):
         command.undo()
 
         cursor.toPos((3,1))
-        
+
         result = command.execute()
         self.assertTrue(result.success)
         self.assertEqual(doc.lineText(1), saved_line_1[:3]+'\n')
         self.assertEqual(doc.lineText(2), saved_line_1[3:])
         self.assertEqual(doc.lineText(4), saved_line_3)
         self.assertEqual(cursor.pos, (2,1))
-        
+
 
 if __name__ == '__main__':
     unittest.main()

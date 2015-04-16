@@ -8,7 +8,7 @@ class NewLineAfterCommand(BufferCommand):
 
         if self.savedCursorPos() is None:
             self.saveCursorPos()
-        
+
         pos = self.savedCursorPos()
 
         current_text = document.lineText(pos[0])

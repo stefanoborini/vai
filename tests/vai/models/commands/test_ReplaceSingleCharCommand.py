@@ -7,7 +7,8 @@ from tests import fixtures
 class TestReplaceSingleCharCommand(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testReplaceSingleChar(self):
         doc = self.buffer.document
@@ -47,7 +48,7 @@ class TestReplaceSingleCharCommand(unittest.TestCase):
 
         command = commands.NewLineCommand(self.buffer)
         command.execute()
-        
+
         self.assertEqual(doc.lineMetaInfo("Change").data(1), "added")
         command = commands.ReplaceSingleCharCommand(self.buffer, 'r')
         status = command.execute()

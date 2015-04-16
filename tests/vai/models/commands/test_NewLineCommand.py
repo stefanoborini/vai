@@ -7,7 +7,8 @@ from tests import fixtures
 class TestNewLineCommand(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testNewLineCommand(self):
         doc = self.buffer.document

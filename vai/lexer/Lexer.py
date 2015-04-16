@@ -58,7 +58,7 @@ class Lexer:
     def setModel(self, document):
         """Sets the textdocument as a model for the lexer"""
         self._document = document
-        filename = self._document.filename()
+        filename = self._document.documentMetaInfo("Filename").data()
         self._lexer = _getLexerInstance(filename)
         self._document.contentChanged.connect(self._lexContents)
         file_type_meta = self._document.documentMetaInfo("FileType")

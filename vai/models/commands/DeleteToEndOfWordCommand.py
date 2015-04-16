@@ -14,6 +14,7 @@ class DeleteToEndOfWordCommand(BufferCommand):
         pos = self.savedCursorPos()
         cursor.toPos(pos)
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         line_meta = document.lineMetaInfo("Change")
@@ -45,6 +46,7 @@ class DeleteToEndOfWordCommand(BufferCommand):
                 remove_count += len(text[cur_index+remove_count:]) - len(text[cur_index+remove_count:].lstrip(' '))
 
         deleted = document.deleteChars(pos, remove_count)
+        document.documentMetaInfo("Modified").setData(True)
         return CommandResult(success=True, info=deleted)
 
 

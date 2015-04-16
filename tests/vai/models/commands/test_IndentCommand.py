@@ -7,14 +7,15 @@ from tests import fixtures
 class TestIndent(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testIndent(self):
         doc = self.buffer.document
         cursor = self.buffer.cursor
 
         cursor.toPos((1,1))
-        
+
         command = commands.IndentCommand(self.buffer)
         result = command.execute()
         self.assertTrue(result.success)
@@ -31,7 +32,7 @@ class TestIndent(unittest.TestCase):
     def testRedoAppliesToOldPlace(self):
         doc = self.buffer.document
         cursor = self.buffer.cursor
-        
+
         cursor.toPos((1,1))
 
         command = commands.IndentCommand(self.buffer)
@@ -40,7 +41,7 @@ class TestIndent(unittest.TestCase):
         cursor.toPos((3,1))
         result = command.execute()
         self.assertEqual(cursor.pos, (1,5))
-        
+
 
 if __name__ == '__main__':
     unittest.main()

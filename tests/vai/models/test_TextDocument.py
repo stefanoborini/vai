@@ -10,28 +10,24 @@ class TestTextDocument(unittest.TestCase):
         doc = TextDocument()
 
         self.assertTrue(doc.isEmpty())
-        self.assertEqual(doc.filename(), None)
-        self.assertFalse(doc.isModified())
         self.assertEqual(doc.numLines(), 1)
         self.assertEqual(doc.documentText(), '\n')
 
     def testInitFromEmptyFile(self):
         doc = TextDocument()
-        doc.open(fixtures.get("empty_file.txt"))
+        with open(fixtures.get("empty_file.txt"), "r") as f:
+            doc.read(f)
 
         self.assertTrue(doc.isEmpty())
-        self.assertEqual(doc.filename(), fixtures.get("empty_file.txt"))
-        self.assertFalse(doc.isModified())
         self.assertEqual(doc.numLines(), 1)
         self.assertEqual(doc.documentText(), '\n')
 
     def testInitFromNonEmptyFile(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
 
         self.assertFalse(doc.isEmpty())
-        self.assertEqual(doc.filename(), fixtures.get("basic_nonempty_file.txt"))
-        self.assertFalse(doc.isModified())
         self.assertEqual(doc.numLines(), 2)
         self.assertEqual(doc.documentText(), 'hello\nhow are you?\n')
 
@@ -48,7 +44,9 @@ class TestTextDocument(unittest.TestCase):
 
     def testLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
+
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
 
@@ -58,23 +56,27 @@ class TestTextDocument(unittest.TestCase):
 
     def testHasLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         self.assertTrue(doc.hasLine(1))
         self.assertFalse(doc.hasLine(20))
 
     def testLineLength(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         self.assertEqual(doc.lineLength(1), 6)
         self.assertEqual(doc.lineLength(2), 13)
 
         doc = TextDocument()
-        doc.open(fixtures.get("empty_file.txt"))
+        with open(fixtures.get("empty_file.txt"), 'r') as f:
+            doc.read(f)
         self.assertEqual(doc.lineLength(1), 1)
 
     def testDocumentMeta(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.createDocumentMetaInfo("Hello")
         self.assertEqual(doc.documentMetaInfo("Hello").data(), None)
 
@@ -83,30 +85,24 @@ class TestTextDocument(unittest.TestCase):
 
     def testUpdateDocumentMeta(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.createDocumentMetaInfo("Hello")
         doc.documentMetaInfo("Hello").setData(5)
         self.assertEqual(doc.documentMetaInfo("Hello").data(), 5)
 
-    def testLastModified(self):
-        doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
-        last_modified = doc.lastModified()
-        self.assertEqual(doc.lastModified(), last_modified)
-        time.sleep(0.1)
-        doc.insertLine(1,"")
-        self.assertNotEqual(doc.lastModified(), last_modified)
-
     def testCharMeta(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.updateCharMeta((1,1), {"Hello": [1]})
         self.assertEqual(len(doc.charMeta((1,1))["Hello"]), len(doc.lineText(1)))
         self.assertEqual(doc.charMeta((1,1))["Hello"], [1, None, None, None, None, None])
 
     def testUpdateCharMeta(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.updateCharMeta( (1, 3), { "foo" : ["a", "a"],
                                       "bar" : ['b', None, 'b'],
                                     }
@@ -114,22 +110,26 @@ class TestTextDocument(unittest.TestCase):
 
     def testDeleteCharMeta(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.deleteCharMeta( (1, 3), 2, ['foo', 'bar'])
 
     def testNewLineAfter(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.newLineAfter(1)
 
     def testNewLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.newLine(1)
 
     def testInsertLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         self.assertEqual(doc.numLines(), 2)
         doc.insertLine(1,"babau")
         self.assertEqual(doc.numLines(), 3)
@@ -141,77 +141,73 @@ class TestTextDocument(unittest.TestCase):
 
     def testDeleteLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
 
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
         self.assertEqual(doc.numLines(), 2)
-        self.assertFalse(doc.isModified())
 
         doc.deleteLine(1)
         self.assertEqual(doc.lineText(1), 'how are you?\n')
         self.assertEqual(doc.numLines(), 1)
         self.assertFalse(doc.isEmpty())
-        self.assertTrue(doc.isModified())
 
         doc.deleteLine(1)
         self.assertEqual(doc.lineText(1), '\n')
         self.assertEqual(doc.numLines(), 1)
         self.assertTrue(doc.isEmpty())
-        self.assertTrue(doc.isModified())
 
         doc.deleteLine(1)
         self.assertEqual(doc.lineText(1), '\n')
         self.assertEqual(doc.numLines(), 1)
         self.assertTrue(doc.isEmpty())
-        self.assertTrue(doc.isModified())
 
     def testDeleteLine2(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
 
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
         self.assertEqual(doc.numLines(), 2)
-        self.assertFalse(doc.isModified())
 
         self.assertRaises(IndexError, lambda :  doc.deleteLine(5))
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
         self.assertEqual(doc.numLines(), 2)
-        self.assertFalse(doc.isModified())
 
         doc.deleteLine(2)
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.numLines(), 1)
         self.assertFalse(doc.isEmpty())
-        self.assertTrue(doc.isModified())
 
         doc.deleteLine(1)
         self.assertEqual(doc.lineText(1), '\n')
         self.assertEqual(doc.numLines(), 1)
         self.assertTrue(doc.isEmpty())
-        self.assertTrue(doc.isModified())
 
     def testReplaceLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.replaceLine(1, "babau")
 
     def testBreakLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.breakLine((1,3))
         self.assertEqual(doc.lineText(1), "he\n")
         self.assertEqual(doc.lineText(2), "llo\n")
 
     def testJoinWithNextLine(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.joinWithNextLine(1)
         self.assertEqual(doc.numLines(), 1)
         self.assertEqual(doc.lineText(1), 'hellohow are you?\n')
-        self.assertTrue(doc.isModified())
 
         doc.joinWithNextLine(1)
         self.assertEqual(doc.numLines(), 1)
@@ -219,21 +215,23 @@ class TestTextDocument(unittest.TestCase):
 
     def testJoinWithNextLine2(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.joinWithNextLine(2)
         self.assertEqual(doc.lineText(1), 'hello\n')
         self.assertEqual(doc.lineText(2), 'how are you?\n')
         self.assertEqual(doc.numLines(), 2)
-        self.assertFalse(doc.isModified())
 
     def testInsertChars(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.insertChars( (1,3), "babau")
 
     def testDeleteChars(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
 
         self.assertRaises(ValueError, lambda : doc.deleteChars((1,3), -1))
 
@@ -259,7 +257,8 @@ class TestTextDocument(unittest.TestCase):
 
     def testReplaceChars(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.replaceChars( (1,3), 1, "hello")
 
         self.assertEqual(doc.lineText(1), 'hehellolo\n')
@@ -271,32 +270,20 @@ class TestTextDocument(unittest.TestCase):
     def testSave(self):
         path = fixtures.tempFile("testSave")
         doc = TextDocument()
-        doc.setFilename(path)
-        doc.save()
+        with open(path, 'w') as f:
+            doc.write(f)
         self.assertTrue(os.path.exists(path))
-
-    def testSaveUnnamed(self):
-        doc = TextDocument()
-        self.assertRaises(TextDocument.MissingFilenameException, lambda: doc.save())
-
-        path = fixtures.tempFile("testSaveUnnamed")
-        doc.saveAs(path)
-        self.assertTrue(os.path.exists(path))
-        self.assertEqual(doc.filename(), path)
-
-    def testSaveAs(self):
-        doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
-        doc.saveAs("foo")
 
     def createCursor(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.createCursor()
 
     def registerCursor(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         cursor = TextDocumentCursor(doc)
 
     def testWithEOL(self):
@@ -312,17 +299,20 @@ class TestTextDocument(unittest.TestCase):
 
     def testWordAt(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         self.assertEqual(doc.wordAt((2,6)), ('are', 5))
 
     def testDeleteLines(self):
         doc = TextDocument()
-        doc.open(fixtures.get("bigfile.py"))
+        with open(fixtures.get("bigfile.py"), 'r') as f:
+            doc.read(f)
         doc.deleteLines(1,3)
 
     def testInsertLines(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.insertLines(2, ['foo', 'bar'])
         self.assertEqual(doc.numLines(), 4)
 
@@ -330,7 +320,6 @@ class TestTextDocument(unittest.TestCase):
         doc = TextDocument()
         doc.createLineMetaInfo("whatever")
         meta_info = doc.lineMetaInfo("whatever")
-
 
         self.assertEqual(meta_info.document, doc)
         self.assertEqual(meta_info.meta_type, "whatever")
@@ -413,7 +402,8 @@ class TestTextDocument(unittest.TestCase):
 
     def testReplaceFromMemento(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.createLineMetaInfo("whatever")
         initial_text = doc.documentText()
         meta_info1 = doc.lineMetaInfo("whatever")
@@ -453,7 +443,8 @@ class TestTextDocument(unittest.TestCase):
 
     def testReplaceFromMemento(self):
         doc = TextDocument()
-        doc.open(fixtures.get("basic_nonempty_file.txt"))
+        with open(fixtures.get("basic_nonempty_file.txt"), 'r') as f:
+            doc.read(f)
         doc.createLineMetaInfo("whatever")
         initial_text = doc.documentText()
         meta_info1 = doc.lineMetaInfo("whatever")
@@ -469,7 +460,8 @@ class TestTextDocument(unittest.TestCase):
 
     def testExtractFragment(self):
         doc = TextDocument()
-        doc.open(fixtures.get("bigfile.py"))
+        with open(fixtures.get("bigfile.py"), 'r') as f:
+            doc.read(f)
         doc.createLineMetaInfo("whatever")
         doc.createLineMetaInfo("whatever2")
 
@@ -489,7 +481,8 @@ class TestTextDocument(unittest.TestCase):
 
     def testInsertFragment(self):
         doc = TextDocument()
-        doc.open(fixtures.get("numbers.txt"))
+        with open(fixtures.get("numbers.txt"), 'r') as f:
+            doc.read(f)
         doc.createLineMetaInfo("whatever")
         doc.createLineMetaInfo("whatever2")
 

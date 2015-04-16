@@ -1,3 +1,5 @@
+import time
+
 from .TextDocument import TextDocument
 from .TextDocumentCursor import TextDocumentCursor
 from .EditAreaModel import EditAreaModel
@@ -12,13 +14,16 @@ class Buffer:
     """
     def __init__(self):
         self._document = TextDocument()
+        self._document.createDocumentMetaInfo("Modified", False)
+        self._document.createDocumentMetaInfo("Filename", None)
+        self._document.createDocumentMetaInfo("FileType", "Text")
+        self._document.createLineMetaInfo("LinterResult")
+        self._document.createLineMetaInfo("Change")
+        self._document.createLineMetaInfo("Bookmark")
         self._document_cursor = TextDocumentCursor(self._document)
         self._edit_area_model = EditAreaModel()
         self._command_history = CommandHistory()
         self._selection = Selection()
-        self._document.createLineMetaInfo("LinterResult")
-        self._document.createLineMetaInfo("Change")
-        self._document.createLineMetaInfo("Bookmark")
 
     def isEmpty(self):
         """
@@ -30,7 +35,7 @@ class Buffer:
         """
         Returns True if the document is modified
         """
-        return self._document.isModified()
+        return self._document.documentMetaInfo("Modified").data()
 
     @property
     def document(self):

@@ -9,7 +9,7 @@ class PyFlakesLinter:
     def runOnce(self):
         reporter = Reporter()
         pyflakes.api.check(self._document.documentText(),
-                           self._document.filename(),
+                           self._document.documentMetaInfo("Filename").data(),
                            reporter=reporter)
         return reporter.errors()
 

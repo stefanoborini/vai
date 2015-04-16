@@ -29,10 +29,10 @@ class TestBuffer(unittest.TestCase):
 
     def testIsModified(self):
         b = self.buf
-        self.document.isModified.return_value = False
+        self.document.documentMetaInfo("Modified").data.return_value = False
         self.assertFalse(b.isModified())
 
-        self.document.isModified.return_value = True
+        self.document.documentMetaInfo("Modified").data.return_value = True
         self.assertTrue(b.isModified())
 
     def testDocumentCursor(self):

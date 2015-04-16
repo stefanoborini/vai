@@ -7,7 +7,8 @@ from tests import fixtures
 class TestInsertLineAfterCommands(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testInsertLineAfterCommand(self):
         self.buffer.cursor.toFirstLine()

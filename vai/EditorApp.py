@@ -34,7 +34,7 @@ class EditorApp(gui.VApplication):
 
         for buffer in self._buffer_list.buffers:
             document_text = buffer.document.documentText()
-            document_name = buffer.document.filename() or "noname"
+            document_name = buffer.document.documentMetaInfo("Filename").data() or "noname"
             random_number = random.randint(1, 100000)
             path = os.path.join(destination_dir, "vaidump-%s-%d.txt" % (os.path.basename(document_name), random_number))
 

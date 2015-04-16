@@ -27,7 +27,7 @@ class BufferList(core.VObject):
         Returns None if no such buffer exists
         """
         for buffer in self._buffers:
-            if buffer.document.filename() is None:
+            if buffer.document.documentMetaInfo("Filename").data() is None:
                 continue
 
 
@@ -35,7 +35,7 @@ class BufferList(core.VObject):
                 if os.path.samefile(
                         os.path.abspath(
                             os.path.realpath(
-                                buffer.document.filename()
+                                buffer.document.documentMetaInfo("Filename").data()
                             )
                         ), path):
                     return buffer

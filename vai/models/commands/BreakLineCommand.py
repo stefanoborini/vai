@@ -9,7 +9,7 @@ class BreakLineCommand(BufferCommand):
         document = self._document
         if self.savedCursorPos() is None:
             self.saveCursorPos()
-        
+
         pos = self.savedCursorPos()
 
         if pos[1] == document.lineLength(pos[0]):
@@ -27,6 +27,7 @@ class BreakLineCommand(BufferCommand):
             cursor.toPos((pos[0]+1, 1))
             return result
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         current_text = document.lineText(pos[0])
@@ -45,6 +46,8 @@ class BreakLineCommand(BufferCommand):
         else:
             line_meta.setData([ "added" ], pos[0]+1)
 
+        document.documentMetaInfo("Modified").setData(True)
+
         return CommandResult(success=True, info=None)
 
     def undo(self):
@@ -56,5 +59,6 @@ class BreakLineCommand(BufferCommand):
             return
 
         self.restoreLineMemento()
+        self.restoreModifiedState()
         self._document.deleteLine(self._cursor.pos[0]+1)
 

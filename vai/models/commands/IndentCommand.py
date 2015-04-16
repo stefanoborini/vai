@@ -16,6 +16,7 @@ class IndentCommand(BufferCommand):
             self.saveCursorPos()
 
         pos = self.savedCursorPos()
+        self.saveModifiedState()
 
         line_meta = document.lineMetaInfo("Change")
         changed = line_meta.data(pos[0])
@@ -27,6 +28,7 @@ class IndentCommand(BufferCommand):
 
         document.insertChars((pos[0], 1), " "*4)
         cursor.toPos((pos[0], pos[1]+4))
+        document.documentMetaInfo("Modified").setData(True)
 
         return CommandResult(success=True, info=None)
 

@@ -34,7 +34,7 @@ class DocumentMetaInfo:
             self.notifyObservers()
 
     def notifyObservers(self):
-        self.contentChanged.emit()
+        self.contentChanged.emit(self._data)
 
     @property
     def meta_type(self):

@@ -6,7 +6,8 @@ from tests import fixtures
 class TestJoinWithNextLineCommand(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testJoinWithNextLineCommand(self):
         line_1 = self.buffer.document.lineText(1)

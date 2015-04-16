@@ -39,11 +39,11 @@ class EditorController:
 
     def forceQuit(self):
         for b in self._buffer_list.buffers:
-            if b.document.filename() is None:
+            if b.document.documentMetaInfo("Filename").data() is None:
                 continue
 
             models.EditorState.instance().setCursorPosForPath(
-                    os.path.abspath(b.document.filename()),
+                    os.path.abspath(b.document.documentMetaInfo("Filename").data()),
                     b.cursor.pos)
 
         models.EditorState.instance().save()
@@ -114,15 +114,17 @@ class EditorController:
         status_bar = self._editor.status_bar
 
         try:
-            new_buffer.document.open(filename)
+            with open(filename,'r') as f:
+                new_buffer.document.read(f)
         except FileNotFoundError:
-            new_buffer.document.setFilename(filename)
             status_bar.setMessage("%s [New file]" % filename, 3000)
         except Exception as e:
-            new_buffer.document.setFilename(filename)
             status_bar.setMessage("%s [Error: %s]" % (filename, str(e)), 3000)
 
-        if current_buffer.isEmpty() and not current_buffer.isModified():
+        new_buffer.document.documentMetaInfo("Filename").setData(filename)
+        new_buffer.document.documentMetaInfo("Modified").setData(False)
+
+        if current_buffer.isEmpty() and not current_buffer.document.documentMetaInfo("Modified").data():
             self._buffer_list.replaceAndSelect(current_buffer, new_buffer)
         else:
             self._buffer_list.addAndSelect(new_buffer)
@@ -191,19 +193,23 @@ class EditorController:
         status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
 
-        try:
-            if filename:
-                document.saveAs(filename)
-            else:
-                document.save()
-        except models.TextDocument.MissingFilenameException:
+        if filename is None:
+            filename = document.documentMetaInfo("Filename").data()
+
+        if filename is None:
             status_bar.setMessage("Error! Cannot save unnamed file. Please specify a filename with :w filename", 3000)
             return
+
+        try:
+            with open(filename,'w') as f:
+                document.write(f)
         except Exception as e:
             status_bar.setMessage("Error! Cannot save file. %s" % str(e), 3000)
             return
         else:
-            status_bar.setMessage("Saved %s" % document.filename(), 3000)
+            status_bar.setMessage("Saved %s" % filename, 3000)
 
+        document.documentMetaInfo("Filename").setData(filename)
+        document.documentMetaInfo("Modified").setData(False)
         document.lineMetaInfo("Change").clear()
 

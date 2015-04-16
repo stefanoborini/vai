@@ -8,7 +8,9 @@ from vai import models
 class TestDeleteLinesCommand(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("20_lines.txt"))
+
+        with open(fixtures.get("20_lines.txt"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testDeleteLinesCommand(self):
         command = commands.DeleteLinesCommand(self.buffer, 5, 3)

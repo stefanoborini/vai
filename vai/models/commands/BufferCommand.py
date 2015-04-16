@@ -1,4 +1,5 @@
 class BufferCommand(object):
+    """A base class for commands modifying a buffer"""
     MEMENTO_INSERT, MEMENTO_REPLACE = list(range(2))
     def __init__(self, buffer):
         self._buffer = buffer
@@ -8,12 +9,21 @@ class BufferCommand(object):
         self._line_memento_data = []
         self._sub_command = None
         self._saved_cursor_pos = None
+        self._saved_modified_state = None
 
     def saveCursorPos(self):
         self._saved_cursor_pos = self._cursor.pos
 
+    def saveModifiedState(self):
+        self._saved_modified_state = self._document.documentMetaInfo("Modified").data()
+
+    def restoreModifiedState(self):
+        if self._saved_modified_state is not None:
+            self._document.documentMetaInfo("Modified").setData(self._saved_modified_state)
+
     def restoreCursorPos(self):
-        self._cursor.toPos(self._saved_cursor_pos)
+        if self._saved_cursor_pos is not None:
+            self._cursor.toPos(self._saved_cursor_pos)
 
     def savedCursorPos(self):
         return self._saved_cursor_pos
@@ -39,9 +49,9 @@ class BufferCommand(object):
         result = sub_command.execute()
         if result.success:
             self._sub_command = sub_command
-        
+
         return result
-    
+
     def undo(self):
         if self._sub_command is not None:
             self._sub_command.undo()
@@ -51,5 +61,6 @@ class BufferCommand(object):
         for i in range(len(self._line_memento_data)):
             self.restoreLineMemento()
 
-        if self._saved_cursor_pos is not None:
-            self.restoreCursorPos()
+        self.restoreCursorPos()
+        self.restoreModifiedState()
+

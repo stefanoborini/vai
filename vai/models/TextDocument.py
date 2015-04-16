@@ -20,8 +20,6 @@ class TextDocument(core.VObject):
     Represents the contents of a file.
     """
 
-    class MissingFilenameException(Exception): pass
-
     def __init__(self):
         self._initSignals()
 
@@ -30,11 +28,6 @@ class TextDocument(core.VObject):
 
         # Char meta will be outdated, leaving just the text as the contents
         self._contents = [ ({}, EOL) ]
-
-        self.createDocumentMetaInfo("Filename", None)
-        self.createDocumentMetaInfo("Modified", False)
-        self.createDocumentMetaInfo("LastModified", time.time())
-        self.createDocumentMetaInfo("FileType", "Text")
 
         self._cursors = []
 
@@ -84,23 +77,11 @@ class TextDocument(core.VObject):
     def documentText(self):
         return "".join([x[TEXT_INDEX] for x in self._contents])
 
-    def filename(self):
-        return self.documentMetaInfo("Filename").data()
-
-    def setFilename(self, filename):
-        self.documentMetaInfo("Filename").setData(filename)
-
     def numLines(self):
         return len(self._contents)
 
-    def isModified(self):
-        return self.documentMetaInfo("Modified").data()
-
     ## Meta info routines
     # Document Meta
-
-    def lastModified(self):
-        return self.documentMetaInfo("LastModified").data()
 
     # New interface for document meta info. Will replace the above one
     def createDocumentMetaInfo(self, meta_type, data=None):
@@ -227,7 +208,6 @@ class TextDocument(core.VObject):
                                       )
 
         self._contents.insert(line_index+1, ({}, EOL))
-        self._setModified(True)
 
         for meta in self.allLineMetaInfo().values():
             meta.addLines(line_number+1, 1)
@@ -242,7 +222,6 @@ class TextDocument(core.VObject):
     def newLine(self, line_number):
         line_index = line_number - 1
         self._contents.insert(line_index, ({}, EOL))
-        self._setModified(True)
 
         for meta in self.allLineMetaInfo().values():
             meta.addLines(line_number, 1)
@@ -261,7 +240,6 @@ class TextDocument(core.VObject):
         line_index = line_number - 1
         char_meta = {} if char_meta is None else char_meta
         self._contents.insert(line_index, [char_meta, _withEOL(text)])
-        self._setModified(True)
 
         for meta in self.allLineMetaInfo().values():
             meta.addLines(line_number, 1)
@@ -284,7 +262,6 @@ class TextDocument(core.VObject):
         for meta in self.allLineMetaInfo().values():
             meta.addLines(insert_at, len(text_lines))
 
-        self._setModified(True)
 
         for meta in self.allLineMetaInfo().values():
             meta.notifyObservers()
@@ -296,7 +273,6 @@ class TextDocument(core.VObject):
         self._checkLineNumber(line_number)
         line_index = line_number - 1
         self._contents.pop(line_index)
-        self._setModified(True)
         if len(self._contents) == 0:
             self._contents.append(({}, EOL))
 
@@ -319,7 +295,6 @@ class TextDocument(core.VObject):
         if len(self._contents) == 0:
             self._contents.append(({}, EOL))
 
-        self._setModified(True)
 
         for meta in self.allLineMetaInfo().values():
             meta.deleteLines(from_line, how_many)
@@ -339,7 +314,6 @@ class TextDocument(core.VObject):
         char_meta = {} if char_meta is None else char_meta
 
         self._contents.insert(line_index, (char_meta, _withEOL(text)))
-        self._setModified(True)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
 
@@ -376,7 +350,6 @@ class TextDocument(core.VObject):
         for meta in self.allLineMetaInfo().values():
             meta.addLines(line_number, 1)
 
-        self._setModified(True)
         for meta in self.allLineMetaInfo().values():
             meta.notifyObservers()
         self.contentChanged.emit()
@@ -396,7 +369,6 @@ class TextDocument(core.VObject):
                 self._contents.pop(line_index)
                 for meta in self.allLineMetaInfo().values():
                     meta.deleteLines(line_number, 1)
-                self._setModified(True)
                 for meta in self.allLineMetaInfo().values():
                     meta.notifyObservers()
                 self.contentChanged.emit()
@@ -435,7 +407,6 @@ class TextDocument(core.VObject):
         for meta in self.allLineMetaInfo().values():
             meta.deleteLines(line_number+1, 1)
 
-        self._setModified(True)
         for meta in self.allLineMetaInfo().values():
             meta.notifyObservers()
 
@@ -468,7 +439,6 @@ class TextDocument(core.VObject):
                                           )
                                 )
 
-        self._setModified(True)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
 
@@ -517,7 +487,6 @@ class TextDocument(core.VObject):
                                         )
                                 )
 
-        self._setModified(True)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         return (deleted_text, deleted_char_meta)
@@ -561,25 +530,23 @@ class TextDocument(core.VObject):
                                         )
                                 )
 
-        self._setModified(True)
         self.contentChanged.emit()
         self.metaContentChanged.emit()
         return (deleted_text, deleted_char_meta)
 
     # Input Output
 
-    def open(self, filename):
+    def read(self, file_handler):
+        """
+        Reads the content from the file and replaces any content currently in the TextDocument
+        """
         contents = []
-        with contextlib.closing(open(filename,'r')) as f:
-            for textline in f:
-                contents.append(({}, _withEOL(textline).replace("\t", " "*4)))
+        for textline in file_handler:
+            contents.append(({}, _withEOL(textline)))
 
         if len(contents) == 0:
             contents.append(({}, EOL))
 
-        self.documentMetaInfo("Filename").setData(filename)
-        self.documentMetaInfo("Modified").setData(False)
-        self.documentMetaInfo("LastModified").setData(time.time())
         self._contents = contents
         self._cursors = []
 
@@ -591,26 +558,14 @@ class TextDocument(core.VObject):
 
         self.contentChanged.emit()
         self.metaContentChanged.emit()
-        self.modifiedChanged.emit(False)
-        self.filenameChanged.emit(filename)
 
-    def save(self):
-        if self.filename() is None:
-            raise TextDocument.MissingFilenameException()
+    def write(self, file_handler):
+        """
+        Write the contents of the file to a specified file object
+        """
+        file_handler.write(self.documentText())
 
-        self.saveAs(self.filename())
-
-    def saveAs(self, filename):
-        with contextlib.closing(open(filename,'w')) as f:
-            f.write(self.documentText())
-
-        filename_changed = (self.documentMetaInfo("Filename").data() != filename)
-
-        self.documentMetaInfo("Filename").setData(filename)
-        self._setModified(False)
-        if filename_changed:
-            self.filenameChanged.emit(filename)
-        self.documentSaved.emit(filename)
+        self.documentSaved.emit()
 
     # Cursor handling
     def registerCursor(self, cursor):
@@ -719,8 +674,6 @@ class TextDocument(core.VObject):
     def _initSignals(self):
         self.contentChanged = core.VSignal(self)
         self.metaContentChanged = core.VSignal(self)
-        self.modifiedChanged = core.VSignal(self)
-        self.filenameChanged = core.VSignal(self)
         self.documentSaved = core.VSignal(self)
         self.numLinesChanged = core.VSignal(self)
 
@@ -731,15 +684,6 @@ class TextDocument(core.VObject):
     def _checkPos(self, pos):
         if not self.isValidPos(pos):
             raise IndexError("Out of bound. pos = %s" % str(pos))
-
-    def _setModified(self, modified):
-        if modified:
-            self.documentMetaInfo("LastModified").setData(time.time())
-
-        if self.documentMetaInfo("Modified").data() != modified:
-            self.documentMetaInfo("Modified").setData(modified)
-            self.modifiedChanged.emit(modified)
-
 
 def _withEOL(text):
     if len(text) == 0 or text[-1] != EOL:

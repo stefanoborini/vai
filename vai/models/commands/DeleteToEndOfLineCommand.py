@@ -12,6 +12,7 @@ class DeleteToEndOfLineCommand(BufferCommand):
         pos = self.savedCursorPos()
         cursor.toPos(pos)
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         line_meta = document.lineMetaInfo("Change")
@@ -21,5 +22,6 @@ class DeleteToEndOfLineCommand(BufferCommand):
 
         deleted = document.deleteChars(pos, document.lineLength(pos[0])-pos[1])
         cursor.toCharPrev()
+        document.documentMetaInfo("Modified").setData(True)
         return CommandResult(success=True, info=deleted)
 

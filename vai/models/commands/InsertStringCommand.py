@@ -21,6 +21,7 @@ class InsertStringCommand(BufferCommand):
         line_meta = document.lineMetaInfo("Change")
         changed = line_meta.data(pos[0])
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         if changed is None:
@@ -28,6 +29,7 @@ class InsertStringCommand(BufferCommand):
 
         document.insertChars(pos, self._text)
         cursor.toPos( (pos[0], pos[1]+len(self._text)) )
+        document.documentMetaInfo("Modified").setData(True)
 
         return CommandResult(success=True, info=None)
 

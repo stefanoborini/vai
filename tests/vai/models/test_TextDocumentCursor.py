@@ -4,10 +4,8 @@ from vai.models.TextDocumentCursor import TextDocumentCursor
 from tests import fixtures
 
 class TestTextDocumentCursor(unittest.TestCase):
-
     def setUp(self):
-        self.doc = TextDocument()
-        self.doc.open(fixtures.get("basic_nonempty_file.txt"))
+        self.doc = fixtures.textDocument("basic_nonempty_file.txt")
 
     def testPos(self):
         cursor = TextDocumentCursor(self.doc)

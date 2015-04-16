@@ -1,9 +1,7 @@
-import contextlib
-
 def report(saved_files):
     print("Apologies. Vai has crashed.")
     print("---------------------------")
-    with contextlib.closing(open("vai_crashreport.out")) as f:
+    with open("vai_crashreport.out") as f:
         print(f.read())
 
     print("---------------------------")

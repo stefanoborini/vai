@@ -22,6 +22,7 @@ class DeleteLinesCommand(BufferCommand):
         if self.savedCursorPos() is None:
             self.saveCursorPos()
 
+        self.saveModifiedState()
         pos = self.savedCursorPos()
 
         self._fragment = document.extractFragment(self._from_line, self._num_lines)
@@ -41,6 +42,7 @@ class DeleteLinesCommand(BufferCommand):
                 document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
 
         document.deleteLines(self._from_line, self._num_lines)
+        document.documentMetaInfo("Modified").setData(True)
 
         # Deleted line, now we check the length of what comes up from below.
         # and set the cursor at the end of the line, if needed

@@ -11,7 +11,7 @@ class DeleteSingleCharCommand(BufferCommand):
 
         if self.savedCursorPos() is None:
             self.saveCursorPos()
-        
+
         pos = self.savedCursorPos()
         cursor.toPos(pos)
 
@@ -28,6 +28,7 @@ class DeleteSingleCharCommand(BufferCommand):
             else:
                 return CommandResult(False, None)
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_REPLACE)
 
         line_meta = document.lineMetaInfo("Change")
@@ -57,6 +58,7 @@ class DeleteSingleCharCommand(BufferCommand):
 
         deleted = document.deleteChars( (pos[0], pos[1]-how_many), how_many)
         cursor.toPos((pos[0], pos[1]-how_many))
+        document.documentMetaInfo("Modified").setData(True)
 
         return CommandResult(success=True, info=deleted)
 

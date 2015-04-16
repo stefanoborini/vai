@@ -7,7 +7,8 @@ from tests import fixtures
 class TestDeleteSingleCharCommands(unittest.TestCase):
     def setUp(self):
         self.buffer = models.Buffer()
-        self.buffer.document.open(fixtures.get("basic_python.py"))
+        with open(fixtures.get("basic_python.py"), 'r') as f:
+            self.buffer.document.read(f)
 
     def testDeleteSingleCharCommand(self):
         self.buffer.cursor.toPos((1,1))

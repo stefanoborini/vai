@@ -16,6 +16,7 @@ class DeleteLineAtCursorCommand(BufferCommand):
         pos = self.savedCursorPos()
         cursor.toPos(pos)
 
+        self.saveModifiedState()
         self.saveLineMemento(pos[0], BufferCommand.MEMENTO_INSERT)
         old_line = copy.deepcopy(self.lastSavedMemento()[2])
         self._old_line_meta_info = {}
@@ -34,8 +35,9 @@ class DeleteLineAtCursorCommand(BufferCommand):
                 self._old_line_meta_info[1] = document.lineMetaInfo("Change").data(pos[0]+1)
                 document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
 
-        # Delete the line
         document.deleteLine(pos[0])
+
+        document.documentMetaInfo("Modified").setData(True)
 
         # Deleted line, now we check the length of what comes up from below.
         # and set the cursor at the end of the line, if needed

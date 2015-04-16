@@ -4,7 +4,7 @@ It makes access to fixtures easy, convenient and practical.
 """
 import inspect
 import os
-from vai.models import Buffer
+from vai import models
 
 # The place where global fixtures are looked up if local fixtures are not found
 GLOBAL_FIXTURES_DIR = os.path.join(os.path.dirname(__file__), "global_fixtures")
@@ -20,7 +20,7 @@ def get(name, dirname="fixtures"):
     path = os.path.join(fixture_local_dir, name)
     if os.path.exists(path):
         return path
-    
+
     return os.path.join(GLOBAL_FIXTURES_DIR, name)
 
 def localDir(dirname="fixtures"):
@@ -36,21 +36,31 @@ def localDir(dirname="fixtures"):
 
     raise Exception("Should not reach")
 
-
 def buffer(name):
     """
     Creates and returns a fully initialized buffer from a given fixture name
     """
-    buf = Buffer()
-    buf.document.open(get(name))
+    buf = models.Buffer()
+    with open(get(name), "r") as f:
+        buf.document.read(f)
+    buf.document.documentMetaInfo("Filename").setData(name)
     return buf
+
+def textDocument(name):
+    """
+    Creates and returns a fully initialized textdocument from a given fixture name
+    """
+    doc = models.TextDocument()
+    with open(get(name), "r") as f:
+        doc.read(f)
+    return doc
 
 def tempFile(name):
     """
     Returns a temporary file in a proper subdirectory
     Useful if the test needs a file that must be used and deleted afterwards
     """
-    
+
     path = os.path.join(localDir("_test_"), name)
 
     try:

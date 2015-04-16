@@ -13,14 +13,17 @@ class InsertLineCommand(BufferCommand):
         if self.savedCursorPos() is None:
             self.saveCursorPos()
 
+        self.saveModifiedState()
         pos = self.savedCursorPos()
 
         document.insertLine(pos[0], self._text)
         document.lineMetaInfo("Change").setData("added", pos[0])
         cursor.toCharFirstNonBlankForLine(pos[0])
-        return CommandResult(True, None)
+        document.documentMetaInfo("Modified").setData(True)
+        return CommandResult(True,  None)
 
     def undo(self):
         self._document.deleteLine(self.savedCursorPos()[0])
         self.restoreCursorPos()
+        self.restoreModifiedState()
 
