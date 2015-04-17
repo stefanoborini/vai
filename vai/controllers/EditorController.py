@@ -1,5 +1,6 @@
 import os
 import shlex
+import hashlib
 
 from vaitk import gui
 from .. import Search
@@ -123,6 +124,11 @@ class EditorController:
 
         new_buffer.document.documentMetaInfo("Filename").setData(filename)
         new_buffer.document.documentMetaInfo("Modified").setData(False)
+
+        initial_md5 = None
+        if not new_buffer.document.isEmpty():
+            initial_md5 = hashlib.md5(new_buffer.document.documentText().encode("utf-8"))
+        new_buffer.document.documentMetaInfo("InitialMD5").setData(initial_md5)
 
         if current_buffer.isEmpty() and not current_buffer.document.documentMetaInfo("Modified").data():
             self._buffer_list.replaceAndSelect(current_buffer, new_buffer)
