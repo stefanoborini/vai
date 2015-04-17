@@ -16,6 +16,7 @@ class Buffer:
         self._document = TextDocument()
         self._document.createDocumentMetaInfo("Modified", False)
         self._document.createDocumentMetaInfo("Filename", None)
+        self._document.createDocumentMetaInfo("InitialMD5", None)
         self._document.createDocumentMetaInfo("FileType", "Text")
         self._document.createLineMetaInfo("LinterResult")
         self._document.createLineMetaInfo("Change")

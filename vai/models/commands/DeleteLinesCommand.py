@@ -24,34 +24,41 @@ class DeleteLinesCommand(BufferCommand):
 
         self.saveModifiedState()
         pos = self.savedCursorPos()
+        line_above = self._from_line-1
+        line_above = line_above if document.hasLine(line_above) else None
+        line_below = self._from_line+self._num_lines+1
+        line_below = line_below if document.hasLine(line_below) else None
 
         self._fragment = document.extractFragment(self._from_line, self._num_lines)
 
-        if pos[0] == document.numLines():
-            cursor.toLinePrev()
-            cursor.toLineBeginning()
-
         if document.lineMetaInfo("Change").data(pos[0]) != "added":
             # Add markers above and below
-            if document.hasLine(pos[0]-1):
-                self._old_line_meta_info[-1] = document.lineMetaInfo("Change").data(pos[0]-1)
-                document.lineMetaInfo("Change").setData("deletion_before", pos[0]-1)
+            if line_above is not None:
+                self._old_line_meta_info[-1] = document.lineMetaInfo("Change").data(line_above)
+                document.lineMetaInfo("Change").setData("deletion_before", line_above)
 
-            if document.hasLine(self._from_line+self._num_lines+1):
-                self._old_line_meta_info[1] = document.lineMetaInfo("Change").data(pos[0]+1)
-                document.lineMetaInfo("Change").setData("deletion_after", pos[0]+1)
+            if line_below is not None:
+                self._old_line_meta_info[1] = document.lineMetaInfo("Change").data(line_below)
+                document.lineMetaInfo("Change").setData("deletion_after", line_below)
 
         document.deleteLines(self._from_line, self._num_lines)
         document.documentMetaInfo("Modified").setData(True)
 
-        # Deleted line, now we check the length of what comes up from below.
-        # and set the cursor at the end of the line, if needed
-        if document.lineLength(cursor.line) < cursor.column:
-            cursor.toPos((cursor.line, document.lineLength(cursor.line)))
-        else:
-            cursor.toPos(pos)
+        self._repositionCursor(self._from_line, line_above, line_below)
 
         return CommandResult(success=True, info=self._fragment)
+
+    def _repositionCursor(self, from_line, line_above, line_below):
+        cursor = self._cursor
+
+        if line_above is None and line_below is None:
+            cursor.toPos((1,1))
+        elif line_above is None and line_below is not None:
+            cursor.toPos((from_line, 1))
+        elif line_above is not None and line_below is None:
+            cursor.toPos((line_above, 1))
+        else:
+            cursor.toPos((from_line, 1))
 
     def undo(self):
         super().undo()

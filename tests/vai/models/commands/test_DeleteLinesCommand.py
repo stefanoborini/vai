@@ -36,5 +36,10 @@ class TestDeleteLinesCommand(unittest.TestCase):
         for i in range(1,21):
             self.assertEqual(self.buffer.document.lineText(i), "%d\n" % i)
 
+    def testCrashForEOFSelection(self):
+        self.buffer.cursor.toPos((20,1))
+        command = commands.DeleteLinesCommand(self.buffer, 15, 5)
+        command.execute()
+        
 if __name__ == '__main__':
     unittest.main()

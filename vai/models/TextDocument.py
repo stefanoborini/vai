@@ -295,7 +295,6 @@ class TextDocument(core.VObject):
         if len(self._contents) == 0:
             self._contents.append(({}, EOL))
 
-
         for meta in self.allLineMetaInfo().values():
             meta.deleteLines(from_line, how_many)
 
