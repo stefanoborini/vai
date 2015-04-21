@@ -78,10 +78,10 @@ class TestBufferList(unittest.TestCase):
 
     def testBufferForFilename(self):
         blist = BufferList()
-        b1 = Mock(spec=Buffer)
-        b2 = Mock(spec=Buffer)
-        b1.document.filename.return_value = "hello"
-        b2.document.filename.return_value = "hihi"
+        b1 = Buffer()
+        b2 = Buffer()
+        b1.document.documentMetaInfo("Filename").setData("hello")
+        b2.document.documentMetaInfo("Filename").setData("hihi")
         blist.add(b1)
         blist.add(b2)
         self.assertEqual(blist.bufferForFilename("hello"), b1)

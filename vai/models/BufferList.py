@@ -31,6 +31,7 @@ class BufferList(core.VObject):
                 continue
 
 
+            # Check if they resolve to the same file
             try:
                 if os.path.samefile(
                         os.path.abspath(
@@ -42,7 +43,8 @@ class BufferList(core.VObject):
             except:
                 pass
 
-            if path == buffer.document.filename():
+            # They don't. Just compare them literally
+            if path == buffer.document.documentMetaInfo("Filename").data():
                 return buffer
 
         return None
