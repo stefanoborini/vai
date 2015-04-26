@@ -41,7 +41,6 @@ class CommandBar(gui.VWidget):
         self._line_edit.setText(text)
         self._line_edit.end()
 
-
     def clear(self):
         self._editor_mode = EditorMode.COMMAND
         self._line_edit.clear()

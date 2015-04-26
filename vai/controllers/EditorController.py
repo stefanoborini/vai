@@ -149,27 +149,66 @@ class EditorController:
 
     def interpretCommandLine(self, command_line):
         """
-        Interprets and dispatch the command line to the plugin system
-        (for now. In the future this controller will just handle all commandline execution)
+        Interprets and dispatch the command line to the appropriate command execution routine,
+        or the plugin system.
         command_line contains the full command line as specified by the user, as a string.
         """
 
+        if len(command_line.strip()) == 0:
+            return
+
         command_tokens = shlex.split(command_line)
         keyword = command_tokens[0]
+        status_bar = self._editor.status_bar
 
-        if keyword not in self._keyword_to_plugin_cache:
-            for plugin_info in self._plugin_manager.getAllPlugins():
-                plugin_object = plugin_info.plugin_object
-                if plugin_object.keyword() == keyword:
-                    self._keyword_to_plugin_cache[keyword] = plugin_object
+        if keyword == 'q!':
+            self.forceQuit()
+        elif keyword == 'q':
+            self.tryQuit()
+        elif keyword == "w":
+            if len(command_tokens) == 1:
+                self.doSave()
+            elif len(command_tokens) == 2:
+                self.doSaveAs(command_tokens[1])
+            else:
+                status_bar.setMessage("Only one filename allowed at write",3000)
+                return
+        elif keyword == "r":
+            if len(command_tokens) == 1:
+                status_bar.setMessage("Specify filename",3000)
+                return
+            elif len(command_tokens) == 2:
+                self.doInsertFile(command_tokens[1])
+            else:
+                status_bar.setMessage("Only one filename allowed", 3000)
+                return
+        elif keyword in ("wq", "x"):
+            self.doSaveAndExit()
+        elif keyword == "e":
+            if len(command_tokens) == 1:
+                status_bar.setMessage("Specify filename", 3000)
+            elif len(command_tokens) == 2:
+                self.openFile(command_tokens[1])
+            else:
+                status_bar.setMessage("Only one filename allowed", 3000)
+                return
+        elif keyword == "bp":
+            self.selectPrevBuffer()
+        elif keyword == "bn":
+            self.selectNextBuffer()
+        else:
 
-        if keyword in self._keyword_to_plugin_cache:
-            plugin_object = self._keyword_to_plugin_cache[keyword]
-            plugin_object.execute(command_line)
+            if keyword not in self._keyword_to_plugin_cache:
+                for plugin_info in self._plugin_manager.getAllPlugins():
+                    plugin_object = plugin_info.plugin_object
+                    if plugin_object.keyword() == keyword:
+                        self._keyword_to_plugin_cache[keyword] = plugin_object
 
-        # Always return True, regardless. Even if the plugin execution
-        # fails, the command was parsed and interpreted correctly
-        return True
+            if keyword in self._keyword_to_plugin_cache:
+                plugin_object = self._keyword_to_plugin_cache[keyword]
+                plugin_object.execute(command_line)
+            else:
+                status_bar.setMessage("Unrecognized command", 3000)
 
     # Private
 

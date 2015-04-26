@@ -1,6 +1,5 @@
 import shlex
 from .. import models
-import sys
 import os
 
 class CommandBarController:
@@ -20,17 +19,14 @@ class CommandBarController:
         command_text = self._command_bar.command_text
         mode = self._global_state.editor_mode
         self._global_state.editor_mode = models.EditorMode.COMMAND
-
         if mode == models.EditorMode.COMMAND_INPUT:
-            if self._interpretLine(command_text):
-                self._command_bar.clear()
+            self._editor_controller.interpretCommandLine(command_text)
         elif mode == models.EditorMode.SEARCH_FORWARD:
             self._editor_controller.searchForward(command_text)
-            self._command_bar.clear()
         elif mode == models.EditorMode.SEARCH_BACKWARD:
             self._editor_controller.searchBackward(command_text)
-            self._command_bar.clear()
 
+        self._command_bar.clear()
         self._edit_area.setFocus()
 
     def abortCommandBar(self):
@@ -40,55 +36,6 @@ class CommandBarController:
 
     def editorModeChanged(self, *args):
         self._command_bar.editor_mode = self._global_state.editor_mode
-
-    def _interpretLine(self, command_text):
-
-        # FIXME all this code must be moved to the editor controller.
-        if len(command_text.strip()) == 0:
-            return True
-
-        command = shlex.split(command_text)
-        if command[0] == 'q!':
-            self._editor_controller.forceQuit()
-        elif command[0] == 'q':
-            self._editor_controller.tryQuit()
-        elif command[0] == "w":
-            if len(command) == 1:
-                self._editor_controller.doSave()
-            elif len(command) == 2:
-                self._editor_controller.doSaveAs(command[1])
-            else:
-                self._reportError("Only one filename allowed at write")
-                return False
-        elif command[0] == "r":
-            if len(command) == 1:
-                self._reportError("Specify filename")
-                return False
-            elif len(command) == 2:
-                self._editor_controller.doInsertFile(command[1])
-            else:
-                self._reportError("Only one filename allowed")
-                return False
-        elif command[0] in ("wq", "x"):
-            self._editor_controller.doSaveAndExit()
-        elif command[0] == "e":
-            if len(command) == 1:
-                self._reportError("Specify filename")
-            elif len(command) == 2:
-                self._editor_controller.openFile(command[1])
-            else:
-                self._reportError("Only one filename allowed")
-                return False
-        elif command[0] == "bp":
-            self._editor_controller.selectPrevBuffer()
-        elif command[0] == "bn":
-            self._editor_controller.selectNextBuffer()
-        else:
-            return self._editor_controller.interpretCommandLine(command_text)
-        return True
-
-    def _reportError(self, error_string):
-        self._command_bar.setErrorString(error_string)
 
     def autocompleteCommandBar(self):
         command_text = self._command_bar.command_text

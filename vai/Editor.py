@@ -70,6 +70,10 @@ class Editor(gui.VWidget):
     def info_hover_box(self):
         return self._info_hover_box
 
+    @property
+    def command_bar(self):
+        return self._command_bar
+
     # Private
 
     def _createStatusBar(self):
