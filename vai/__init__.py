@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "1.6"
+__version__ = "1.7"
 
 from . import EditorApp
 from . import models
