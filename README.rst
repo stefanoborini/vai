@@ -44,7 +44,8 @@ Implemented Features
    - Undo/Redo
    - Indentation levels
    - Multiple buffers
-   - Copying and pasting (only of a single line)
+   - Copying and pasting
+   - Multiple lines selection
    - Minimal configuration of colors
    - Cursor position restored between runs.
    - Autoindent
@@ -59,7 +60,7 @@ See the current vim keys compatibility list in the `FEATURES document <https://g
 Screenshots
 -----------
 
-Vai 1.6
+Vai 1.6/1.7
 
 .. image:: https://github.com/stefanoborini/vai/blob/master/static/images/screenshot-1.6.png
 

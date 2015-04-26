@@ -1,6 +1,14 @@
 Release Notes
 =============
 
+Vai 1.7
+~~~~~~~
+
+   - Introduce small time delay for "identifier under cursor" highlighting.
+   - Separated vai from vaitk.
+   - Visual selection of multiple lines. Copying/pasting and deletion of selection.
+   - `Bugfixing <https://github.com/stefanoborini/vai/issues?q=is%3Aissue+milestone%3Av1.7+is%3Aclosed+label%3ABug>`_
+   
 Vai 1.6
 ~~~~~~~
 
