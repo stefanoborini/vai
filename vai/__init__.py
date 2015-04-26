@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 __version__ = "1.6"
 
-from vaitk import core, gui
 from . import EditorApp
 from . import models
 from . import BugReport
@@ -10,7 +9,6 @@ import sys
 import io
 import argparse
 import locale
-import logging
 
 def _workaroundNCurses():
     """
