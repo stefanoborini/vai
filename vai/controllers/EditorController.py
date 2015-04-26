@@ -66,7 +66,7 @@ class EditorController:
 
         result = command.execute()
         if result.success:
-            buffer.command_history.push(command)
+            buffer.command_history.add(command)
 
     def tryQuit(self):
         if any([b.isModified() for b in self._buffer_list.buffers]):

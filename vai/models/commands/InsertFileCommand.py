@@ -10,7 +10,6 @@ class InsertFileCommand(BufferCommand):
     def execute(self):
         document = self._document
         cursor = self._cursor
-        line_pos = cursor.line
 
         try:
             with open(self._filename,'r') as f:
@@ -23,7 +22,9 @@ class InsertFileCommand(BufferCommand):
 
         self.saveModifiedState()
         pos = self.savedCursorPos()
-        cursor.toPos(pos)
+
+        line_pos = pos[0]
+        cursor.toPos((line_pos, 1))
 
         self._how_many = len(lines)
         document.insertLines(line_pos, lines)
@@ -33,7 +34,7 @@ class InsertFileCommand(BufferCommand):
         return CommandResult(True, None)
 
     def undo(self):
-        self._document.deleteLines(self.savedCursorPos()[0]+1, self._how_many)
+        self._document.deleteLines(self.savedCursorPos()[0], self._how_many)
         super().undo()
 
 
