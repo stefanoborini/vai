@@ -66,6 +66,28 @@ class TestLineMetaInfo(unittest.TestCase):
         self.assertEqual(meta_info1.data(1), None)
         self.assertEqual(meta_info2.data(1), None)
 
+        doc.deleteLine(1)
+
+        self.assertEqual(meta_info1.numLines(), 1)
+        self.assertEqual(meta_info2.numLines(), 1)
+
+        self.assertEqual(meta_info1.data(1,1), [None])
+        self.assertEqual(meta_info2.data(1,1), [None])
+
+        self.assertEqual(meta_info1.data(1), None)
+        self.assertEqual(meta_info2.data(1), None)
+
+        doc.deleteLine(1)
+
+        self.assertEqual(meta_info1.numLines(), 1)
+        self.assertEqual(meta_info2.numLines(), 1)
+
+        self.assertEqual(meta_info1.data(1,1), [None])
+        self.assertEqual(meta_info2.data(1,1), [None])
+
+        self.assertEqual(meta_info1.data(1), None)
+        self.assertEqual(meta_info2.data(1), None)
+
     def testSetDataForLines(self):
         doc = TextDocument()
         doc.createLineMetaInfo("whatever")
@@ -77,10 +99,6 @@ class TestLineMetaInfo(unittest.TestCase):
         meta_info.setDataForLines({2: "damn"})
 
         self.assertEqual(meta_info.data(), [None, "damn", None, None])
-
-
-
-
 
 if __name__ == '__main__':
     unittest.main()
