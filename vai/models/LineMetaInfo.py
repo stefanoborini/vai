@@ -27,6 +27,9 @@ class LineMetaInfo:
         for i in range(how_many):
             self._data.pop(line_number-1)
 
+        if len(self._data) == 0:
+            self._data = [None]
+
     # Meant to be called by document.
     def resetLines(self):
         self._data = [None] * self._document.numLines()
