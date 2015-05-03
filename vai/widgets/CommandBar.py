@@ -2,22 +2,23 @@ import vaitk
 from vaitk import gui, core
 from ..models import EditorMode
 
-EditorModeView = {
-        EditorMode.COMMAND_INPUT : "Command: ",
-        EditorMode.DELETE : "Delete ...",
-        EditorMode.SEARCH_FORWARD : "Search: ",
-        EditorMode.SEARCH_BACKWARD : "Search backward: ",
-        EditorMode.GO : "Go to ...",
-        EditorMode.BOOKMARK : "Set bookmark ...",
-        EditorMode.GOTOBOOKMARK : "Go to bookmark ...",
-        EditorMode.INSERT : "-- INSERT --",
-        EditorMode.VISUAL_BLOCK : "-- VISUAL BLOCK --",
-        EditorMode.VISUAL_LINE : "-- VISUAL LINE--",
-        EditorMode.VISUAL : "-- VISUAL --",
-        EditorMode.REPLACE : "-- REPLACE --",
-        }
 
 class CommandBar(gui.VWidget):
+    EDITOR_MODE_MAPPING = {
+            EditorMode.COMMAND_INPUT : "Command: ",
+            EditorMode.DELETE : "Delete ...",
+            EditorMode.SEARCH_FORWARD : "Search: ",
+            EditorMode.SEARCH_BACKWARD : "Search backward: ",
+            EditorMode.GO : "Go to ...",
+            EditorMode.BOOKMARK : "Set bookmark ...",
+            EditorMode.GOTOBOOKMARK : "Go to bookmark ...",
+            EditorMode.INSERT : "-- INSERT --",
+            EditorMode.VISUAL_BLOCK : "-- VISUAL BLOCK --",
+            EditorMode.VISUAL_LINE : "-- VISUAL LINE--",
+            EditorMode.VISUAL : "-- VISUAL --",
+            EditorMode.REPLACE : "-- REPLACE --",
+            }
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.returnPressed = core.VSignal(self)
@@ -86,7 +87,7 @@ class CommandBar(gui.VWidget):
     # Private
 
     def _updateText(self):
-        text = EditorModeView.get(self._editor_mode, "")
+        text = self.EDITOR_MODE_MAPPING.get(self._editor_mode, "")
         self._state_label.resize( (len(text), 1) )
         self._state_label.setText(text)
         self._line_edit.setGeometry( (len(text), 0, self.width()-len(text), 1) )
