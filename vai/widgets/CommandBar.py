@@ -2,6 +2,21 @@ import vaitk
 from vaitk import gui, core
 from ..models import EditorMode
 
+EditorModeView = {
+        EditorMode.COMMAND_INPUT : "Command: ",
+        EditorMode.DELETE : "Delete ...",
+        EditorMode.SEARCH_FORWARD : "Search: ",
+        EditorMode.SEARCH_BACKWARD : "Search backward: ",
+        EditorMode.GO : "Go to ...",
+        EditorMode.BOOKMARK : "Set bookmark ...",
+        EditorMode.GOTOBOOKMARK : "Go to bookmark ...",
+        EditorMode.INSERT : "-- INSERT --",
+        EditorMode.VISUAL_BLOCK : "-- VISUAL BLOCK --",
+        EditorMode.VISUAL_LINE : "-- VISUAL LINE--",
+        EditorMode.VISUAL : "-- VISUAL --",
+        EditorMode.REPLACE : "-- REPLACE --",
+        }
+
 class CommandBar(gui.VWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -71,33 +86,7 @@ class CommandBar(gui.VWidget):
     # Private
 
     def _updateText(self):
-        if self._editor_mode == EditorMode.INSERT:
-            text = "-- INSERT --"
-        elif self._editor_mode == EditorMode.COMMAND_INPUT:
-            text = "Command: "
-        elif self._editor_mode == EditorMode.REPLACE:
-            text = "-- REPLACE --"
-        elif self._editor_mode == EditorMode.VISUAL_BLOCK:
-            text = "-- VISUAL BLOCK --"
-        elif self._editor_mode == EditorMode.VISUAL_LINE:
-            text = "-- VISUAL LINE --"
-        elif self._editor_mode == EditorMode.VISUAL:
-            text = "-- VISUAL --"
-        elif self._editor_mode == EditorMode.SEARCH_FORWARD:
-            text = "Search: "
-        elif self._editor_mode == EditorMode.SEARCH_BACKWARD:
-            text = "Search backward: "
-        elif self._editor_mode == EditorMode.BOOKMARK:
-            text = "Set bookmark ..."
-        elif self._editor_mode == EditorMode.GOTOBOOKMARK:
-            text = "Go to bookmark ..."
-        elif self._editor_mode == EditorMode.DELETE:
-            text = "Delete ..."
-        elif self._editor_mode == EditorMode.GO:
-            text = "Go to ..."
-        else:
-            text = ""
-
+        text = EditorModeView.get(self._editor_mode, "")
         self._state_label.resize( (len(text), 1) )
         self._state_label.setText(text)
         self._line_edit.setGeometry( (len(text), 0, self.width()-len(text), 1) )
