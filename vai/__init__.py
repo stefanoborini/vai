@@ -88,15 +88,6 @@ def main():
 
         if args.dump_default_config:
             filename = models.Configuration.filename()
-            '''
-            if os.path.exists(filename):
-                print("Refusing to overwrite existing config file %s. Delete the file manually and try again." % filename)
-                sys.exit(1)
-
-            models.Configuration.save()
-            print("Dumped default configuration in %s" % filename)
-            sys.exit(0)
-            '''
             if os.path.exists(filename):
                 print("Operation will overwrite existing config file. Do you want to do this? (Y/n)", end=' ')
                 if input().lower() in ('no', 'n'):
