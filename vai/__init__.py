@@ -97,13 +97,13 @@ def main():
             print("Dumped default configuration in %s" % filename)
             sys.exit(0)
             '''
-			if os.path.exists(filename):
-				print("Operation will overwrite existing config file. Do you want to do this? (Y/n)", end=' ')
-				if input().lower() in ('no', 'n'):
-					sys.exit(1)
-			models.Configuration.save()
-			print("Dumped default configuration in %s" % filename)
-			sys.exit(0)
+            if os.path.exists(filename):
+                print("Operation will overwrite existing config file. Do you want to do this? (Y/n)", end=' ')
+                if input().lower() in ('no', 'n'):
+                    sys.exit(1)
+            models.Configuration.save()
+            print("Dumped default configuration in %s" % filename)
+            sys.exit(0)
         app = EditorApp.EditorApp(sys.argv)
         if args.filename:
             app.openFile(args.filename)
