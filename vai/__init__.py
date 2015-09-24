@@ -90,7 +90,7 @@ def main():
             filename = models.Configuration.filename()
             if os.path.exists(filename):
                 print("Operation will overwrite existing config file. Do you want to do this? (Y/n)", end=' ')
-                if input().lower() in ('no', 'n'):
+                if input().lower() in ('yes', 'y'):
                     sys.exit(1)
             os.remove(filename)
             models.Configuration.save()
