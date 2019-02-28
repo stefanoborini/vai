@@ -8,13 +8,13 @@ Vai
 .. image:: https://travis-ci.org/stefanoborini/vai.svg?branch=master
    :target: https://travis-ci.org/stefanoborini/vai
    :alt: Build status
-.. image:: https://pypip.in/download/vai/badge.png
+.. image:: https://img.shields.io/pypi/dm/vai.svg
    :target: https://pypi.python.org/pypi/vai/
    :alt: Downloads
-.. image:: https://pypip.in/py_versions/vai/badge.svg
+.. image:: https://img.shields.io/pypi/pyversions/vai.svg
    :target: https://pypi.python.org/pypi/vai/
    :alt: Supported Python versions
-.. image:: https://pypip.in/version/vai/badge.png
+.. image:: https://img.shields.io/pypi/v/vai.svg
    :target: https://pypi.python.org/pypi/vai/
    :alt: Latest version
 .. image:: https://landscape.io/github/stefanoborini/vai/master/landscape.png
