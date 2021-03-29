@@ -50,7 +50,7 @@ setup(
         'Programming Language :: Python :: 3.4',
     ],
     test_suite = 'nose.collector',
-    install_requires = ['pygments==2.0.1',
+    install_requires = ['pygments==2.7.4',
                         "pylint==1.3.0",
                         'pyflakes==0.8.1',
                         'yapsy==1.10.423',
