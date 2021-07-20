@@ -51,7 +51,7 @@ The Module file DeepBlue.py must define a class instance of ``sdk.SyntaxColorsPl
 This class must define three methods:
 
     - ``name(self)`` Returns the name of the plugin as a string.
-    - ``supportsNumColors(self, num_colors)`` returns True if the plugin supports the passed amount of colors. If you develop a purely 8 colors plugin, return True only if num_colors is 8, False otherwisee
+    - ``supportsNumColors(self, num_colors)`` returns True if the plugin supports the passed amount of colors. If you develop a purely 8 colors plugin, return True only if num_colors is 8, False otherwise
    
     - ``colorSchema(self, num_colors)`` this is the business end of the class. It must return a dictionary associating syntax tokens to colors.
 

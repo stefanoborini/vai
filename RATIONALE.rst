@@ -2,7 +2,7 @@ Rationale
 =========
 
 A most frequent question I've been asked is "why not NeoVim?". 
-Before starting vai, and more or less a month before the annoucement of neovim,
+Before starting vai, and more or less a month before the announcement of neovim,
 I put my nose in the vim source code to see if I could implement the features I wanted
 directly into vim. Here were my findings
 
