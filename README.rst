@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstefanoborini%2Fvai.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstefanoborini%2Fvai?ref=badge_shield)
+
 Vai
 ===
 
@@ -104,3 +106,7 @@ Main development:
 Additional contributions:
 - `Carl George (cgtx) <https://github.com/cgtx>`_
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fstefanoborini%2Fvai.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fstefanoborini%2Fvai?ref=badge_large)
