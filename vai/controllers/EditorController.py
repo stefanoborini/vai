@@ -52,12 +52,12 @@ class EditorController:
         gui.VApplication.vApp.exit()
 
     def doSave(self):
-        self._doSave()
-        self._doLint()
+        if self._doSave():
+            self._doLint()
 
     def doSaveAs(self, filename):
-        self._doSave(filename)
-        self._doLint()
+        if self._doSave(filename):
+            self._doLint()
 
     def doInsertFile(self, filename):
         buffer = self._buffer_list.current
@@ -69,6 +69,15 @@ class EditorController:
             buffer.command_history.add(command)
 
     def tryQuit(self):
+        for buffer in self._buffer_list.buffers:
+            document = buffer.document
+            filename = document.documentMetaInfo("Filename").data()
+            if filename is not None and self._hasExternalChanges(document, filename):
+                self._editor.status_bar.setMessage(
+                    "File changed on disk: %s. Reload or resolve the external changes before quitting." % filename,
+                    5000)
+                return
+
         if any([b.isModified() for b in self._buffer_list.buffers]):
             self._editor.status_bar.setMessage("Document has been modified. " +
                                                "Use :q! to quit without saving " +
@@ -101,8 +110,8 @@ class EditorController:
         self._buffer_list.selectNext()
 
     def doSaveAndExit(self):
-        self._doSave()
-        self.forceQuit()
+        if self._doSave():
+            self.forceQuit()
 
     def openFile(self, filename):
         buffer = self._buffer_list.bufferForFilename(filename)
@@ -126,7 +135,7 @@ class EditorController:
         new_buffer.document.documentMetaInfo("Modified").setData(False)
 
         initial_md5 = None
-        if not new_buffer.document.isEmpty():
+        if os.path.isfile(filename):
             initial_md5 = hashlib.md5(new_buffer.document.documentText().encode("utf-8"))
         new_buffer.document.documentMetaInfo("InitialMD5").setData(initial_md5)
 
@@ -186,7 +195,7 @@ class EditorController:
             self.doSaveAndExit()
         elif keyword == "e":
             if len(command_tokens) == 1:
-                status_bar.setMessage("Specify filename", 3000)
+                status_bar.setMessage("Specify filename",3000)
             elif len(command_tokens) == 2:
                 self.openFile(command_tokens[1])
             else:
@@ -212,6 +221,29 @@ class EditorController:
 
     # Private
 
+    def _hasExternalChanges(self, document, filename):
+        """
+        Return True if the file no longer matches the version loaded into this buffer.
+        A missing baseline means this was a new file, so a file created since then is
+        also treated as an external modification.
+        """
+        initial_md5 = document.documentMetaInfo("InitialMD5").data()
+
+        if not os.path.isfile(filename):
+            return initial_md5 is not None
+
+        if initial_md5 is None:
+            return True
+
+        try:
+            with open(filename, 'r') as f:
+                disk_contents = f.read()
+        except (IOError, OSError, UnicodeError):
+            return True
+
+        disk_md5 = hashlib.md5(disk_contents.encode("utf-8"))
+        return disk_md5.digest() != initial_md5.digest()
+
     def _doLint(self):
         document = self._buffer_list.current.document
 
@@ -233,28 +265,42 @@ class EditorController:
 
         if filename is not None and len(filename) == 0:
             status_bar.setMessage("Error! Unspecified file name.", 3000)
-            return
+            return False
 
         status_bar.setMessage("Saving...")
         gui.VApplication.vApp.processEvents()
 
+        current_filename = document.documentMetaInfo("Filename").data()
         if filename is None:
-            filename = document.documentMetaInfo("Filename").data()
+            filename = current_filename
 
         if filename is None:
             status_bar.setMessage("Error! Cannot save unnamed file. Please specify a filename with :w filename", 3000)
-            return
+            return False
+
+        # Saving to another path is an explicit Save As operation. Only compare
+        # against the original file when writing back to that same path.
+        same_file = (current_filename is None or
+                     os.path.abspath(os.path.realpath(filename)) ==
+                     os.path.abspath(os.path.realpath(current_filename)))
+        if same_file and self._hasExternalChanges(document, filename):
+            status_bar.setMessage(
+                "File changed on disk: %s. Save cancelled to avoid overwriting external changes." % filename,
+                5000)
+            return False
 
         try:
             with open(filename,'w') as f:
                 document.write(f)
         except Exception as e:
             status_bar.setMessage("Error! Cannot save file. %s" % str(e), 3000)
-            return
+            return False
         else:
             status_bar.setMessage("Saved %s" % filename, 3000)
 
         document.documentMetaInfo("Filename").setData(filename)
+        document.documentMetaInfo("InitialMD5").setData(
+            hashlib.md5(document.documentText().encode("utf-8")))
         document.documentMetaInfo("Modified").setData(False)
         document.lineMetaInfo("Change").clear()
-
+        return True
