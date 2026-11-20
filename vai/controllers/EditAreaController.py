@@ -189,6 +189,18 @@ class CommandState(BaseState):
         if key == Key.Key_R:
             return ReplaceState
 
+        # Vim-style tilde: toggle the case of the character under the cursor.
+        if key == Key.Key_AsciiTilde and modifiers == 0:
+            pos = buffer.cursor.pos
+            char = buffer.document.charAt(pos)
+            toggled = char.swapcase()
+            if toggled != char and len(toggled) == 1:
+                command = commands.ReplaceSingleCharCommand(buffer, toggled)
+                result = command.execute()
+                if result.success:
+                    buffer.command_history.add(command)
+            return CommandState
+
         # Command operations
         command = None
         new_state = CommandState

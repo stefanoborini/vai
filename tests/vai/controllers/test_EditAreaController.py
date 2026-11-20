@@ -95,6 +95,28 @@ class TestEditAreaController(unittest.TestCase):
         self.assertEqual(buffer.document.lineText(1), "\n")            
         self.assertEqual(self.mock_global_state.clipboard, '')
 
+    def testTildeTogglesCharacterCaseInPlace(self):
+        buffer = fixtures.buffer("basic_python.py")
+        controller = controllers.EditAreaController(self.mock_edit_area,
+                                                    self.mock_global_state,
+                                                    self.mock_editor_controller)
+        controller.buffer = buffer
+        buffer.cursor.toPos((1, 3))
+        type(self.mock_global_state).editor_mode = PropertyMock(return_value=models.EditorMode.COMMAND)
+
+        event = events.VKeyEvent(vaitk.Key.Key_AsciiTilde)
+        controller.handleKeyEvent(event)
+
+        self.assertEqual(buffer.document.lineText(1), "#!Python\\n")
+        self.assertEqual(buffer.cursor.pos, (1, 3))
+
+        buffer.command_history.prev().undo()
+        self.assertEqual(buffer.document.lineText(1), "#!python\\n")
+
+        event = events.VKeyEvent(vaitk.Key.Key_AsciiTilde)
+        controller.handleKeyEvent(event)
+        self.assertEqual(buffer.document.lineText(1), "#!Python\\n")
+
     def testdd(self):
         global_state = models.GlobalState()
         buffer = fixtures.buffer("basic_python.py")
