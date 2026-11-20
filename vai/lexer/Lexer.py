@@ -76,8 +76,8 @@ class Lexer:
             return
 
         tokens = self._lexer.get_tokens(self._document.documentText())
-        current_line = 1
-        current_col = 1
+        current_line = 0
+        line_tokens = [[] for _ in range(self._document.numLines())]
         SymbolLookupDb.clear()
         # Skip the space token
 
@@ -89,15 +89,17 @@ class Lexer:
 
             ttype = self._processToken(ttype, token_string)
 
-            token_lines = token_string.splitlines(True)
-            for token_line in token_lines:
-                meta = [ttype]*len(token_line)
-
-                self._document.updateCharMeta((current_line, current_col), {CharMeta.LexerToken: meta})
-                current_col += len(token_line)
+            for token_line in token_string.splitlines(True):
+                line_tokens[current_line].extend([ttype] * len(token_line))
                 if token_line.endswith("\n"):
                     current_line += 1
-                    current_col = 1
+
+        updates = [
+            ((line_number, 1), {CharMeta.LexerToken: meta})
+            for line_number, meta in enumerate(line_tokens, 1)
+            if meta
+        ]
+        self._document.updateCharMetaBatch(updates)
 
     def _processToken(self, ttype, token_string):
         if token_string.startswith("__") and token_string.endswith("__") and ttype is token.Name.Function:
