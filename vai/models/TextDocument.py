@@ -148,6 +148,26 @@ class TextDocument(core.VObject):
 
         self.metaContentChanged.emit()
 
+    def updateCharMetaBatch(self, updates):
+        """Apply multiple character metadata updates and notify observers once."""
+        for pos, meta_dict in updates:
+            self._checkPos(pos)
+            line_number, char_number = pos
+            line_index = line_number - 1
+            char_index = char_number - 1
+
+            char_meta = self._contents[line_index][CHAR_META_INDEX]
+            text = self._contents[line_index][TEXT_INDEX]
+            for key, value in meta_dict.items():
+                if key not in char_meta:
+                    char_meta[key] = [None] * len(text)
+
+                char_meta[key][char_index:char_index + len(value)] = value
+                char_meta[key] = char_meta[key][:len(text)]
+
+        if updates:
+            self.metaContentChanged.emit()
+
     def deleteCharMeta(self, pos, how_many, keys):
         line_number, char_number = pos
         line_index = line_number - 1
