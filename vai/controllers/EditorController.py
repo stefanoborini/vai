@@ -68,15 +68,20 @@ class EditorController:
         if result.success:
             buffer.command_history.add(command)
 
-    def tryQuit(self):
+    def _checkExternalChanges(self):
         for buffer in self._buffer_list.buffers:
             document = buffer.document
             filename = document.documentMetaInfo("Filename").data()
             if filename is not None and self._hasExternalChanges(document, filename):
                 self._editor.status_bar.setMessage(
-                    "File changed on disk: %s. Reload or resolve the external changes before quitting." % filename,
+                    "File changed on disk: %s. Reload or resolve the external changes before continuing." % filename,
                     5000)
-                return
+                return False
+        return True
+
+    def tryQuit(self):
+        if not self._checkExternalChanges():
+            return
 
         if any([b.isModified() for b in self._buffer_list.buffers]):
             self._editor.status_bar.setMessage("Document has been modified. " +
@@ -110,7 +115,7 @@ class EditorController:
         self._buffer_list.selectNext()
 
     def doSaveAndExit(self):
-        if self._doSave():
+        if self._checkExternalChanges() and self._doSave():
             self.forceQuit()
 
     def openFile(self, filename):
