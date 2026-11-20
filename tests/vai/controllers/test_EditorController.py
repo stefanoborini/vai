@@ -51,7 +51,7 @@ class TestEditorController(unittest.TestCase):
         try:
             document = self._document_with_baseline("original")
             with open(filename, "w") as f:
-                f.write("changed outside vai")
+                f.write("changed outside the editor")
             self.assertTrue(self.editor_controller._hasExternalChanges(document, filename))
         finally:
             os.unlink(filename)
