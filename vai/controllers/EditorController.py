@@ -141,7 +141,12 @@ class EditorController:
 
         initial_md5 = None
         if os.path.isfile(filename):
-            initial_md5 = hashlib.md5(new_buffer.document.documentText().encode("utf-8"))
+            try:
+                with open(filename, 'r') as f:
+                    initial_md5 = hashlib.md5(f.read().encode("utf-8"))
+            except (IOError, OSError, UnicodeError):
+                # An unreadable file must not be treated as safe to overwrite.
+                initial_md5 = None
         new_buffer.document.documentMetaInfo("InitialMD5").setData(initial_md5)
 
         if current_buffer.isEmpty() and not current_buffer.document.documentMetaInfo("Modified").data():
