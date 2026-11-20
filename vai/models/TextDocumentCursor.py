@@ -125,18 +125,7 @@ class TextDocumentCursor(core.VObject):
 
     def toCharFirstNonBlank(self):
         """Moves the cursor along the line, to the first character that is not a blank (e.g. space)."""
-        if not self.isValid():
-            return False
-
-        text = self._text_document.lineText(self._pos[0])
-        lstrip_text = text.lstrip()
-        if len(lstrip_text) == 0:
-            self._pos = (self._pos[0], 1)
-        else:
-            self._pos = (self._pos[0], 1 + len(text) - len(lstrip_text))
-        self._optimistic_column = self._pos[1]
-        self.positionChanged.emit(self._pos)
-        return True
+        return self.toCharFirstNonBlankForLine(self._pos[0])
 
     def toCharFirstNonBlankForLine(self, line_number):
         """Moves the cursor to the first non-blank character on the specified line"""
