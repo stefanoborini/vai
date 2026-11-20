@@ -1,3 +1,6 @@
+import hashlib
+import os
+import tempfile
 import unittest
 from unittest.mock import Mock
 
@@ -7,6 +10,7 @@ from vai.Editor import Editor
 from vai.linting.LinterResult import LinterResult
 
 from tests import fixtures
+
 
 class TestEditorController(unittest.TestCase):
     def setUp(self):
@@ -29,12 +33,52 @@ class TestEditorController(unittest.TestCase):
 
     def testBug201(self):
         """Check bug 201"""
-
         # This should not throw
         self.editor_controller.interpretCommandLine("foo")
 
     def testBug206(self):
         self.editor_controller.doInsertFile(fixtures.get("basic_python.py"))
+
+    def _document_with_baseline(self, contents):
+        document = models.Buffer().document
+        document.documentMetaInfo("InitialMD5").setData(hashlib.md5(contents.encode("utf-8")))
+        return document
+
+    def testDetectsExternalModification(self):
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+            f.write("original")
+            filename = f.name
+        try:
+            document = self._document_with_baseline("original")
+            with open(filename, "w") as f:
+                f.write("changed outside vai")
+            self.assertTrue(self.editor_controller._hasExternalChanges(document, filename))
+        finally:
+            os.unlink(filename)
+
+    def testAcceptsUnchangedFile(self):
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+            f.write("original")
+            filename = f.name
+        try:
+            document = self._document_with_baseline("original")
+            self.assertFalse(self.editor_controller._hasExternalChanges(document, filename))
+        finally:
+            os.unlink(filename)
+
+    def testDetectsDeletedFile(self):
+        document = self._document_with_baseline("original")
+        self.assertTrue(self.editor_controller._hasExternalChanges(document, "missing-vai-test-file"))
+
+    def testDetectsNewFileCreatedAfterBufferOpened(self):
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+            filename = f.name
+        try:
+            document = models.Buffer().document
+            self.assertTrue(self.editor_controller._hasExternalChanges(document, filename))
+        finally:
+            os.unlink(filename)
+
 
 if __name__ == '__main__':
     unittest.main()
